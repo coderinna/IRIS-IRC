@@ -3,15 +3,14 @@
 const net = require('net');
 
 const config = require('./config/config');
-
-const {  createCommandRouter} = require('./src/commands/router');
-
+const Core = require('./src/core');
 const Client = require('./src/client');
-const Channel = require('./src/channel');
 const { parseLine } = require('./src/parser');
-
-const { getCommand } = require('./src/commands/index');
 const numerics = require('./src/numerics');
+
+const {
+    createCommandRouter
+} = require('./src/commands/router');
 
 const {
     server: serverConfig
@@ -21,64 +20,15 @@ const PORT = serverConfig.port;
 const HOST = serverConfig.host;
 const SERVER_NAME = serverConfig.name;
 
-const clients = new Set();
-const channels = new Map();
-
-function getOrCreateChannel(name) {
-    if (!channels.has(name)) {
-        channels.set(name, new Channel(name));
-    }
-
-    return channels.get(name);
-}
+const core = new Core(SERVER_NAME);
 
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
-    clients,
-    channels,
-    registerClient,
-    getOrCreateChannel
+    clients: core.clients,
+    channels: core.channels,
+    registerClient: core.registerClient.bind(core),
+    getOrCreateChannel: core.getOrCreateChannel.bind(core)
 });
-
-function registerClient(client) {
-    if (!client.register()) {
-        return false;
-    }
-
-    client.send(
-        `:${SERVER_NAME} 001 ${client.nick} :Welcome to Iris IRC`
-    );
-
-    client.send(
-        `:${SERVER_NAME} 002 ${client.nick} :Your host is ${SERVER_NAME}`
-    );
-
-    client.send(
-        `:${SERVER_NAME} 003 ${client.nick} :This server was created today`
-    );
-
-    client.send(
-        `:${SERVER_NAME} 004 ${client.nick} ${SERVER_NAME} iris-irc 0`
-    );
-
-    console.log(
-        `[${client.id}] Registered as ${client.nick}`
-    );
-
-    return true;
-}
-
-function cleanupClient(client) {
-    for (const channel of [...client.channels]) {
-        channel.removeClient(client);
-
-        if (channel.isEmpty()) {
-            channels.delete(channel.name);
-        }
-    }
-
-    clients.delete(client);
-}
 
 function handleCommand(client, line) {
     console.log(`[${client.id}] <- ${line}`);
@@ -116,7 +66,7 @@ function handleCommand(client, line) {
 const server = net.createServer(socket => {
     const client = new Client(socket);
 
-    clients.add(client);
+    core.addClient(client);
 
     console.log(
         `Client connected: ${client.id}`
@@ -143,7 +93,7 @@ const server = net.createServer(socket => {
     });
 
     socket.on('close', () => {
-        cleanupClient(client);
+        core.cleanupClient(client);
 
         console.log(
             `Client disconnected: ${client.id}`
@@ -163,7 +113,7 @@ server.listen(PORT, HOST, () => {
     console.log('💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕');
     console.log('');
     console.log('              🌸 IRIS IRC 🌸');
-    console.log('          ✨ Hardcore IRC Daemon✨');
+    console.log('          ✨ Hardcore IRC Daemon ✨');
     console.log('');
     console.log(`          💗 Listening on ${HOST}:${PORT}`);
     console.log('          🎀 Ready for connections! 🎀');
