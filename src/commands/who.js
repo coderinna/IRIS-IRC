@@ -1,9 +1,14 @@
-function handleWho(client, target, channels, serverName = 'irc.iris.local') {
+function handleWho(
+    client,
+    target,
+    getChannel,
+    serverName = 'irc.iris.local'
+) {
     if (!target) {
         return;
     }
 
-    const channel = channels.get(target);
+    const channel = getChannel(target);
 
     if (!channel) {
         client.send(

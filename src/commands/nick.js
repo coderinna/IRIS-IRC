@@ -1,4 +1,9 @@
-function handleNick(client, nick, clients, registerClient) {
+function handleNick(
+    client,
+    nick,
+    registerClient,
+    getClientByNick
+) {
     if (!nick) {
         client.send(
             `:irc.iris.local 431 ${client.nick || '*'} :No nickname given`
@@ -6,16 +11,11 @@ function handleNick(client, nick, clients, registerClient) {
         return;
     }
 
-    const existing = [...clients].find(
-        other =>
-            other !== client &&
-            other.nick &&
-            other.nick.toLowerCase() === nick.toLowerCase()
-    );
+    const existing = getClientByNick(nick);
 
-    if (existing) {
+    if (existing && existing !== client) {
         client.send(
-            `:irc.iris.local 433 ${client.nick || '*'} ${nick} :Nickname is already in use`
+            `:irc.iris.local 433 ${client.nick || '*'} ${nick} :Nickname is already in use. Don't try to steal from others.`
         );
         return;
     }

@@ -2,9 +2,8 @@ function handleNotice(
     client,
     target,
     message,
-    clients,
-    channels,
-    serverName
+    getClientByNick,
+    getChannel
 ) {
     if (!target || !message) {
         return;
@@ -15,7 +14,7 @@ function handleNotice(
 
     // Channel message
     if (target.startsWith('#')) {
-        const channel = channels.get(target);
+        const channel = getChannel(target);
 
         if (!channel) {
             return;
@@ -30,11 +29,7 @@ function handleNotice(
     }
 
     // Direct user message
-    const targetClient = [...clients].find(
-        other =>
-            other.nick &&
-            other.nick.toLowerCase() === target.toLowerCase()
-    );
+    const targetClient = getClientByNick(target);
 
     if (!targetClient) {
         return;

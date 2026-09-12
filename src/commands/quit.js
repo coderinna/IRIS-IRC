@@ -1,4 +1,9 @@
-function handleQuit(client, reason, clients, channels) {
+function handleQuit(
+    client,
+    reason,
+    deleteChannel,
+    removeClient
+) {
     const quitReason = reason || 'Quit';
 
     for (const channel of [...client.channels]) {
@@ -10,11 +15,11 @@ function handleQuit(client, reason, clients, channels) {
         channel.removeClient(client);
 
         if (channel.isEmpty()) {
-            channels.delete(channel.name);
+            deleteChannel(channel.name);
         }
     }
 
-    clients.delete(client);
+    removeClient(client);
 
     client.socket.end();
 }

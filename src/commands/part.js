@@ -1,10 +1,16 @@
-function handlePart(client, names, reason, channels) {
+function handlePart(
+    client,
+    names,
+    reason,
+    getChannel,
+    deleteChannel
+) {
     if (!names) {
         return;
     }
 
     for (const channelName of names.split(',')) {
-        const channel = channels.get(channelName);
+        const channel = getChannel(channelName);
 
         if (!channel || !channel.hasClient(client)) {
             client.send(
@@ -23,7 +29,7 @@ function handlePart(client, names, reason, channels) {
         channel.removeClient(client);
 
         if (channel.isEmpty()) {
-            channels.delete(channel.name);
+            deleteChannel(channel.name);
         }
     }
 }

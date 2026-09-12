@@ -2,10 +2,12 @@ const { getCommand } = require('./index');
 
 function createCommandRouter({
     serverName,
-    clients,
-    channels,
     registerClient,
-    getOrCreateChannel
+    getOrCreateChannel,
+    getChannel,
+    deleteChannel,
+    getClientByNick,
+    removeClient
 }) {
     return function routeCommand(client, parsed) {
         const {
@@ -33,9 +35,8 @@ function createCommandRouter({
                 handler(
                     client,
                     params[0],
-                    clients,
                     registerClient,
-                    serverName
+                    getClientByNick
                 );
                 break;
 
@@ -69,8 +70,8 @@ function createCommandRouter({
                     client,
                     params[0],
                     trailing || '',
-                    channels,
-                    serverName
+                    getChannel,
+                    deleteChannel
                 );
                 break;
 
@@ -79,48 +80,47 @@ function createCommandRouter({
                     client,
                     params[0],
                     trailing,
-                    clients,
-                    channels,
-                    serverName
+                    getClientByNick,
+                    getChannel
                 );
                 break;
 
             case 'NOTICE':
-    handler(
-        client,
-        params[0],
-        trailing,
-        clients,
-        channels,
-        serverName
-    );
-    break;
+                handler(
+                    client,
+                    params[0],
+                    trailing,
+                    getClientByNick,
+                    getChannel
+                );
+                break;
+
             case 'QUIT':
                 handler(
                     client,
                     trailing || 'Quit',
-                    clients,
-                    channels
+                    deleteChannel,
+                    removeClient
                 );
                 break;
 
-            case 'MODE':
-                handler(
-                    client,
-                    params,
-                    channels,
-                    serverName
-                );
-                break;
+case 'MODE':
+    handler(
+        client,
+        params,
+        getChannel,
+        serverName
+    );
+    break;
 
-            case 'WHO':
-                handler(
-                    client,
-                    params[0],
-                    channels,
-                    serverName
-                );
-                break;
+case 'WHO':
+    handler(
+        client,
+        params[0],
+        getChannel,
+        serverName
+    );
+    break;
 
             case 'PONG':
                 handler(client);

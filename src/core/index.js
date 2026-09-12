@@ -17,6 +17,14 @@ class Core {
         return this.channels.get(name);
     }
 
+    getChannel(name) {
+    return this.channels.get(name) || null;
+}
+
+deleteChannel(name) {
+    return this.channels.delete(name);
+}
+
     registerClient(client) {
         if (!client.register()) {
             return false;
@@ -56,7 +64,7 @@ class Core {
 
         this.clients.delete(client);
     }
-    
+
 getClientByNick(nick) {
     return [...this.clients].find(
         client =>

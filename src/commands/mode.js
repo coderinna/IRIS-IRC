@@ -1,4 +1,9 @@
-function handleMode(client, params, channels, serverName) {
+function handleMode(
+    client,
+    params,
+    getChannel,
+    serverName
+) {
     if (!params || params.length === 0) {
         return;
     }
@@ -25,9 +30,9 @@ function handleMode(client, params, channels, serverName) {
         return;
     }
 
-    // Channel modes will be implemented later
+    // Channel modes
     if (target.startsWith('#')) {
-        const channel = channels.get(target);
+        const channel = getChannel(target);
 
         if (!channel) {
             client.send(

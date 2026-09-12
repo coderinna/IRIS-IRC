@@ -1,10 +1,16 @@
-function handlePrivmsg(client, target, message, clients, channels) {
+function handlePrivmsg(
+    client,
+    target,
+    message,
+    getClientByNick,
+    getChannel
+) {
     if (!target || !message) {
         return;
     }
 
     if (target.startsWith('#')) {
-        const channel = channels.get(target);
+        const channel = getChannel(target);
 
         if (!channel || !channel.hasClient(client)) {
             client.send(
@@ -22,11 +28,7 @@ function handlePrivmsg(client, target, message, clients, channels) {
         return;
     }
 
-    const targetClient = [...clients].find(
-        other =>
-            other.nick &&
-            other.nick.toLowerCase() === target.toLowerCase()
-    );
+    const targetClient = getClientByNick(target);
 
     if (!targetClient) {
         client.send(
