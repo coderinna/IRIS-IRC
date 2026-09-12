@@ -1,4 +1,5 @@
 const members = require('./members');
+const topic = require('./topic');
 
 class Channel {
     constructor(name) {
@@ -37,6 +38,18 @@ class Channel {
 
     isEmpty() {
         return members.isEmpty(this);
+    }
+
+    getTopic() {
+        return topic.getTopic(this);
+    }
+
+    setTopic(value) {
+        topic.setTopic(this, value);
+    }
+
+    hasTopic() {
+        return topic.hasTopic(this);
     }
 }
 
