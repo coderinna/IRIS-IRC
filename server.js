@@ -1,12 +1,17 @@
+// node server.js  - nodemon server.js
+
 const net = require('net');
 
 const config = require('./config/config');
+
+const {  createCommandRouter} = require('./src/commands/router');
 
 const Client = require('./src/client');
 const Channel = require('./src/channel');
 const { parseLine } = require('./src/parser');
 
 const { getCommand } = require('./src/commands/index');
+const numerics = require('./src/numerics');
 
 const {
     server: serverConfig
@@ -26,6 +31,14 @@ function getOrCreateChannel(name) {
 
     return channels.get(name);
 }
+
+const routeCommand = createCommandRouter({
+    serverName: SERVER_NAME,
+    clients,
+    channels,
+    registerClient,
+    getOrCreateChannel
+});
 
 function registerClient(client) {
     if (!client.register()) {
@@ -77,24 +90,8 @@ function handleCommand(client, line) {
     }
 
     const {
-        command,
-        params,
-        trailing
+        command
     } = parsed;
-
-    const handler = getCommand(command);
-
-    if (!handler) {
-        client.send(
-            numerics.unknownCommand(
-                SERVER_NAME,
-                client.nick,
-                command
-            )
-        );
-
-        return;
-    }
 
     if (
         !client.registered &&
@@ -103,104 +100,16 @@ function handleCommand(client, line) {
         return;
     }
 
-    switch (command) {
-        case 'CAP':
-            handler(
-                client,
-                params,
-                SERVER_NAME
-            );
-            break;
+    const handled = routeCommand(client, parsed);
 
-        case 'NICK':
-            handler(
-                client,
-                params[0],
-                clients,
-                registerClient,
-                SERVER_NAME
-            );
-            break;
-
-        case 'USER':
-            handler(
-                client,
-                params[0],
-                registerClient
-            );
-            break;
-
-        case 'PING':
-            handler(
-                client,
-                params,
-                trailing
-            );
-            break;
-
-        case 'JOIN':
-            handler(
-                client,
-                params[0] || trailing,
-                getOrCreateChannel,
-                SERVER_NAME
-            );
-            break;
-
-        case 'PART':
-            handler(
-                client,
-                params[0],
-                trailing || '',
-                channels,
-                SERVER_NAME
-            );
-            break;
-
-        case 'PRIVMSG':
-            handler(
-                client,
-                params[0],
-                trailing,
-                clients,
-                channels,
-                SERVER_NAME
-            );
-            break;
-
-        case 'QUIT':
-            handler(
-                client,
-                trailing || 'Quit',
-                clients,
-                channels
-            );
-            break;
-
-        case 'MODE':
-            handler(
-                client,
-                params,
-                channels,
-                SERVER_NAME
-            );
-            break;
-
-        case 'WHO':
-            handler(
-                client,
-                params[0],
-                channels,
-                SERVER_NAME
-            );
-            break;
-
-        case 'PONG':
-            handler(client);
-            break;
-
-        default:
-            break;
+    if (!handled) {
+        client.send(
+            numerics.unknownCommand(
+                SERVER_NAME,
+                client.nick,
+                command
+            )
+        );
     }
 }
 

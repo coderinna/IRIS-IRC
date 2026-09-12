@@ -1,22 +1,43 @@
-function handleQuit(client, reason, clients, channels) {
-    const quitReason = reason || 'Quit';
-
-    for (const channel of [...client.channels]) {
-        channel.broadcast(
-            `:${client.mask} QUIT :${quitReason}`,
-            client
-        );
-
-        channel.removeClient(client);
-
-        if (channel.isEmpty()) {
-            channels.delete(channel.name);
-        }
+function handleMode(client, params, channels, serverName) {
+    if (!params || params.length === 0) {
+        return;
     }
 
-    clients.delete(client);
+    const target = params[0];
 
-    client.socket.end();
+    // User mode
+    if (target === client.nick) {
+        const mode = params[1] || '';
+
+        // +i = invisible
+        if (mode === '+i') {
+            client.send(
+                `:${serverName} 221 ${client.nick} +i`
+            );
+            return;
+        }
+
+        // Ignore unsupported user modes for now
+        client.send(
+            `:${serverName} 221 ${client.nick} +i`
+        );
+
+        return;
+    }
+
+    // Channel modes will be implemented later
+    if (target.startsWith('#')) {
+        const channel = channels.get(target);
+
+        if (!channel) {
+            client.send(
+                `:${serverName} 403 ${client.nick} ${target} :No such channel`
+            );
+            return;
+        }
+
+        return;
+    }
 }
 
-module.exports = handleQuit;
+module.exports = handleMode;

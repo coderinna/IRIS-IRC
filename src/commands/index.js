@@ -1,6 +1,7 @@
 
 // keskitetty komento keskus
 
+const handleNotice = require('./notice');
 const handleCap = require('./cap');
 const handleNick = require('./nick');
 const handleUser = require('./user');
@@ -23,7 +24,8 @@ const commands = {
     PRIVMSG: handlePrivmsg,
     QUIT: handleQuit,
     MODE: handleMode,
-    WHO: handleWho
+    WHO: handleWho,
+    NOTICE: handleNotice,
 };
 
 function getCommand(command) {
