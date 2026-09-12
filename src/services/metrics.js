@@ -5,7 +5,8 @@ const metrics = {
     joins: 0,
     parts: 0,
     messages: 0,
-    quits: 0
+    quits: 0,
+    unregistered: 0
 };
 
 events.on('client:registered', () => {
@@ -26,6 +27,10 @@ events.on('message:sent', () => {
 
 events.on('client:quit', () => {
     metrics.quits++;
+});
+
+events.on('client:unregistered', () => {
+    metrics.unregistered++;
 });
 
 function getMetrics() {

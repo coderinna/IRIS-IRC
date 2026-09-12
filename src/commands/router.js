@@ -97,14 +97,13 @@ function createCommandRouter({
                 );
                 break;
 
-            case 'QUIT':
-                handler(
-                    client,
-                    trailing || 'Quit',
-                    deleteChannel,
-                    removeClient
-                );
-                break;
+case 'QUIT':
+    handler(
+        client,
+        trailing || 'Quit',
+        deleteChannel
+    );
+    break;
 
 case 'MODE':
     handler(

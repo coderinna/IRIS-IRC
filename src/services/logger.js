@@ -38,3 +38,9 @@ events.on('client:quit', ({ client, reason }) => {
         `[EVENT] client:quit ${client.nick} (${reason})`
     );
 });
+
+events.on('client:unregistered', ({ client }) => {
+    console.log(
+        `[EVENT] client:unregistered ${client.nick || client.id}`
+    );
+});

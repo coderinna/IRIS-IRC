@@ -3,8 +3,7 @@ const events = require('../events');
 function handleQuit(
     client,
     reason,
-    deleteChannel,
-    removeClient
+    deleteChannel
 ) {
     const quitReason = reason || 'Quit';
 
@@ -25,8 +24,6 @@ function handleQuit(
             deleteChannel(channel.name);
         }
     }
-
-    removeClient(client);
 
     client.socket.end();
 }
