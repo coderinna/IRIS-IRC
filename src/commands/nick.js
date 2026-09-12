@@ -1,5 +1,15 @@
 const events = require('../events');
 
+function isValidNick(nick) {
+    if (!nick) {
+        return false;
+    }
+
+    // IRIS:n ensimmäinen versio:
+    // kirjain + kirjaimia, numeroita, _ tai -
+    return /^[A-Za-z][A-Za-z0-9_-]{0,15}$/.test(nick);
+}
+
 function handleNick(
     client,
     nick,
@@ -13,23 +23,36 @@ function handleNick(
         return;
     }
 
-    const existing = getClientByNick(nick);
-
-    if (existing && existing !== client) {
+    if (!isValidNick(nick)) {
         client.send(
-            `:irc.iris.local 433 ${client.nick || '*'} ${nick} :Nickname is already in use. Don't try to steal from others.`
+            `:irc.iris.local 432 ${client.nick || '*'} ${nick} :Erroneous nickname`
         );
         return;
     }
 
-    // Initial nickname
-    if (!client.nick) {
-        client.nick = nick;
-        registerClient(client);
+    const existing = getClientByNick(nick);
+
+    if (existing && existing !== client) {
+        client.send(
+            `:irc.iris.local 433 ${client.nick || '*'} ${nick} :Nickname is already in use`
+        );
         return;
     }
 
-    // Nick change
+    // Ensimmäinen nick
+    if (!client.nick) {
+        client.nick = nick;
+
+        registerClient(client);
+
+        return;
+    }
+
+    // Ei muutosta
+    if (client.nick === nick) {
+        return;
+    }
+
     const oldNick = client.nick;
 
     const message =
@@ -37,12 +60,13 @@ function handleNick(
 
     client.nick = nick;
 
-events.emit('client:nick_changed', {
-    client,
-    oldNick,
-    newNick: nick
-});
+    events.emit('client:nick_changed', {
+        client,
+        oldNick,
+        newNick: nick
+    });
 
+    // Ilmoitetaan kaikille yhteisillä kanavilla
     const notified = new Set();
 
     for (const channel of client.channels) {
@@ -54,6 +78,7 @@ events.emit('client:nick_changed', {
         }
     }
 
+    // Jos ei ole kanavilla, ilmoitetaan itselle
     if (notified.size === 0) {
         client.send(message);
     }
