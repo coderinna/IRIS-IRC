@@ -1,3 +1,5 @@
+const events = require('../events');
+
 function handleQuit(
     client,
     reason,
@@ -5,6 +7,11 @@ function handleQuit(
     removeClient
 ) {
     const quitReason = reason || 'Quit';
+
+    events.emit('client:quit', {
+    client,
+    reason: quitReason
+});
 
     for (const channel of [...client.channels]) {
         channel.broadcast(

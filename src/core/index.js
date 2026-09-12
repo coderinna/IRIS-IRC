@@ -1,5 +1,6 @@
 const Client = require('../client');
 const Channel = require('../channel');
+const events = require('../events');
 
 class Core {
     constructor(serverName) {
@@ -49,6 +50,10 @@ deleteChannel(name) {
         console.log(
             `[${client.id}] Registered as ${client.nick}`
         );
+
+        events.emit('client:registered', {
+    client
+});
 
         return true;
     }

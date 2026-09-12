@@ -1,3 +1,5 @@
+const events = require('../events');
+
 function handleNick(
     client,
     nick,
@@ -34,6 +36,12 @@ function handleNick(
         `:${oldNick}!${client.user}@localhost NICK :${nick}`;
 
     client.nick = nick;
+
+events.emit('client:nick_changed', {
+    client,
+    oldNick,
+    newNick: nick
+});
 
     const notified = new Set();
 

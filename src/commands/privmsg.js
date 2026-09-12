@@ -1,3 +1,5 @@
+const events = require('../events');
+
 function handlePrivmsg(
     client,
     target,
@@ -25,6 +27,13 @@ function handlePrivmsg(
             client
         );
 
+        events.emit('message:sent', {
+    client,
+    target,
+    message,
+    type: 'channel'
+});
+
         return;
     }
 
@@ -41,6 +50,13 @@ function handlePrivmsg(
     targetClient.send(
         `:${client.mask} PRIVMSG ${targetClient.nick} :${message}`
     );
+
+    events.emit('message:sent', {
+    client,
+    target: targetClient,
+    message,
+    type: 'private'
+});
 }
 
 module.exports = handlePrivmsg;

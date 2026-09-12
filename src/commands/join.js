@@ -1,3 +1,6 @@
+
+const events = require('../events');
+
 function handleJoin(client, names, getOrCreateChannel) {
     if (!client.registered) {
         return;
@@ -23,6 +26,11 @@ function handleJoin(client, names, getOrCreateChannel) {
         }
 
         channel.addClient(client);
+
+        events.emit('channel:joined', {
+    client,
+    channel
+});
 
         channel.broadcast(
             `:${client.mask} JOIN ${channel.name}`

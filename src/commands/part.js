@@ -1,3 +1,5 @@
+const events = require('../events');
+
 function handlePart(
     client,
     names,
@@ -27,6 +29,12 @@ function handlePart(
         channel.broadcast(message);
 
         channel.removeClient(client);
+
+        events.emit('channel:parted', {
+    client,
+    channel,
+    reason
+});
 
         if (channel.isEmpty()) {
             deleteChannel(channel.name);

@@ -7,6 +7,7 @@ const Core = require('./src/core');
 const Client = require('./src/client');
 const { parseLine } = require('./src/parser');
 const numerics = require('./src/numerics');
+const events = require('./src/events');
 
 const {
     createCommandRouter
@@ -21,6 +22,8 @@ const HOST = serverConfig.host;
 const SERVER_NAME = serverConfig.name;
 
 const core = new Core(SERVER_NAME);
+
+require('./src/events/listeners');
 
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
