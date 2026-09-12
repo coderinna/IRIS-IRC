@@ -23,7 +23,9 @@ const SERVER_NAME = serverConfig.name;
 
 const core = new Core(SERVER_NAME);
 
-require('./src/events/listeners');
+require('./src/services/logger');
+require('./src/services/metrics');
+// const metrics = require('./src/services/metrics');
 
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
@@ -112,6 +114,13 @@ const server = net.createServer(socket => {
         );
     });
 });
+
+/*
+debug varten! 
+setInterval(() => {
+    console.log('[METRICS]', metrics.getMetrics());
+}, 10000);
+*/
 
 server.listen(PORT, HOST, () => {
     console.log('');
