@@ -1,6 +1,6 @@
 
 // keskitetty komento keskus
-
+const handleStats = require('./stats');
 const handleNotice = require('./notice');
 const handleCap = require('./cap');
 const handleNick = require('./nick');
@@ -14,6 +14,7 @@ const handleMode = require('./mode');
 const handleWho = require('./who');
 
 const commands = {
+    STATS: handleStats,
     CAP: handleCap,
     NICK: handleNick,
     USER: handleUser,

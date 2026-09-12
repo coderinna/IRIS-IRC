@@ -1,5 +1,3 @@
-// Sitten myöhemmin voidaaan vaihtaa tämä Prometheukseen.
-
 const events = require('../events');
 
 const metrics = {
@@ -35,8 +33,6 @@ function getMetrics() {
         ...metrics
     };
 }
-
-console.log('[METRICS] Service loaded');
 
 module.exports = {
     getMetrics

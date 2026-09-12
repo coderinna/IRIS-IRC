@@ -2,6 +2,8 @@ const { getCommand } = require('./index');
 
 function createCommandRouter({
     serverName,
+    core,
+    status,
     registerClient,
     getOrCreateChannel,
     getChannel,
@@ -119,6 +121,15 @@ case 'WHO':
         params[0],
         getChannel,
         serverName
+    );
+    break;
+
+
+case 'STATS':
+    handler(
+        client,
+        status,
+        core
     );
     break;
 

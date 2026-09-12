@@ -23,12 +23,15 @@ const SERVER_NAME = serverConfig.name;
 
 const core = new Core(SERVER_NAME);
 
+const status = require('./src/services/status');
 require('./src/services/logger');
 require('./src/services/metrics');
 // const metrics = require('./src/services/metrics');
 
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
+    core,
+    status,
     registerClient: core.registerClient.bind(core),
     getOrCreateChannel: core.getOrCreateChannel.bind(core),
     getChannel: core.getChannel.bind(core),
@@ -114,8 +117,11 @@ const server = net.createServer(socket => {
         );
     });
 });
-
 /*
+console.log(
+    '[STATUS]',
+    status.getStatus(core)
+);
 debug varten! 
 setInterval(() => {
     console.log('[METRICS]', metrics.getMetrics());
