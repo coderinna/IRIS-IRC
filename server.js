@@ -102,13 +102,13 @@ const server = net.createServer(socket => {
         }
     });
 
-    socket.on('close', () => {
-        core.cleanupClient(client);
+socket.on('close', () => {
+    core.unregisterClient(client);
 
-        console.log(
-            `Client disconnected: ${client.id}`
-        );
-    });
+    console.log(
+        `Client disconnected: ${client.id}`
+    );
+});
 
     socket.on('error', error => {
         console.error(

@@ -1,4 +1,3 @@
-const Client = require('../client');
 const Channel = require('../channel');
 const events = require('../events');
 
@@ -19,12 +18,20 @@ class Core {
     }
 
     getChannel(name) {
-    return this.channels.get(name) || null;
-}
+        return this.channels.get(name) || null;
+    }
 
-deleteChannel(name) {
-    return this.channels.delete(name);
-}
+    deleteChannel(name) {
+        return this.channels.delete(name);
+    }
+
+    addClient(client) {
+        this.clients.add(client);
+    }
+
+    removeClient(client) {
+        this.clients.delete(client);
+    }
 
     registerClient(client) {
         if (!client.register()) {
@@ -52,8 +59,22 @@ deleteChannel(name) {
         );
 
         events.emit('client:registered', {
-    client
-});
+            client
+        });
+
+        return true;
+    }
+
+    unregisterClient(client) {
+        if (!this.clients.has(client)) {
+            return false;
+        }
+
+        this.cleanupClient(client);
+
+        events.emit('client:unregistered', {
+            client
+        });
 
         return true;
     }
@@ -70,23 +91,17 @@ deleteChannel(name) {
         this.clients.delete(client);
     }
 
-getClientByNick(nick) {
-    return [...this.clients].find(
-        client =>
-            client.nick &&
-            client.nick.toLowerCase() === nick.toLowerCase()
-    ) || null;
-}
+    getClientByNick(nick) {
+        if (!nick) {
+            return null;
+        }
 
-    addClient(client) {
-        this.clients.add(client);
+        return [...this.clients].find(
+            client =>
+                client.nick &&
+                client.nick.toLowerCase() === nick.toLowerCase()
+        ) || null;
     }
-
-    removeClient(client) {
-        this.clients.delete(client);
-    }
-
-    
 }
 
 module.exports = Core;
