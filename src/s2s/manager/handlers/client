@@ -1,0 +1,51 @@
+const crypto = require('crypto');
+
+const {
+    encodeClient
+} = require('../client');
+
+module.exports = function handleClient(
+    manager,
+    client
+) {
+    if (!client || !client.nick) {
+        return;
+    }
+
+    console.log(
+        `[IRISH] Broadcasting CLIENT: ${client.nick}`
+    );
+
+    for (const connection of manager.connections) {
+        if (connection.state !== 'connected') {
+            continue;
+        }
+
+        try {
+            const messageId =
+                crypto.randomBytes(16);
+
+            const frame = encodeClient({
+                clientId: client.id,
+                nick: client.nick,
+                user: client.user || '',
+                host: 'localhost',
+                serverId: manager.serverId
+            }, messageId);
+
+            connection.sendFrame(frame);
+
+            console.log(
+                `[IRISH] → CLIENT ` +
+                `${client.nick} ` +
+                `via ${connection.remote.serverId}`
+            );
+
+        } catch (error) {
+            console.error(
+                '[IRISH] CLIENT event failed:',
+                error.message
+            );
+        }
+    }
+};

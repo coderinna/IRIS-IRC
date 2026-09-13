@@ -1,0 +1,53 @@
+const crypto = require('crypto');
+
+const {
+    encodePart
+} = require('../part');
+
+module.exports = function handlePart(
+    manager,
+    client,
+    channel,
+    reason = ''
+) {
+    if (!client || !client.id || !channel) {
+        return;
+    }
+
+    console.log(
+        `[IRISH] Broadcasting PART: ` +
+        `${client.nick} ← ${channel}`
+    );
+
+    for (const connection of manager.connections) {
+        if (connection.state !== 'connected') {
+            continue;
+        }
+
+        try {
+            const messageId =
+                crypto.randomBytes(16);
+
+            const frame = encodePart({
+                clientId: client.id,
+                channel,
+                reason,
+                serverId: manager.serverId
+            }, messageId);
+
+            connection.sendFrame(frame);
+
+            console.log(
+                `[IRISH] → PART ` +
+                `${client.nick} ← ${channel} ` +
+                `via ${connection.remote.serverId}`
+            );
+
+        } catch (error) {
+            console.error(
+                '[IRISH] PART event failed:',
+                error.message
+            );
+        }
+    }
+};
