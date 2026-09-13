@@ -109,8 +109,8 @@ class S2SConnection {
                 'channel-sync'
             ];
 
-        this.authToken =
-            options.authToken || 'test-secret-123';
+   this.authToken =
+    options.authToken || null;
 
         this.state = STATES.CONNECTING;
 
@@ -350,36 +350,60 @@ handleFrame(frame) {
         }
     }
 
-    handleAuth(frame) {
-        try {
-            const auth =
-                decodeAuth(frame.payload);
+handleAuth(frame) {
+    try {
+        const auth =
+            decodeAuth(frame.payload);
 
-            console.log(
-                `[IRISH] ← AUTH ${auth.serverId}`
+        console.log(
+            `[IRISH] ← AUTH ${auth.serverId}`
+        );
+
+        if (!this.authToken) {
+            throw new Error(
+                'IRISH authentication token is not configured'
             );
+        }
 
-            if (auth.token !== this.authToken) {
-                console.error(
-                    `[IRISH] Authentication failed for ${auth.serverId}`
-                );
+        if (typeof auth.token !== 'string') {
+            throw new Error(
+                'IRISH authentication token is invalid'
+            );
+        }
 
-                this.socket.destroy();
-                return;
-            }
+        const expectedToken =
+            Buffer.from(this.authToken, 'utf8');
 
-            this.state = STATES.SERVER;
+        const receivedToken =
+            Buffer.from(auth.token, 'utf8');
 
-            this.sendServer();
-        } catch (error) {
+        if (
+            expectedToken.length !== receivedToken.length ||
+            !crypto.timingSafeEqual(
+                expectedToken,
+                receivedToken
+            )
+        ) {
             console.error(
-                '[IRISH] Invalid AUTH:',
-                error.message
+                `[IRISH] Authentication failed for ${auth.serverId}`
             );
 
             this.socket.destroy();
+            return;
         }
+
+        this.state = STATES.SERVER;
+
+        this.sendServer();
+    } catch (error) {
+        console.error(
+            '[IRISH] Invalid AUTH:',
+            error.message
+        );
+
+        this.socket.destroy();
     }
+}
 
     handleServer(frame) {
         try {
