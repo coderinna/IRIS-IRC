@@ -1,26 +1,22 @@
 const crypto = require('crypto');
 
 const {
-    encodeMessage
-} = require('../message');
+    encodePart
+} = require('../../messages/part');
 
-module.exports = function handleMessage(
+module.exports = function handlePart(
     manager,
     client,
-    target,
-    message
+    channel,
+    reason = ''
 ) {
-    if (!client || !client.id) {
-        return;
-    }
-
-    if (!target || !message) {
+    if (!client || !client.id || !channel) {
         return;
     }
 
     console.log(
-        `[IRISH] Broadcasting MESSAGE: ` +
-        `${client.nick} → ${target}`
+        `[IRISH] Broadcasting PART: ` +
+        `${client.nick} ← ${channel}`
     );
 
     for (const connection of manager.connections) {
@@ -32,24 +28,24 @@ module.exports = function handleMessage(
             const messageId =
                 crypto.randomBytes(16);
 
-            const frame = encodeMessage({
+            const frame = encodePart({
                 clientId: client.id,
-                target,
-                message,
+                channel,
+                reason,
                 serverId: manager.serverId
             }, messageId);
 
             connection.sendFrame(frame);
 
             console.log(
-                `[IRISH] → MESSAGE ` +
-                `${client.nick} → ${target} ` +
+                `[IRISH] → PART ` +
+                `${client.nick} ← ${channel} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] MESSAGE event failed:',
+                '[IRISH] PART event failed:',
                 error.message
             );
         }

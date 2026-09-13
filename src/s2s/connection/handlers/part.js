@@ -1,6 +1,6 @@
 const {
     decodePart
-} = require('../part');
+} = require('../../messages/part');
 
 module.exports = function handlePart(
     connection,

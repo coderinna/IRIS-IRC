@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 const {
     encodeNick
-} = require('../nick');
+} = require('../../messages/nick');
 
 module.exports = function handleNick(
     manager,

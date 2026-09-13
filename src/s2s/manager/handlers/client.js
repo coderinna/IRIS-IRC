@@ -1,21 +1,19 @@
 const crypto = require('crypto');
 
 const {
-    encodeJoin
-} = require('../join');
+    encodeClient
+} = require('../../messages/client');
 
-module.exports = function handleJoin(
+module.exports = function handleClient(
     manager,
-    client,
-    channel
+    client
 ) {
-    if (!client || !client.id || !channel) {
+    if (!client || !client.nick) {
         return;
     }
 
     console.log(
-        `[IRISH] Broadcasting JOIN: ` +
-        `${client.nick} → ${channel}`
+        `[IRISH] Broadcasting CLIENT: ${client.nick}`
     );
 
     for (const connection of manager.connections) {
@@ -27,23 +25,25 @@ module.exports = function handleJoin(
             const messageId =
                 crypto.randomBytes(16);
 
-            const frame = encodeJoin({
+            const frame = encodeClient({
                 clientId: client.id,
-                channel,
+                nick: client.nick,
+                user: client.user || '',
+                host: 'localhost',
                 serverId: manager.serverId
             }, messageId);
 
             connection.sendFrame(frame);
 
             console.log(
-                `[IRISH] → JOIN ` +
-                `${client.nick} → ${channel} ` +
+                `[IRISH] → CLIENT ` +
+                `${client.nick} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] JOIN event failed:',
+                '[IRISH] CLIENT event failed:',
                 error.message
             );
         }

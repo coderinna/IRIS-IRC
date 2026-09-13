@@ -1,6 +1,6 @@
 const {
     decodeJoin
-} = require('../join');
+} = require('../../messages/join');
 
 module.exports = function handleJoin(
     connection,

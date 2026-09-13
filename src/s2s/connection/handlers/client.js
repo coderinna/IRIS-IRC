@@ -1,6 +1,6 @@
 const {
     decodeClient
-} = require('../client');
+} = require('../../messages/client');
 
 module.exports = function handleClient(
     connection,

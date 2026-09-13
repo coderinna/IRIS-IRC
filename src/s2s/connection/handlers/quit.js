@@ -1,6 +1,6 @@
 const {
     decodeQuit
-} = require('../quit');
+} = require('../../messages/quit');
 
 module.exports = function handleQuit(
     connection,
