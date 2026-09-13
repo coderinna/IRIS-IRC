@@ -1,7 +1,7 @@
 const {
     HEADER_SIZE,
     decodeHeader
-} = require('./frame');
+} = require('./protocol/frame');
 
 class FrameParser {
     constructor() {

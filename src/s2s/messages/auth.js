@@ -1,12 +1,12 @@
 const {
     TYPES,
     encodeFrame
-} = require('./frame');
+} = require('./protocol/frame');
 
 const {
     encodeFields,
     decodeFields
-} = require('./tlv');
+} = require('./protocol/tlv');
 
 const FIELDS = {
     AUTH_METHOD: 0x01,

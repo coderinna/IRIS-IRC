@@ -5,7 +5,7 @@ const FrameParser = require('./parser');
 const {
     TYPES,
     encodeFrame
-} = require('./frame');
+} = require('../protocol/frame');
 
 const {
     encodeHello,

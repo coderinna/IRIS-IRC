@@ -1,12 +1,12 @@
 const {
     TYPES,
     encodeFrame
-} = require('./frame');
+} = require('./protocol/frame');
 
 const {
     encodeFields,
     decodeFields
-} = require('./tlv');
+} = require('./protocol/tlv');
 
 const FIELDS = {
     PROTOCOL_VERSION: 0x01,

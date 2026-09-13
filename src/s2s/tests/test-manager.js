@@ -2,11 +2,11 @@ const net = require('net');
 
 const {
     S2SConnection
-} = require('./connection');
+} = require('../connection/connection');
 
-const S2SManager = require('./manager');
+const S2SManager = require('../manager/manager');
 
-const events = require('../events');
+const events = require('../../events');
 
 const PORT = 7003;
 

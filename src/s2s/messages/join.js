@@ -1,41 +1,39 @@
 const {
     TYPES,
     encodeFrame
-} = require('./frame');
+} = require('./protocol/frame');
 
 const {
     encodeFields,
     decodeFields
-} = require('./tlv');
+} = require('./protocol/tlv');
 
 const FIELDS = {
     CLIENT_ID: 0x01,
     CHANNEL: 0x02,
-    REASON: 0x03,
-    SERVER_ID: 0x04
+    SERVER_ID: 0x03
 };
 
-function encodePart({
+function encodeJoin({
     clientId,
     channel,
-    reason = '',
     serverId
 }, messageId) {
     if (!clientId) {
-        throw new Error('IRISH PART requires clientId');
+        throw new Error('IRISH JOIN requires clientId');
     }
 
     if (!channel) {
-        throw new Error('IRISH PART requires channel');
+        throw new Error('IRISH JOIN requires channel');
     }
 
     if (!serverId) {
-        throw new Error('IRISH PART requires serverId');
+        throw new Error('IRISH JOIN requires serverId');
     }
 
     if (!Buffer.isBuffer(messageId) || messageId.length !== 16) {
         throw new TypeError(
-            'IRISH PART messageId must be a 16-byte Buffer'
+            'IRISH JOIN messageId must be a 16-byte Buffer'
         );
     }
 
@@ -49,48 +47,39 @@ function encodePart({
             value: channel
         },
         {
-            type: FIELDS.REASON,
-            value: reason
-        },
-        {
             type: FIELDS.SERVER_ID,
             value: serverId
         }
     ]);
 
     return encodeFrame({
-        type: TYPES.PART,
+        type: TYPES.JOIN,
         messageId,
         payload
     });
 }
 
-function decodePart(payload) {
+function decodeJoin(payload) {
     const fields = decodeFields(payload);
 
-    const part = {
+    const join = {
         clientId: null,
         channel: null,
-        reason: null,
         serverId: null
     };
 
     for (const field of fields) {
         switch (field.type) {
             case FIELDS.CLIENT_ID:
-                part.clientId = field.value.toString('utf8');
+                join.clientId = field.value.toString('utf8');
                 break;
 
             case FIELDS.CHANNEL:
-                part.channel = field.value.toString('utf8');
-                break;
-
-            case FIELDS.REASON:
-                part.reason = field.value.toString('utf8');
+                join.channel = field.value.toString('utf8');
                 break;
 
             case FIELDS.SERVER_ID:
-                part.serverId = field.value.toString('utf8');
+                join.serverId = field.value.toString('utf8');
                 break;
 
             default:
@@ -98,23 +87,23 @@ function decodePart(payload) {
         }
     }
 
-    if (!part.clientId) {
-        throw new Error('IRISH PART missing client ID');
+    if (!join.clientId) {
+        throw new Error('IRISH JOIN missing client ID');
     }
 
-    if (!part.channel) {
-        throw new Error('IRISH PART missing channel');
+    if (!join.channel) {
+        throw new Error('IRISH JOIN missing channel');
     }
 
-    if (!part.serverId) {
-        throw new Error('IRISH PART missing server ID');
+    if (!join.serverId) {
+        throw new Error('IRISH JOIN missing server ID');
     }
 
-    return part;
+    return join;
 }
 
 module.exports = {
     FIELDS,
-    encodePart,
-    decodePart
+    encodeJoin,
+    decodeJoin
 };

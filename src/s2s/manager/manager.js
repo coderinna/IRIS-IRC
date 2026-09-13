@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const events = require('../events');
+const events = require('../../events');
 
 const {
     encodeClient

@@ -1,12 +1,12 @@
 const {
     TYPES,
     encodeFrame
-} = require('./frame');
+} = require('./protocol/frame');
 
 const {
     encodeFields,
     decodeFields
-} = require('./tlv');
+} = require('./protocol/tlv');
 
 const FIELDS = {
     CLIENT_ID: 0x01,
