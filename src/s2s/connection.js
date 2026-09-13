@@ -31,6 +31,10 @@ const {
     decodeClient
 } = require('./client');
 
+const {
+    decodeNick
+} = require('./nick');
+
 const STATES = {
     CONNECTING: 'connecting',
     HELLO: 'hello',
@@ -245,6 +249,10 @@ class S2SConnection {
     this.handleClient(frame);
     break;
 
+    case TYPES.NICK:
+    this.handleNick(frame);
+    break;
+
             default:
                 console.log(
                     `[IRISH] Unknown frame type: 0x${frame.type.toString(16)}`
@@ -365,6 +373,28 @@ class S2SConnection {
     } catch (error) {
         console.error(
             '[IRISH] Invalid CLIENT:',
+            error.message
+        );
+
+        this.socket.destroy();
+    }
+}
+
+handleNick(frame) {
+    try {
+        const nick =
+            decodeNick(frame.payload);
+
+        console.log(
+            `[IRISH] ← NICK ` +
+            `${nick.clientId} ` +
+            `${nick.oldNick} → ${nick.newNick} ` +
+            `from ${nick.serverId}`
+        );
+
+    } catch (error) {
+        console.error(
+            '[IRISH] Invalid NICK:',
             error.message
         );
 

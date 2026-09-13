@@ -49,20 +49,23 @@ server.listen(PORT, '127.0.0.1', () => {
         connection.start();
     });
 
-    setTimeout(() => {
-        console.log('');
-        console.log(
-            '[TEST] Emitting client:registered'
-        );
 
-        events.emit('client:registered', {
+setTimeout(() => {
+    console.log(
+        '[TEST] Emitting client:nick_changed'
+    );
+
+    events.emit(
+        'client:nick_changed',
+        {
             client: {
-                id: 'client-001',
-                nick: 'IrisTest',
-                user: 'iris'
-            }
-        });
-    }, 1000);
+                id: 'client-001'
+            },
+            oldNick: 'IrisTest',
+            newNick: 'IrisNew'
+        }
+    );
+}, 2000);
 });
 
 process.on('SIGINT', () => {
