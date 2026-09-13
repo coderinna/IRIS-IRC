@@ -84,6 +84,20 @@ class S2SConnection {
 
         this.messageIds = new Set();
 
+        this.handlers = {
+    [TYPES.HELLO]: frame => this.handleHello(frame),
+    [TYPES.AUTH]: frame => this.handleAuth(frame),
+    [TYPES.SERVER]: frame => this.handleServer(frame),
+    [TYPES.READY]: frame => this.handleReady(frame),
+
+    [TYPES.CLIENT]: frame => handleClient(this, frame),
+    [TYPES.NICK]: frame => handleNick(this, frame),
+    [TYPES.JOIN]: frame => handleJoin(this, frame),
+    [TYPES.PART]: frame => handlePart(this, frame),
+    [TYPES.QUIT]: frame => handleQuit(this, frame),
+    [TYPES.MESSAGE]: frame => handleMessage(this, frame)
+};
+
         this.setupSocket();
     }
 
@@ -213,67 +227,33 @@ class S2SConnection {
         }
     }
 
-    handleFrame(frame) {
-        const messageId =
-            frame.messageId.toString('hex');
+handleFrame(frame) {
+    const messageId =
+        frame.messageId.toString('hex');
 
-        if (this.messageIds.has(messageId)) {
-            console.log(
-                `[IRISH] Duplicate message ignored: ${messageId}`
-            );
+    if (this.messageIds.has(messageId)) {
+        console.log(
+            `[IRISH] Duplicate message ignored: ${messageId}`
+        );
 
-            return;
-        }
-
-        this.messageIds.add(messageId);
-
-        switch (frame.type) {
-            case TYPES.HELLO:
-                this.handleHello(frame);
-                break;
-
-            case TYPES.AUTH:
-                this.handleAuth(frame);
-                break;
-
-            case TYPES.SERVER:
-                this.handleServer(frame);
-                break;
-
-            case TYPES.READY:
-                this.handleReady(frame);
-                break;
-
-            case TYPES.CLIENT:
-                handleClient(this, frame);
-                break;
-
-            case TYPES.NICK:
-                handleNick(this, frame);
-                break;
-
-            case TYPES.JOIN:
-                handleJoin(this, frame);
-                break;
-
-            case TYPES.PART:
-                handlePart(this, frame);
-                break;
-
-            case TYPES.QUIT:
-                handleQuit(this, frame);
-                break;
-
-            case TYPES.MESSAGE:
-                handleMessage(this, frame);
-                break;
-
-            default:
-                console.log(
-                    `[IRISH] Unknown frame type: 0x${frame.type.toString(16)}`
-                );
-        }
+        return;
     }
+
+    this.messageIds.add(messageId);
+
+    const handler =
+        this.handlers[frame.type];
+
+    if (!handler) {
+        console.log(
+            `[IRISH] Unknown frame type: 0x${frame.type.toString(16)}`
+        );
+
+        return;
+    }
+
+    handler(frame);
+}
 
     handleHello(frame) {
         try {
