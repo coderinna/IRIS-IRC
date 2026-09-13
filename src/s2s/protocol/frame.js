@@ -1,5 +1,7 @@
 const HEADER_SIZE = 24;
 
+const MAX_PAYLOAD_SIZE = 1024 * 1024;
+
 const TYPES = {
     HELLO: 0x01,
     AUTH: 0x02,
@@ -26,16 +28,34 @@ function encodeFrame({
     messageId,
     payload = Buffer.alloc(0)
 }) {
+    if (!Number.isInteger(version) || version < 0 || version > 0xff) {
+        throw new TypeError(
+            'IRISH frame version must be a uint8'
+        );
+    }
+
     if (!Number.isInteger(type) || type < 0 || type > 0xff) {
-        throw new TypeError('IRISH frame type must be a uint8');
+        throw new TypeError(
+            'IRISH frame type must be a uint8'
+        );
     }
 
     if (!Number.isInteger(flags) || flags < 0 || flags > 0xffff) {
-        throw new TypeError('IRISH frame flags must be a uint16');
+        throw new TypeError(
+            'IRISH frame flags must be a uint16'
+        );
     }
 
     if (!Buffer.isBuffer(payload)) {
-        throw new TypeError('IRISH frame payload must be a Buffer');
+        throw new TypeError(
+            'IRISH frame payload must be a Buffer'
+        );
+    }
+
+    if (payload.length > MAX_PAYLOAD_SIZE) {
+        throw new Error(
+            'IRISH frame payload exceeds maximum size'
+        );
     }
 
     if (!Buffer.isBuffer(messageId) || messageId.length !== 16) {
@@ -61,7 +81,9 @@ function encodeFrame({
 
 function decodeHeader(buffer) {
     if (!Buffer.isBuffer(buffer)) {
-        throw new TypeError('IRISH frame must be a Buffer');
+        throw new TypeError(
+            'IRISH frame must be a Buffer'
+        );
     }
 
     if (buffer.length < HEADER_SIZE) {
@@ -70,11 +92,20 @@ function decodeHeader(buffer) {
         );
     }
 
+    const payloadLength =
+        buffer.readUInt32BE(4);
+
+    if (payloadLength > MAX_PAYLOAD_SIZE) {
+        throw new Error(
+            'IRISH frame payload exceeds maximum size'
+        );
+    }
+
     return {
         version: buffer.readUInt8(0),
         type: buffer.readUInt8(1),
         flags: buffer.readUInt16BE(2),
-        payloadLength: buffer.readUInt32BE(4),
+        payloadLength,
         messageId: Buffer.from(
             buffer.subarray(8, 24)
         )
@@ -83,6 +114,7 @@ function decodeHeader(buffer) {
 
 module.exports = {
     HEADER_SIZE,
+    MAX_PAYLOAD_SIZE,
     TYPES,
     encodeFrame,
     decodeHeader
