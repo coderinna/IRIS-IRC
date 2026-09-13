@@ -46,8 +46,7 @@ const STATES = {
 
 const ALLOWED_STATES = {
     [TYPES.HELLO]: [
-        STATES.CONNECTING,
-        STATES.HELLO
+        STATES.CONNECTING
     ],
 
     [TYPES.AUTH]: [
