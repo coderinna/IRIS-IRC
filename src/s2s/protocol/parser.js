@@ -1,10 +1,13 @@
 const {
     HEADER_SIZE,
     decodeHeader
-} = require('./protocol/frame');
+} = require('./frame');
 
 class FrameParser {
-    constructor() {
+    constructor(options = {}) {
+        this.maxBufferSize =
+            options.maxBufferSize || 1024 * 1024;
+
         this.buffer = Buffer.alloc(0);
     }
 
@@ -12,6 +15,15 @@ class FrameParser {
         if (!Buffer.isBuffer(chunk)) {
             throw new TypeError(
                 'IRISH parser input must be a Buffer'
+            );
+        }
+
+        if (
+            this.buffer.length + chunk.length >
+            this.maxBufferSize
+        ) {
+            throw new Error(
+                'IRISH parser buffer limit exceeded'
             );
         }
 
@@ -32,6 +44,13 @@ class FrameParser {
 
             const frameSize =
                 HEADER_SIZE + header.payloadLength;
+
+            // Frame olisi liian suuri
+            if (frameSize > this.maxBufferSize) {
+                throw new Error(
+                    'IRISH frame exceeds parser buffer limit'
+                );
+            }
 
             // Koko frame ei ole vielä saapunut
             if (this.buffer.length < frameSize) {
