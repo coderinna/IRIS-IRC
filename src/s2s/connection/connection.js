@@ -117,6 +117,9 @@ class S2SConnection {
         this.parser = new FrameParser();
 
 this.maxChunkSize = 64 * 1024;
+this.sendQueue = [];
+this.sending = false;
+this.maxSendQueue = 1000;
 
 
 this.handshakeTimeout = setTimeout(() => {
@@ -270,16 +273,57 @@ sendFrame(frame) {
         return false;
     }
 
-    const canContinue =
-        this.socket.write(frame);
-
-    if (!canContinue) {
-        console.log(
-            '[IRISH] S2S socket backpressure'
+    if (!Buffer.isBuffer(frame)) {
+        throw new TypeError(
+            'IRISH frame must be a Buffer'
         );
     }
 
-    return canContinue;
+    if (this.sendQueue.length >= this.maxSendQueue) {
+        console.error(
+            '[IRISH] S2S send queue limit exceeded'
+        );
+
+        this.socket.destroy();
+        return false;
+    }
+
+    this.sendQueue.push(frame);
+
+    this.flushSendQueue();
+
+    return true;
+}
+
+flushSendQueue() {
+    if (
+        this.sending ||
+        this.socket.destroyed ||
+        this.state === STATES.CLOSED
+    ) {
+        return;
+    }
+
+    this.sending = true;
+
+    while (this.sendQueue.length > 0) {
+        const frame =
+            this.sendQueue.shift();
+
+        const canContinue =
+            this.socket.write(frame);
+
+        if (!canContinue) {
+            this.socket.once('drain', () => {
+                this.sending = false;
+                this.flushSendQueue();
+            });
+
+            return;
+        }
+    }
+
+    this.sending = false;
 }
 
 handleData(chunk) {
