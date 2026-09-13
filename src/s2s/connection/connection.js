@@ -262,11 +262,25 @@ this.socket.on('close', () => {
         );
     }
 
-    sendFrame(frame) {
-        if (!this.socket.destroyed) {
-            this.socket.write(frame);
-        }
+sendFrame(frame) {
+    if (
+        this.socket.destroyed ||
+        this.state === STATES.CLOSED
+    ) {
+        return false;
     }
+
+    const canContinue =
+        this.socket.write(frame);
+
+    if (!canContinue) {
+        console.log(
+            '[IRISH] S2S socket backpressure'
+        );
+    }
+
+    return canContinue;
+}
 
 handleData(chunk) {
     if (chunk.length > this.maxChunkSize) {
