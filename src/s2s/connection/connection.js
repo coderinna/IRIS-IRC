@@ -116,6 +116,8 @@ class S2SConnection {
 
         this.parser = new FrameParser();
 
+this.maxChunkSize = 64 * 1024;
+
         this.remote = {
             serverId: null,
             serverName: null,
@@ -249,25 +251,34 @@ class S2SConnection {
         }
     }
 
-    handleData(chunk) {
-        let frames;
+handleData(chunk) {
+    if (chunk.length > this.maxChunkSize) {
+        console.error(
+            `[IRISH] S2S data chunk too large: ${chunk.length} bytes`
+        );
 
-        try {
-            frames = this.parser.push(chunk);
-        } catch (error) {
-            console.error(
-                '[IRISH] Frame parser error:',
-                error.message
-            );
-
-            this.socket.destroy();
-            return;
-        }
-
-        for (const frame of frames) {
-            this.handleFrame(frame);
-        }
+        this.socket.destroy();
+        return;
     }
+
+    let frames;
+
+    try {
+        frames = this.parser.push(chunk);
+    } catch (error) {
+        console.error(
+            '[IRISH] Parser error:',
+            error.message
+        );
+
+        this.socket.destroy();
+        return;
+    }
+
+    for (const frame of frames) {
+        this.handleFrame(frame);
+    }
+}
 
 handleFrame(frame) {
     const messageId =
