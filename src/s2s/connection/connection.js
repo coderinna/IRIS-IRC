@@ -137,7 +137,8 @@ this.handshakeTimeout = setTimeout(() => {
             capabilities: []
         };
 
-        this.messageIds = new Set();
+      this.messageIds = new Set();
+this.maxMessageIds = 100_000;
 
         this.handlers = {
     [TYPES.HELLO]: frame => this.handleHello(frame),
@@ -300,15 +301,22 @@ handleFrame(frame) {
     const messageId =
         frame.messageId.toString('hex');
 
-    if (this.messageIds.has(messageId)) {
-        console.log(
-            `[IRISH] Duplicate message ignored: ${messageId}`
-        );
+if (this.messageIds.has(messageId)) {
+    console.log(
+        `[IRISH] Duplicate message ignored: ${messageId}`
+    );
 
-        return;
-    }
+    return;
+}
 
-    this.messageIds.add(messageId);
+this.messageIds.add(messageId);
+
+if (this.messageIds.size > this.maxMessageIds) {
+    const oldestMessageId =
+        this.messageIds.values().next().value;
+
+    this.messageIds.delete(oldestMessageId);
+}
 
     const allowedStates =
         ALLOWED_STATES[frame.type];
