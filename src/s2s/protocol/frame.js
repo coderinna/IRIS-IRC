@@ -21,6 +21,10 @@ const TYPES = {
     ACK: 0x22
 };
 
+const VALID_TYPES = new Set(
+    Object.values(TYPES)
+);
+
 function encodeFrame({
     version = 1,
     type,
@@ -37,6 +41,12 @@ function encodeFrame({
     if (!Number.isInteger(type) || type < 0 || type > 0xff) {
         throw new TypeError(
             'IRISH frame type must be a uint8'
+        );
+    }
+
+    if (!VALID_TYPES.has(type)) {
+        throw new Error(
+            `IRISH unknown frame type: 0x${type.toString(16)}`
         );
     }
 
@@ -92,8 +102,26 @@ function decodeHeader(buffer) {
         );
     }
 
+    const version =
+        buffer.readUInt8(0);
+
+    const type =
+        buffer.readUInt8(1);
+
     const payloadLength =
         buffer.readUInt32BE(4);
+
+    if (version !== 1) {
+        throw new Error(
+            `IRISH unsupported protocol version: ${version}`
+        );
+    }
+
+    if (!VALID_TYPES.has(type)) {
+        throw new Error(
+            `IRISH unknown frame type: 0x${type.toString(16)}`
+        );
+    }
 
     if (payloadLength > MAX_PAYLOAD_SIZE) {
         throw new Error(
@@ -102,8 +130,8 @@ function decodeHeader(buffer) {
     }
 
     return {
-        version: buffer.readUInt8(0),
-        type: buffer.readUInt8(1),
+        version,
+        type,
         flags: buffer.readUInt16BE(2),
         payloadLength,
         messageId: Buffer.from(
@@ -116,6 +144,7 @@ module.exports = {
     HEADER_SIZE,
     MAX_PAYLOAD_SIZE,
     TYPES,
+    VALID_TYPES,
     encodeFrame,
     decodeHeader
 };
