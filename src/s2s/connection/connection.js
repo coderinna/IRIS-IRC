@@ -356,10 +356,34 @@ handleData(chunk) {
 }
 
 handleFrame(frame) {
+    const now = Date.now();
+
+    if (
+        now - this.rateLimit.startedAt >=
+        this.rateLimit.windowMs
+    ) {
+        this.rateLimit.startedAt = now;
+        this.rateLimit.frames = 0;
+    }
+
+    this.rateLimit.frames++;
+
+    if (
+        this.rateLimit.frames >
+        this.rateLimit.maxFrames
+    ) {
+        console.error(
+            '[IRISH] S2S frame rate limit exceeded'
+        );
+
+        this.socket.destroy();
+        return;
+    }
+
     const messageId =
         frame.messageId.toString('hex');
 
-if (this.messageIds.has(messageId)) {
+    if (this.messageIds.has(messageId)) {
     console.log(
         `[IRISH] Duplicate message ignored: ${messageId}`
     );
