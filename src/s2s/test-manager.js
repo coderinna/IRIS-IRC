@@ -49,23 +49,127 @@ server.listen(PORT, '127.0.0.1', () => {
         connection.start();
     });
 
+    /*
+     * CLIENT
+     */
+    setTimeout(() => {
+        console.log(
+            '[TEST] Emitting client:registered'
+        );
 
-setTimeout(() => {
-    console.log(
-        '[TEST] Emitting client:nick_changed'
-    );
+        events.emit(
+            'client:registered',
+            {
+                client: {
+                    id: 'client-001',
+                    nick: 'IrisTest',
+                    user: 'iris'
+                }
+            }
+        );
+    }, 1000);
 
-    events.emit(
-        'client:nick_changed',
-        {
-            client: {
-                id: 'client-001'
-            },
-            oldNick: 'IrisTest',
-            newNick: 'IrisNew'
-        }
-    );
-}, 2000);
+    /*
+     * NICK
+     */
+    setTimeout(() => {
+        console.log(
+            '[TEST] Emitting client:nick_changed'
+        );
+
+        events.emit(
+            'client:nick_changed',
+            {
+                client: {
+                    id: 'client-001'
+                },
+                oldNick: 'IrisTest',
+                newNick: 'IrisNew'
+            }
+        );
+    }, 2000);
+
+    /*
+     * JOIN
+     */
+    setTimeout(() => {
+        console.log(
+            '[TEST] Emitting channel:joined'
+        );
+
+        events.emit(
+            'channel:joined',
+            {
+                client: {
+                    id: 'client-001',
+                    nick: 'IrisNew'
+                },
+                channel: '#iris'
+            }
+        );
+    }, 3000);
+
+    /*
+     * PART
+     */
+    setTimeout(() => {
+        console.log(
+            '[TEST] Emitting channel:left'
+        );
+
+        events.emit(
+            'channel:left',
+            {
+                client: {
+                    id: 'client-001',
+                    nick: 'IrisNew'
+                },
+                channel: '#iris',
+                reason: 'Leaving test channel'
+            }
+        );
+    }, 4000);
+
+    /*
+     * MESSAGE
+     */
+    setTimeout(() => {
+        console.log(
+            '[TEST] Emitting message:sent'
+        );
+
+        events.emit(
+            'message:sent',
+            {
+                client: {
+                    id: 'client-001',
+                    nick: 'IrisNew'
+                },
+                target: '#iris',
+                message: 'Hello from IRIS'
+            }
+        );
+    }, 5000);
+
+    /*
+     * QUIT
+     */
+    setTimeout(() => {
+        console.log(
+            '[TEST] Emitting client:quit'
+        );
+
+        events.emit(
+            'client:quit',
+            {
+                client: {
+                    id: 'client-001',
+                    nick: 'IrisNew'
+                },
+                reason: 'Test complete'
+            }
+        );
+    }, 6000);
 });
 
 process.on('SIGINT', () => {
