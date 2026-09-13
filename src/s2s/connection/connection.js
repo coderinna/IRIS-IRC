@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const FrameParser = require('./parser');
+const FrameParser = require('../protocol/parser');
 
 const {
     TYPES,
@@ -10,46 +10,29 @@ const {
 const {
     encodeHello,
     decodeHello
-} = require('./hello');
+} = require('../messages/hello');
 
 const {
     encodeAuth,
     decodeAuth
-} = require('./auth');
+} = require('../messages/auth');
 
 const {
     encodeServer,
     decodeServer
-} = require('./server');
+} = require('../messages/server');
 
 const {
     encodeReady,
     decodeReady
-} = require('./ready');
+} = require('../messages/ready');
 
-const {
-    decodeClient
-} = require('./client');
-
-const {
-    decodeNick
-} = require('./nick');
-
-const {
-    decodeJoin
-} = require('./join');
-
-const {
-    decodePart
-} = require('./part');
-
-const {
-    decodeQuit
-} = require('./quit');
-
-const {
-    decodeMessage
-} = require('./message');
+const handleClient = require('./handlers/client');
+const handleNick = require('./handlers/nick');
+const handleJoin = require('./handlers/join');
+const handlePart = require('./handlers/part');
+const handleQuit = require('./handlers/quit');
+const handleMessage = require('./handlers/message');
 
 const STATES = {
     CONNECTING: 'connecting',
@@ -261,29 +244,29 @@ class S2SConnection {
                 this.handleReady(frame);
                 break;
 
-                case TYPES.CLIENT:
-    this.handleClient(frame);
-    break;
+            case TYPES.CLIENT:
+                handleClient(this, frame);
+                break;
 
-    case TYPES.NICK:
-    this.handleNick(frame);
-    break;
+            case TYPES.NICK:
+                handleNick(this, frame);
+                break;
 
-    case TYPES.JOIN:
-    this.handleJoin(frame);
-    break;
+            case TYPES.JOIN:
+                handleJoin(this, frame);
+                break;
 
-case TYPES.PART:
-    this.handlePart(frame);
-    break;
+            case TYPES.PART:
+                handlePart(this, frame);
+                break;
 
-case TYPES.QUIT:
-    this.handleQuit(frame);
-    break;
+            case TYPES.QUIT:
+                handleQuit(this, frame);
+                break;
 
-case TYPES.MESSAGE:
-    this.handleMessage(frame);
-    break;
+            case TYPES.MESSAGE:
+                handleMessage(this, frame);
+                break;
 
             default:
                 console.log(
@@ -389,160 +372,6 @@ case TYPES.MESSAGE:
             this.socket.destroy();
         }
     }
-
-    handleQuit(frame) {
-    try {
-        const quit =
-            decodeQuit(frame.payload);
-
-        console.log(
-            `[IRISH] ← QUIT ` +
-            `${quit.clientId} ` +
-            `from ${quit.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid QUIT:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handleJoin(frame) {
-    try {
-        const join =
-            decodeJoin(frame.payload);
-
-        console.log(
-            `[IRISH] ← JOIN ` +
-            `${join.clientId} ` +
-            `→ ${join.channel} ` +
-            `from ${join.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid JOIN:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handlePart(frame) {
-    try {
-        const part =
-            decodePart(frame.payload);
-
-        console.log(
-            `[IRISH] ← PART ` +
-            `${part.clientId} ` +
-            `← ${part.channel} ` +
-            `from ${part.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid PART:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handlePart(frame) {
-    try {
-        const part =
-            decodePart(frame.payload);
-
-        console.log(
-            `[IRISH] ← PART ` +
-            `${part.clientId} ` +
-            `← ${part.channel} ` +
-            `from ${part.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid PART:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handleMessage(frame) {
-    try {
-        const message =
-            decodeMessage(frame.payload);
-
-        console.log(
-            `[IRISH] ← MESSAGE ` +
-            `${message.clientId} ` +
-            `→ ${message.target} ` +
-            `: ${message.message} ` +
-            `from ${message.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid MESSAGE:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-    handleClient(frame) {
-    try {
-        const client =
-            decodeClient(frame.payload);
-
-        console.log(
-            `[IRISH] ← CLIENT ` +
-            `${client.clientId} ` +
-            `${client.nick} ` +
-            `from ${client.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid CLIENT:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handleNick(frame) {
-    try {
-        const nick =
-            decodeNick(frame.payload);
-
-        console.log(
-            `[IRISH] ← NICK ` +
-            `${nick.clientId} ` +
-            `${nick.oldNick} → ${nick.newNick} ` +
-            `from ${nick.serverId}`
-        );
-
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid NICK:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
 
     handleReady(frame) {
         try {
