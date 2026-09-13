@@ -44,6 +44,49 @@ const STATES = {
     CLOSED: 'closed'
 };
 
+const ALLOWED_STATES = {
+    [TYPES.HELLO]: [
+        STATES.CONNECTING,
+        STATES.HELLO
+    ],
+
+    [TYPES.AUTH]: [
+        STATES.AUTH
+    ],
+
+    [TYPES.SERVER]: [
+        STATES.SERVER
+    ],
+
+    [TYPES.READY]: [
+        STATES.READY
+    ],
+
+    [TYPES.CLIENT]: [
+        STATES.CONNECTED
+    ],
+
+    [TYPES.NICK]: [
+        STATES.CONNECTED
+    ],
+
+    [TYPES.JOIN]: [
+        STATES.CONNECTED
+    ],
+
+    [TYPES.PART]: [
+        STATES.CONNECTED
+    ],
+
+    [TYPES.QUIT]: [
+        STATES.CONNECTED
+    ],
+
+    [TYPES.MESSAGE]: [
+        STATES.CONNECTED
+    ]
+};
+
 class S2SConnection {
     constructor(socket, options = {}) {
         this.socket = socket;
@@ -240,6 +283,28 @@ handleFrame(frame) {
     }
 
     this.messageIds.add(messageId);
+
+    const allowedStates =
+        ALLOWED_STATES[frame.type];
+
+    if (!allowedStates) {
+        console.error(
+            `[IRISH] Frame type not allowed: 0x${frame.type.toString(16)}`
+        );
+
+        this.socket.destroy();
+        return;
+    }
+
+    if (!allowedStates.includes(this.state)) {
+        console.error(
+            `[IRISH] Frame 0x${frame.type.toString(16)} ` +
+            `not allowed in state ${this.state}`
+        );
+
+        this.socket.destroy();
+        return;
+    }
 
     const handler =
         this.handlers[frame.type];
