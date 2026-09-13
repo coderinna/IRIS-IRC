@@ -1,5 +1,8 @@
 const HEADER_SIZE = 3;
 
+const MAX_FIELDS = 256;
+const MAX_BUFFER_SIZE = 1024 * 1024;
+
 function encodeField(type, value) {
     if (!Number.isInteger(type) || type < 0 || type > 0xff) {
         throw new TypeError('TLV type must be a uint8');
@@ -37,6 +40,13 @@ function decodeFields(buffer) {
         throw new TypeError('TLV input must be a Buffer');
     }
 
+        if (buffer.length > MAX_BUFFER_SIZE) {
+        throw new RangeError(
+            'TLV input is too large'
+        );
+    }
+
+
     const fields = [];
     let offset = 0;
 
@@ -60,6 +70,12 @@ function decodeFields(buffer) {
                 offset + length
             )
         );
+
+        if (fields.length >= MAX_FIELDS) {
+    throw new RangeError(
+        'Too many TLV fields'
+    );
+}
 
         fields.push({
             type,
