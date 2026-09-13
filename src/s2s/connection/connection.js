@@ -118,6 +118,17 @@ class S2SConnection {
 
 this.maxChunkSize = 64 * 1024;
 
+
+this.handshakeTimeout = setTimeout(() => {
+    if (this.state !== STATES.CONNECTED) {
+        console.error(
+            '[IRISH] S2S handshake timeout'
+        );
+
+        this.socket.destroy();
+    }
+}, 10_000);
+
         this.remote = {
             serverId: null,
             serverName: null,
@@ -150,13 +161,18 @@ this.maxChunkSize = 64 * 1024;
             this.handleData(chunk);
         });
 
-        this.socket.on('close', () => {
-            this.state = STATES.CLOSED;
+this.socket.on('close', () => {
+    if (this.handshakeTimeout) {
+        clearTimeout(this.handshakeTimeout);
+        this.handshakeTimeout = null;
+    }
 
-            console.log(
-                `[IRISH] Connection closed: ${this.remote.serverId || 'unknown'}`
-            );
-        });
+    this.state = STATES.CLOSED;
+
+    console.log(
+        `[IRISH] Connection closed: ${this.remote.serverId || 'unknown'}`
+    );
+});
 
         this.socket.on('error', error => {
             console.error(
@@ -468,6 +484,10 @@ handleAuth(frame) {
             );
 
             this.state = STATES.CONNECTED;
+
+
+clearTimeout(this.handshakeTimeout);
+this.handshakeTimeout = null;
 
             console.log(
                 `[IRISH] ✓ CONNECTED ${this.remote.serverId}`
