@@ -255,23 +255,26 @@ sendAuth() {
     );
 }
 
-    sendServer() {
-        const messageId =
-            crypto.randomBytes(16);
+sendServer() {
+    const messageId =
+        crypto.randomBytes(16);
 
-        const frame = encodeServer({
-            serverId: this.serverId,
-            serverName: this.serverName,
-            serverVersion: this.serverVersion,
-            serverRole: this.serverRole
-        }, messageId);
+    const sequence =
+        this.nextSendSequence();
 
-        this.sendFrame(frame);
+    const frame = encodeServer({
+        serverId: this.serverId,
+        serverName: this.serverName,
+        serverVersion: this.serverVersion,
+        serverRole: this.serverRole
+    }, messageId, sequence);
 
-        console.log(
-            `[IRISH] → SERVER ${this.serverId}`
-        );
-    }
+    this.sendFrame(frame);
+
+    console.log(
+        `[IRISH] → SERVER ${this.serverId}`
+    );
+}
 
     sendReady() {
         const messageId =

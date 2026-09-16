@@ -78,7 +78,7 @@ function encodeServer({
     serverName,
     serverVersion = 'iris-irc/0.1',
     serverRole = ROLES.HUB
-}, messageId) {
+}, messageId, sequence = 0n) {
     validateServerId(serverId);
     validateServerName(serverName);
     validateServerVersion(serverVersion);
@@ -111,11 +111,12 @@ function encodeServer({
 
     const payload = encodeFields(fields);
 
-    return encodeFrame({
-        type: TYPES.SERVER,
-        messageId,
-        payload
-    });
+return encodeFrame({
+    type: TYPES.SERVER,
+    sequence,
+    messageId,
+    payload
+});
 }
 
 function decodeServer(payload) {
