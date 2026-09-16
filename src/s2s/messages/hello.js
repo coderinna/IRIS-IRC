@@ -20,7 +20,8 @@ function encodeHello({
     serverId,
     serverName,
     capabilities = []
-}, messageId) {
+}, messageId, sequence = 0n) {
+
     if (!serverId) {
         throw new Error('IRISH HELLO requires serverId');
     }
@@ -58,12 +59,12 @@ function encodeHello({
     }
 
     const payload = encodeFields(fields);
-
-    return encodeFrame({
-        type: TYPES.HELLO,
-        messageId,
-        payload
-    });
+return encodeFrame({
+    type: TYPES.HELLO,
+    sequence,
+    messageId,
+    payload
+});
 }
 
 function decodeHello(payload) {

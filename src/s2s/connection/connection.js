@@ -143,6 +143,9 @@ this.handshakeTimeout = setTimeout(() => {
       this.messageIds = new Set();
 this.maxMessageIds = 100_000;
 
+this.sendSequence = 0n;
+this.receiveSequence = 0n;
+
         this.handlers = {
     [TYPES.HELLO]: frame => this.handleHello(frame),
     [TYPES.AUTH]: frame => this.handleAuth(frame),
@@ -193,6 +196,14 @@ this.socket.on('close', () => {
     this.state = STATES.CLOSED;
 }
 
+nextSendSequence() {
+    const sequence = this.sendSequence;
+
+    this.sendSequence++;
+
+    return sequence;
+}
+
     start() {
         this.state = STATES.HELLO;
 
@@ -203,23 +214,26 @@ this.socket.on('close', () => {
         this.sendHello();
     }
 
-    sendHello() {
-        const messageId =
-            crypto.randomBytes(16);
+sendHello() {
+    const messageId =
+        crypto.randomBytes(16);
 
-        const frame = encodeHello({
-            protocolVersion: 1,
-            serverId: this.serverId,
-            serverName: this.serverName,
-            capabilities: this.capabilities
-        }, messageId);
+    const sequence =
+        this.nextSendSequence();
 
-        this.sendFrame(frame);
+    const frame = encodeHello({
+        protocolVersion: 1,
+        serverId: this.serverId,
+        serverName: this.serverName,
+        capabilities: this.capabilities
+    }, messageId, sequence);
 
-        console.log(
-            `[IRISH] → HELLO ${this.serverId}`
-        );
-    }
+    this.sendFrame(frame);
+
+    console.log(
+        `[IRISH] → HELLO ${this.serverId}`
+    );
+}
 
     sendAuth() {
         const messageId =
