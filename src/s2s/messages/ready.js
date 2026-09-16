@@ -21,6 +21,7 @@ function encodeReady({
     serverId,
     status = STATUS.READY
 }, messageId, sequence = 0n) {
+    
     if (!serverId) {
         throw new Error(
             'IRISH READY requires serverId'

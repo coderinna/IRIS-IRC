@@ -20,7 +20,8 @@ function encodePart({
     channel,
     reason = '',
     serverId
-}, messageId) {
+}, messageId, sequence = 0n) {
+
     if (!clientId) {
         throw new Error('IRISH PART requires clientId');
     }
@@ -61,6 +62,7 @@ function encodePart({
     return encodeFrame({
         type: TYPES.PART,
         messageId,
+    sequence,
         payload
     });
 }

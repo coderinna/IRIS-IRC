@@ -20,7 +20,8 @@ function encodeNick({
     oldNick,
     newNick,
     serverId
-}, messageId) {
+}, messageId, sequence = 0n) {
+
     if (!clientId) {
         throw new Error(
             'IRISH NICK requires clientId'
@@ -69,6 +70,7 @@ function encodeNick({
     return encodeFrame({
         type: TYPES.NICK,
         messageId,
+    sequence,
         payload
     });
 }

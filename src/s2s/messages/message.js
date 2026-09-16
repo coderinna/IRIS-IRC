@@ -20,7 +20,8 @@ function encodeMessage({
     target,
     message,
     serverId
-}, messageId) {
+}, messageId, sequence = 0n) {
+
     if (!clientId) {
         throw new Error('IRISH MESSAGE requires clientId');
     }
@@ -65,6 +66,7 @@ function encodeMessage({
     return encodeFrame({
         type: TYPES.MESSAGE,
         messageId,
+    sequence,
         payload
     });
 }

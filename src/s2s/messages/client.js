@@ -22,7 +22,8 @@ function encodeClient({
     user,
     host,
     serverId
-}, messageId) {
+}, messageId, sequence = 0n) {
+
     if (!clientId) {
         throw new Error(
             'IRISH CLIENT requires clientId'
@@ -72,11 +73,13 @@ function encodeClient({
 
     const payload = encodeFields(fields);
 
-    return encodeFrame({
-        type: TYPES.CLIENT,
-        messageId,
-        payload
-    });
+return encodeFrame({
+    version: 1,
+    type: TYPES.CLIENT,
+    messageId,
+    sequence,
+    payload
+});
 }
 
 function decodeClient(payload) {

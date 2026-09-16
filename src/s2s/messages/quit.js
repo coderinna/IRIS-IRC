@@ -18,7 +18,8 @@ function encodeQuit({
     clientId,
     reason = 'Quit',
     serverId
-}, messageId) {
+}, messageId, sequence = 0n) {
+
     if (!clientId) {
         throw new Error('IRISH QUIT requires clientId');
     }
@@ -51,6 +52,7 @@ function encodeQuit({
     return encodeFrame({
         type: TYPES.QUIT,
         messageId,
+    sequence,
         payload
     });
 }

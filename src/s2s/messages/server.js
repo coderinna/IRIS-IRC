@@ -79,6 +79,7 @@ function encodeServer({
     serverVersion = 'iris-irc/0.1',
     serverRole = ROLES.HUB
 }, messageId, sequence = 0n) {
+    
     validateServerId(serverId);
     validateServerName(serverName);
     validateServerVersion(serverVersion);

@@ -18,7 +18,7 @@ function encodeJoin({
     clientId,
     channel,
     serverId
-}, messageId) {
+}, messageId, sequence = 0n) {
     if (!clientId) {
         throw new Error('IRISH JOIN requires clientId');
     }
@@ -55,6 +55,7 @@ function encodeJoin({
     return encodeFrame({
         type: TYPES.JOIN,
         messageId,
+    sequence,
         payload
     });
 }
