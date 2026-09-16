@@ -22,7 +22,7 @@ function encodeAuth({
     method = METHODS.TOKEN,
     serverId,
     token
-}, messageId) {
+}, messageId, sequence = 0n) {
     if (!serverId) {
         throw new Error(
             'IRISH AUTH requires serverId'
@@ -58,11 +58,12 @@ function encodeAuth({
 
     const payload = encodeFields(fields);
 
-    return encodeFrame({
-        type: TYPES.AUTH,
-        messageId,
-        payload
-    });
+return encodeFrame({
+    type: TYPES.AUTH,
+    sequence,
+    messageId,
+    payload
+});
 }
 
 function decodeAuth(payload) {

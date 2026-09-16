@@ -235,22 +235,25 @@ sendHello() {
     );
 }
 
-    sendAuth() {
-        const messageId =
-            crypto.randomBytes(16);
+sendAuth() {
+    const messageId =
+        crypto.randomBytes(16);
 
-        const frame = encodeAuth({
-            method: 'token',
-            serverId: this.serverId,
-            token: this.authToken
-        }, messageId);
+    const sequence =
+        this.nextSendSequence();
 
-        this.sendFrame(frame);
+    const frame = encodeAuth({
+        method: 'token',
+        serverId: this.serverId,
+        token: this.authToken
+    }, messageId, sequence);
 
-        console.log(
-            `[IRISH] → AUTH ${this.serverId}`
-        );
-    }
+    this.sendFrame(frame);
+
+    console.log(
+        `[IRISH] → AUTH ${this.serverId}`
+    );
+}
 
     sendServer() {
         const messageId =
