@@ -17,6 +17,8 @@ module.exports = function handleMessage(
             `: ${message.message} ` +
             `from ${message.serverId}`
         );
+        return true;
+
 
     } catch (error) {
         console.error(
@@ -25,5 +27,7 @@ module.exports = function handleMessage(
         );
 
         connection.socket.destroy();
+
+        return false;
     }
 };

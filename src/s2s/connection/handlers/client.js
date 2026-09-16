@@ -17,6 +17,8 @@ module.exports = function handleClient(
             `from ${client.serverId}`
         );
 
+        return true;
+
     } catch (error) {
         console.error(
             '[IRISH] Invalid CLIENT:',
@@ -24,5 +26,7 @@ module.exports = function handleClient(
         );
 
         connection.socket.destroy();
+
+        return false;
     }
 };

@@ -15,6 +15,8 @@ module.exports = function handleQuit(
             `${quit.clientId} ` +
             `from ${quit.serverId}`
         );
+        return true;
+
 
     } catch (error) {
         console.error(
@@ -23,5 +25,7 @@ module.exports = function handleQuit(
         );
 
         connection.socket.destroy();
+
+        return false;
     }
 };

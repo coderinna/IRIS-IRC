@@ -16,6 +16,8 @@ module.exports = function handleJoin(
             `→ ${join.channel} ` +
             `from ${join.serverId}`
         );
+        return true;
+
 
     } catch (error) {
         console.error(
@@ -24,5 +26,7 @@ module.exports = function handleJoin(
         );
 
         connection.socket.destroy();
+
+        return false;
     }
 };

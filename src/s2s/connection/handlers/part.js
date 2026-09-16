@@ -16,6 +16,8 @@ module.exports = function handlePart(
             `← ${part.channel} ` +
             `from ${part.serverId}`
         );
+        return true;
+
 
     } catch (error) {
         console.error(
@@ -24,5 +26,7 @@ module.exports = function handlePart(
         );
 
         connection.socket.destroy();
+
+        return false;
     }
 };

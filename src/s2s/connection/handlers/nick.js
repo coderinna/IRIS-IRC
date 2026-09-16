@@ -13,6 +13,8 @@ module.exports = function handleNick(connection, frame) {
             `${nick.oldNick} → ${nick.newNick} ` +
             `from ${nick.serverId}`
         );
+        return true;
+
     } catch (error) {
         console.error(
             '[IRISH] Invalid NICK:',
@@ -20,5 +22,7 @@ module.exports = function handleNick(connection, frame) {
         );
 
         connection.socket.destroy();
+
+        return false;
     }
 };
