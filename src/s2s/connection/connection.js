@@ -2,6 +2,8 @@ const crypto = require('crypto');
 
 const FrameParser = require('../protocol/parser');
 
+const lifecycle = require('./lifecycle/index.js');
+
 const {
     TYPES,
     encodeFrame
@@ -113,15 +115,7 @@ this.sending = false;
 this.maxSendQueue = 1000;
 
 
-this.handshakeTimeout = setTimeout(() => {
-    if (this.state !== STATES.CONNECTED) {
-        console.error(
-            '[IRISH] S2S handshake timeout'
-        );
-
-        this.socket.destroy();
-    }
-}, 10_000);
+lifecycle.startHandshakeTimeout(this);
 
         this.remote = {
             serverId: null,
@@ -189,33 +183,11 @@ this.socket.on('close', () => {
     }
 
 cleanup() {
-    if (this.handshakeTimeout) {
-        clearTimeout(this.handshakeTimeout);
-        this.handshakeTimeout = null;
-    }
+    lifecycle.cleanup(this);
+}
 
-    if (this.heartbeatInterval) {
-        clearInterval(this.heartbeatInterval);
-        this.heartbeatInterval = null;
-    }
-
-    if (this.heartbeatTimeout) {
-        clearTimeout(this.heartbeatTimeout);
-        this.heartbeatTimeout = null;
-    }
-
-    if (this.pendingAckCleanupInterval) {
-        clearInterval(
-            this.pendingAckCleanupInterval
-        );
-
-        this.pendingAckCleanupInterval = null;
-    }
-
-    this.messageIds.clear();
-    this.sendQueue.length = 0;
-
-    this.state = STATES.CLOSED;
+destroy() {
+    lifecycle.destroy(this);
 }
 
 nextSendSequence() {
@@ -347,15 +319,9 @@ startHeartbeat() {
     }, this.heartbeatIntervalMs);
 }
 
-    start() {
-        this.state = STATES.HELLO;
-
-        console.log(
-            `[IRISH] Starting handshake as ${this.serverId}`
-        );
-
-        this.sendHello();
-    }
+start() {
+    lifecycle.start(this);
+}
 
 sendHello() {
     const messageId =
