@@ -187,6 +187,47 @@ nextSendSequence() {
     return sequence;
 }
 
+startHeartbeat() {
+    if (this.heartbeatInterval) {
+        return;
+    }
+
+    this.heartbeatInterval = setInterval(() => {
+        if (
+            this.state !== STATES.CONNECTED ||
+            this.socket.destroyed
+        ) {
+            return;
+        }
+
+        const messageId = crypto.randomBytes(16);
+        const sequence = this.nextSendSequence();
+
+        const ping = encodePing(
+            messageId,
+            sequence
+        );
+
+        this.sendFrame(ping);
+
+        console.log(
+            `[IRISH] → PING ${this.remote.serverId}`
+        );
+
+        if (this.heartbeatTimeout) {
+            clearTimeout(this.heartbeatTimeout);
+        }
+
+        this.heartbeatTimeout = setTimeout(() => {
+            console.error(
+                `[IRISH] S2S heartbeat timeout: ${this.remote.serverId}`
+            );
+
+            this.socket.destroy();
+        }, this.heartbeatTimeoutMs);
+    }, this.heartbeatIntervalMs);
+}
+
     start() {
         this.state = STATES.HELLO;
 
@@ -598,7 +639,7 @@ handleAuth(frame) {
             );
 
             this.state = STATES.CONNECTED;
-
+this.startHeartbeat();
 
 clearTimeout(this.handshakeTimeout);
 this.handshakeTimeout = null;
