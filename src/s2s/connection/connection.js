@@ -392,6 +392,37 @@ sendReady() {
     );
 }
 
+sendAck(acknowledgedMessageId) {
+    if (
+        !Buffer.isBuffer(acknowledgedMessageId) ||
+        acknowledgedMessageId.length !== 16
+    ) {
+        throw new TypeError(
+            'IRISH ACK acknowledgedMessageId must be a 16-byte Buffer'
+        );
+    }
+
+    const messageId =
+        crypto.randomBytes(16);
+
+    const sequence =
+        this.nextSendSequence();
+
+    const frame =
+        encodeAck(
+            acknowledgedMessageId,
+            messageId,
+            sequence
+        );
+
+    console.log(
+        `[IRISH] → ACK ` +
+        `${acknowledgedMessageId.toString('hex')}`
+    );
+
+    return this.sendFrame(frame);
+}
+
 sendFrame(frame) {
     if (
         this.socket.destroyed ||
@@ -590,7 +621,21 @@ handleFrame(frame) {
         return;
     }
 
-    handler(frame);
+    const handled = handler(frame);
+
+    if (
+        handled === true &&
+        [
+            TYPES.CLIENT,
+            TYPES.NICK,
+            TYPES.JOIN,
+            TYPES.PART,
+            TYPES.QUIT,
+            TYPES.MESSAGE
+        ].includes(frame.type)
+    ) {
+        this.sendAck(frame.messageId);
+    }
 }
 
     handleHello(frame) {
