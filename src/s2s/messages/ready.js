@@ -20,7 +20,7 @@ const STATUS = {
 function encodeReady({
     serverId,
     status = STATUS.READY
-}, messageId) {
+}, messageId, sequence = 0n) {
     if (!serverId) {
         throw new Error(
             'IRISH READY requires serverId'
@@ -46,11 +46,12 @@ function encodeReady({
 
     const payload = encodeFields(fields);
 
-    return encodeFrame({
-        type: TYPES.READY,
-        messageId,
-        payload
-    });
+return encodeFrame({
+    type: TYPES.READY,
+    sequence,
+    messageId,
+    payload
+});
 }
 
 function decodeReady(payload) {

@@ -276,21 +276,24 @@ sendServer() {
     );
 }
 
-    sendReady() {
-        const messageId =
-            crypto.randomBytes(16);
+sendReady() {
+    const messageId =
+        crypto.randomBytes(16);
 
-        const frame = encodeReady({
-            serverId: this.serverId,
-            status: 'ready'
-        }, messageId);
+    const sequence =
+        this.nextSendSequence();
 
-        this.sendFrame(frame);
+    const frame = encodeReady({
+        serverId: this.serverId,
+        status: 'ready'
+    }, messageId, sequence);
 
-        console.log(
-            `[IRISH] → READY ${this.serverId}`
-        );
-    }
+    this.sendFrame(frame);
+
+    console.log(
+        `[IRISH] → READY ${this.serverId}`
+    );
+}
 
 sendFrame(frame) {
     if (
