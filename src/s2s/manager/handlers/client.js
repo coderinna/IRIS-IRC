@@ -22,18 +22,21 @@ module.exports = function handleClient(
         }
 
         try {
-            const messageId =
-                crypto.randomBytes(16);
+const messageId =
+    crypto.randomBytes(16);
 
-            const frame = encodeClient({
-                clientId: client.id,
-                nick: client.nick,
-                user: client.user || '',
-                host: 'localhost',
-                serverId: manager.serverId
-            }, messageId);
+const sequence =
+    connection.nextSendSequence();
 
-            connection.sendFrame(frame);
+const frame = encodeClient({
+    clientId: client.id,
+    nick: client.nick,
+    user: client.user || '',
+    host: 'localhost',
+    serverId: manager.serverId
+}, messageId, sequence);
+
+connection.sendFrame(frame);
 
             console.log(
                 `[IRISH] → CLIENT ` +

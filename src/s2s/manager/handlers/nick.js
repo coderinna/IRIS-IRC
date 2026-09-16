@@ -32,12 +32,15 @@ module.exports = function handleNick(
             const messageId =
                 crypto.randomBytes(16);
 
+            const sequence =
+                connection.nextSendSequence();
+
             const frame = encodeNick({
                 clientId: client.id,
                 oldNick,
                 newNick,
                 serverId: manager.serverId
-            }, messageId);
+            }, messageId, sequence);
 
             connection.sendFrame(frame);
 

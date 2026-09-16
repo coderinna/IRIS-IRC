@@ -131,6 +131,8 @@ this.handshakeTimeout = setTimeout(() => {
 
       this.messageIds = new Set();
 this.maxMessageIds = 100_000;
+this.pendingAcks = new Map();
+this.maxPendingAcks = 10_000;
 
 this.sendSequence = 0n;
 this.receiveSequence = 0n;
@@ -204,6 +206,25 @@ nextSendSequence() {
     this.sendSequence++;
 
     return sequence;
+}
+
+trackPendingAck(messageId) {
+    const id = messageId.toString('hex');
+
+    if (this.pendingAcks.size >= this.maxPendingAcks) {
+        console.error(
+            '[IRISH] S2S pending ACK limit exceeded'
+        );
+
+        this.socket.destroy();
+        return false;
+    }
+
+    this.pendingAcks.set(id, {
+        createdAt: Date.now()
+    });
+
+    return true;
 }
 
 startHeartbeat() {
@@ -359,6 +380,25 @@ sendFrame(frame) {
 
         this.socket.destroy();
         return false;
+    }
+
+    const type = frame.readUInt8(1);
+
+    const requiresAck =
+        type === TYPES.CLIENT ||
+        type === TYPES.NICK ||
+        type === TYPES.JOIN ||
+        type === TYPES.PART ||
+        type === TYPES.QUIT ||
+        type === TYPES.MESSAGE;
+
+    if (requiresAck) {
+        const messageId =
+            frame.subarray(16, 32);
+
+        if (!this.trackPendingAck(messageId)) {
+            return false;
+        }
     }
 
     this.sendQueue.push(frame);
@@ -718,6 +758,41 @@ handlePong(frame) {
     } catch (error) {
         console.error(
             '[IRISH] Invalid PONG:',
+            error.message
+        );
+
+        this.socket.destroy();
+    }
+}
+
+handleAck(frame) {
+    try {
+        const ack = decodeAck(frame.payload);
+
+        const acknowledgedMessageId =
+            ack.acknowledgedMessageId.toString('hex');
+
+        const pending =
+            this.pendingAcks.get(acknowledgedMessageId);
+
+        if (!pending) {
+            console.log(
+                `[IRISH] ACK for unknown message: ${acknowledgedMessageId}`
+            );
+
+            return;
+        }
+
+        this.pendingAcks.delete(
+            acknowledgedMessageId
+        );
+
+        console.log(
+            `[IRISH] ← ACK ${acknowledgedMessageId}`
+        );
+    } catch (error) {
+        console.error(
+            '[IRISH] Invalid ACK:',
             error.message
         );
 
