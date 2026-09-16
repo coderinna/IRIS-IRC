@@ -27,6 +27,16 @@ const {
     decodeReady
 } = require('../messages/ready');
 
+const {
+    encodePing,
+    decodePing
+} = require('../messages/ping');
+
+const {
+    encodePong,
+    decodePong
+} = require('../messages/pong');
+
 const handleClient = require('./handlers/client');
 const handleNick = require('./handlers/nick');
 const handleJoin = require('./handlers/join');
@@ -45,45 +55,18 @@ const STATES = {
 };
 
 const ALLOWED_STATES = {
-    [TYPES.HELLO]: [
-        STATES.CONNECTING
-    ],
-
-    [TYPES.AUTH]: [
-        STATES.AUTH
-    ],
-
-    [TYPES.SERVER]: [
-        STATES.SERVER
-    ],
-
-    [TYPES.READY]: [
-        STATES.READY
-    ],
-
-    [TYPES.CLIENT]: [
-        STATES.CONNECTED
-    ],
-
-    [TYPES.NICK]: [
-        STATES.CONNECTED
-    ],
-
-    [TYPES.JOIN]: [
-        STATES.CONNECTED
-    ],
-
-    [TYPES.PART]: [
-        STATES.CONNECTED
-    ],
-
-    [TYPES.QUIT]: [
-        STATES.CONNECTED
-    ],
-
-    [TYPES.MESSAGE]: [
-        STATES.CONNECTED
-    ]
+    [TYPES.HELLO]: [    STATES.CONNECTING  ],
+    [TYPES.AUTH]: [     STATES.AUTH  ],
+    [TYPES.SERVER]: [     STATES.SERVER ],
+    [TYPES.READY]: [     STATES.READY  ],
+    [TYPES.CLIENT]: [     STATES.CONNECTED  ],
+    [TYPES.NICK]: [      STATES.CONNECTED   ],
+    [TYPES.JOIN]: [ STATES.CONNECTED    ],
+    [TYPES.PART]: [     STATES.CONNECTED  ],
+    [TYPES.QUIT]: [    STATES.CONNECTED ],
+    [TYPES.MESSAGE]: [   STATES.CONNECTED ],
+    [TYPES.PING]: frame => this.handlePing(frame),
+[TYPES.PONG]: frame => this.handlePong(frame)
 };
 
 class S2SConnection {
@@ -632,6 +615,50 @@ this.handshakeTimeout = null;
             this.socket.destroy();
         }
     }
+
+    handlePing(frame) {
+    try {
+        decodePing(frame.payload);
+
+        const messageId = crypto.randomBytes(16);
+        const sequence = this.nextSendSequence();
+
+        const pong = encodePong(
+            messageId,
+            sequence
+        );
+
+        this.sendFrame(pong);
+
+        console.log(
+            `[IRISH] ← PING → PONG ${this.remote.serverId}`
+        );
+    } catch (error) {
+        console.error(
+            '[IRISH] Invalid PING:',
+            error.message
+        );
+
+        this.socket.destroy();
+    }
+}
+
+handlePong(frame) {
+    try {
+        decodePong(frame.payload);
+
+        console.log(
+            `[IRISH] ← PONG ${this.remote.serverId}`
+        );
+    } catch (error) {
+        console.error(
+            '[IRISH] Invalid PONG:',
+            error.message
+        );
+
+        this.socket.destroy();
+    }
+}
 }
 
 module.exports = {
