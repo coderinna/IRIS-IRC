@@ -6,7 +6,7 @@ const {
 
 const {
     STATES
-} = require('../../states.js');
+} = require('../states.js');
 
 module.exports = function handleAuth(
     connection,

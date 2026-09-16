@@ -43,7 +43,7 @@ module.exports = function setupEvents(connection) {
     );
 
     events.on(
-        'channel:left',
+        'channel:parted',
         ({ client, channel, reason }) => {
             handlePart(
                 connection,
