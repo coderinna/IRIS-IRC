@@ -1,4 +1,4 @@
-const HEADER_SIZE = 24;
+const HEADER_SIZE = 32;
 
 const MAX_PAYLOAD_SIZE = 1024 * 1024;
 
@@ -29,16 +29,25 @@ function encodeFrame({
     version = 1,
     type,
     flags = 0,
+    sequence = 0n,
     messageId,
     payload = Buffer.alloc(0)
 }) {
-    if (!Number.isInteger(version) || version < 0 || version > 0xff) {
+    if (
+        !Number.isInteger(version) ||
+        version < 0 ||
+        version > 0xff
+    ) {
         throw new TypeError(
             'IRISH frame version must be a uint8'
         );
     }
 
-    if (!Number.isInteger(type) || type < 0 || type > 0xff) {
+    if (
+        !Number.isInteger(type) ||
+        type < 0 ||
+        type > 0xff
+    ) {
         throw new TypeError(
             'IRISH frame type must be a uint8'
         );
@@ -50,9 +59,23 @@ function encodeFrame({
         );
     }
 
-    if (!Number.isInteger(flags) || flags < 0 || flags > 0xffff) {
+    if (
+        !Number.isInteger(flags) ||
+        flags < 0 ||
+        flags > 0xffff
+    ) {
         throw new TypeError(
             'IRISH frame flags must be a uint16'
+        );
+    }
+
+    if (
+        typeof sequence !== 'bigint' ||
+        sequence < 0n ||
+        sequence > 0xffffffffffffffffn
+    ) {
+        throw new TypeError(
+            'IRISH frame sequence must be a uint64'
         );
     }
 
@@ -68,7 +91,10 @@ function encodeFrame({
         );
     }
 
-    if (!Buffer.isBuffer(messageId) || messageId.length !== 16) {
+    if (
+        !Buffer.isBuffer(messageId) ||
+        messageId.length !== 16
+    ) {
         throw new TypeError(
             'IRISH messageId must be a 16-byte Buffer'
         );
@@ -81,7 +107,9 @@ function encodeFrame({
     header.writeUInt16BE(flags, 2);
     header.writeUInt32BE(payload.length, 4);
 
-    messageId.copy(header, 8);
+    header.writeBigUInt64BE(sequence, 8);
+
+    messageId.copy(header, 16);
 
     return Buffer.concat([
         header,
@@ -111,6 +139,9 @@ function decodeHeader(buffer) {
     const payloadLength =
         buffer.readUInt32BE(4);
 
+    const sequence =
+        buffer.readBigUInt64BE(8);
+
     if (version !== 1) {
         throw new Error(
             `IRISH unsupported protocol version: ${version}`
@@ -134,8 +165,9 @@ function decodeHeader(buffer) {
         type,
         flags: buffer.readUInt16BE(2),
         payloadLength,
+        sequence,
         messageId: Buffer.from(
-            buffer.subarray(8, 24)
+            buffer.subarray(16, 32)
         )
     };
 }
