@@ -386,6 +386,17 @@ handleData(chunk) {
 }
 
 handleFrame(frame) {
+    if (frame.sequence !== this.receiveSequence) {
+        console.error(
+            `[IRISH] Invalid S2S sequence: expected ${this.receiveSequence}, received ${frame.sequence}`
+        );
+
+        this.socket.destroy();
+        return;
+    }
+
+    this.receiveSequence++;
+
     const now = Date.now();
 
     if (
@@ -414,21 +425,21 @@ handleFrame(frame) {
         frame.messageId.toString('hex');
 
     if (this.messageIds.has(messageId)) {
-    console.log(
-        `[IRISH] Duplicate message ignored: ${messageId}`
-    );
+        console.log(
+            `[IRISH] Duplicate message ignored: ${messageId}`
+        );
 
-    return;
-}
+        return;
+    }
 
-this.messageIds.add(messageId);
+    this.messageIds.add(messageId);
 
-if (this.messageIds.size > this.maxMessageIds) {
-    const oldestMessageId =
-        this.messageIds.values().next().value;
+    if (this.messageIds.size > this.maxMessageIds) {
+        const oldestMessageId =
+            this.messageIds.values().next().value;
 
-    this.messageIds.delete(oldestMessageId);
-}
+        this.messageIds.delete(oldestMessageId);
+    }
 
     const allowedStates =
         ALLOWED_STATES[frame.type];
