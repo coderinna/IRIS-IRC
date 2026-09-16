@@ -36,7 +36,7 @@ module.exports = function handleQuit(
                 serverId: manager.serverId
             }, messageId, sequence);
 
-            connection.sendFrame(frame);
+            connection.sendTrackedFrame(frame, messageId);
 
             console.log(
                 `[IRISH] → QUIT ` +

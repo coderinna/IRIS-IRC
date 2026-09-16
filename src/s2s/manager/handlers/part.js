@@ -38,7 +38,7 @@ module.exports = function handlePart(
                 serverId: manager.serverId
             }, messageId, sequence);
 
-            connection.sendFrame(frame);
+            connection.sendTrackedFrame(frame, messageId);
 
             console.log(
                 `[IRISH] → PART ` +
