@@ -137,6 +137,12 @@ this.maxPendingAcks = 10_000;
 this.pendingAckTimeout = 30_000;
 this.pendingAckCleanupInterval = null;
 
+this.unknownAckCount = 0;
+this.unknownAckWindowStartedAt = 0;
+this.maxUnknownAcks = 20;
+this.unknownAckWindow = 10_000;
+
+
 this.sendSequence = 0n;
 this.receiveSequence = 0n;
 
@@ -893,14 +899,39 @@ handleAck(frame) {
         const pending =
             this.pendingAcks.get(acknowledgedMessageId);
 
-        if (!pending) {
-            console.log(
-                `[IRISH] ACK for unknown message: ${acknowledgedMessageId}`
-            );
+if (!pending) {
+    const now = Date.now();
 
-            return;
-        }
+    if (
+        this.unknownAckWindowStartedAt === 0 ||
+        now - this.unknownAckWindowStartedAt >=
+        this.unknownAckWindow
+    ) {
+        this.unknownAckWindowStartedAt = now;
+        this.unknownAckCount = 0;
+    }
 
+    this.unknownAckCount++;
+
+    console.error(
+        `[IRISH] Unknown ACK ` +
+        `${acknowledgedMessageId} ` +
+        `(${this.unknownAckCount}/${this.maxUnknownAcks})`
+    );
+
+    if (
+        this.unknownAckCount >=
+        this.maxUnknownAcks
+    ) {
+        console.error(
+            '[IRISH] S2S unknown ACK rate limit exceeded'
+        );
+
+        this.socket.destroy();
+    }
+
+    return;
+}
         this.pendingAcks.delete(
             acknowledgedMessageId
         );
