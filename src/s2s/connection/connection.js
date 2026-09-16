@@ -37,6 +37,11 @@ const {
     decodePong
 } = require('../messages/pong');
 
+const {
+    encodeAck,
+    decodeAck
+} = require('../messages/ack');
+
 const handleClient = require('./handlers/client');
 const handleNick = require('./handlers/nick');
 const handleJoin = require('./handlers/join');
@@ -65,8 +70,9 @@ const ALLOWED_STATES = {
     [TYPES.PART]: [     STATES.CONNECTED  ],
     [TYPES.QUIT]: [    STATES.CONNECTED ],
     [TYPES.MESSAGE]: [   STATES.CONNECTED ],
-    [TYPES.PING]: frame => this.handlePing(frame),
-[TYPES.PONG]: frame => this.handlePong(frame)
+[TYPES.PING]: [STATES.CONNECTED],
+[TYPES.PONG]: [STATES.CONNECTED],
+[TYPES.ACK]: [STATES.CONNECTED],
 };
 
 class S2SConnection {
@@ -140,7 +146,10 @@ this.receiveSequence = 0n;
     [TYPES.JOIN]: frame => handleJoin(this, frame),
     [TYPES.PART]: frame => handlePart(this, frame),
     [TYPES.QUIT]: frame => handleQuit(this, frame),
-    [TYPES.MESSAGE]: frame => handleMessage(this, frame)
+    [TYPES.MESSAGE]: frame => handleMessage(this, frame),
+    [TYPES.PING]: frame => this.handlePing(frame),
+[TYPES.PONG]: frame => this.handlePong(frame),
+[TYPES.ACK]: frame => this.handleAck(frame)
 };
 
         this.setupSocket();
