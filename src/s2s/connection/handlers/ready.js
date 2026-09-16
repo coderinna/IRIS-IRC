@@ -2,6 +2,10 @@ const {
     decodeReady
 } = require('../../messages/ready');
 
+const {
+    STATES
+} = require('../../states.js');
+
 module.exports = function handleReady(
     connection,
     frame
@@ -20,7 +24,7 @@ module.exports = function handleReady(
             `[IRISH] ← READY ${ready.serverId}`
         );
 
-        connection.state = 'connected';
+     connection.state = STATES.CONNECTED;
 
         connection.startHeartbeat();
         connection.startPendingAckCleanup();

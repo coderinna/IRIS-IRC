@@ -34,8 +34,6 @@ const sendHello = connection => {
         capabilities: connection.capabilities
     }, messageId, sequence);
 
-    console.log(  `[IRISH] → HELLO ${connection.serverId}` );
-
    return connection.sendFrame(frame);
 
 
@@ -53,8 +51,6 @@ const sendAuth = connection => {
         serverId: connection.serverId,
         token: connection.authToken
     }, messageId, sequence);
-
-    console.log( `[IRISH] → AUTH ${connection.serverId}`  );
 
   return connection.sendFrame(frame);
 
@@ -74,8 +70,6 @@ const sendServer = connection => {
         serverRole: connection.serverRole
     }, messageId, sequence);
 
-    console.log(   `[IRISH] → SERVER ${connection.serverId}` );
-
 return connection.sendFrame(frame);
 
 };
@@ -91,8 +85,6 @@ const sendReady = connection => {
         serverId: connection.serverId,
         status: 'ready'
     }, messageId, sequence);
-
-    console.log(    `[IRISH] → READY ${connection.serverId}` );
 
     return connection.sendFrame(frame);
 
@@ -125,8 +117,6 @@ const sendAck = (
             messageId,
             sequence
         );
-
-    console.log(   `[IRISH] → ACK ` +   `${acknowledgedMessageId.toString('hex')}`  );
 
     return connection.sendFrame(frame);
 };

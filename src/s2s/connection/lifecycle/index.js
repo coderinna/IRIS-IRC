@@ -1,3 +1,5 @@
+const { STATES } = require('../../states.js');
+
 function start(connection) {
     connection.state = STATES.HELLO;
 

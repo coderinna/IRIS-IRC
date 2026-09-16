@@ -2,9 +2,16 @@ const {
     TYPES,
     MAX_PAYLOAD_SIZE
 } = require('../../protocol/frame');
+
+const {
+    STATES
+} = require('../states.js');
+
 const CURRENT_PROTOCOL_VERSION = 1;
+
 const MAX_SEQUENCE =
     0xffffffffffffffffn;
+
 
 function validateVersion(
     connection,
@@ -13,11 +20,10 @@ function validateVersion(
     if (
         !frame ||
         !Number.isInteger(frame.version) ||
-        frame.version < 0 ||
-        frame.version > 0xff
+        frame.version !== CURRENT_PROTOCOL_VERSION
     ) {
         console.warn(
-            '[IRISH] Invalid outgoing protocol version'
+            '[IRISH] Unsupported outgoing protocol version'
         );
 
         return false;
@@ -25,6 +31,7 @@ function validateVersion(
 
     return true;
 }
+
 
 function validateFrameType(
     connection,
@@ -59,6 +66,7 @@ function validateFrameType(
     return true;
 }
 
+
 function validateFlags(
     connection,
     frame
@@ -78,6 +86,7 @@ function validateFlags(
 
     return true;
 }
+
 
 function validatePayload(
     connection,
@@ -109,24 +118,6 @@ function validatePayload(
     return true;
 }
 
-function validateVersion(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        !Number.isInteger(frame.version) ||
-        frame.version !== CURRENT_PROTOCOL_VERSION
-    ) {
-        console.warn(
-            '[IRISH] Unsupported outgoing protocol version'
-        );
-
-        return false;
-    }
-
-    return true;
-}
 
 function validateMessageId(
     connection,
@@ -147,6 +138,7 @@ function validateMessageId(
     return true;
 }
 
+
 function validateSequence(
     connection,
     frame
@@ -166,6 +158,101 @@ function validateSequence(
 
     return true;
 }
+
+
+function validateState(
+    connection,
+    frame
+) {
+    const allowedStates = {
+
+        [TYPES.HELLO]: [
+            STATES.HELLO
+        ],
+
+        [TYPES.AUTH]: [
+            STATES.AUTH
+        ],
+
+        [TYPES.SERVER]: [
+            STATES.SERVER
+        ],
+
+        [TYPES.READY]: [
+            STATES.READY
+        ],
+
+        [TYPES.CLIENT]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.NICK]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.JOIN]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.PART]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.QUIT]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.MESSAGE]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.NOTICE]: [
+            STATES.CONNECTED
+        ],
+
+        [TYPES.PING]: [
+            STATES.READY,
+            STATES.CONNECTED
+        ],
+
+        [TYPES.PONG]: [
+            STATES.READY,
+            STATES.CONNECTED
+        ],
+
+        [TYPES.ACK]: [
+            STATES.CONNECTED
+        ]
+    };
+
+    const states =
+        allowedStates[frame.type];
+
+    if (!states) {
+        console.warn(
+            '[IRISH] No outbound state policy for frame'
+        );
+
+        return false;
+    }
+
+    if (
+        !states.includes(
+            connection.state
+        )
+    ) {
+        console.warn(
+            `[IRISH] Blocked outbound frame ` +
+            `0x${frame.type.toString(16)} ` +
+            `in state ${connection.state}`
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
 
 function validateOutgoingFrame(
     connection,
@@ -225,8 +312,18 @@ function validateOutgoingFrame(
         return false;
     }
 
+    if (
+        !validateState(
+            connection,
+            frame
+        )
+    ) {
+        return false;
+    }
+
     return true;
 }
+
 
 module.exports = {
     validateVersion,
@@ -235,5 +332,6 @@ module.exports = {
     validatePayload,
     validateMessageId,
     validateSequence,
+    validateState,
     validateOutgoingFrame
 };

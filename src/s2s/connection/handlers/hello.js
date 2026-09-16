@@ -2,6 +2,10 @@ const {
     decodeHello
 } = require('../../messages/hello');
 
+const {
+    STATES
+} = require('../../states.js');
+
 module.exports = function handleHello(
     connection,
     frame
@@ -23,7 +27,7 @@ module.exports = function handleHello(
             `[IRISH] ← HELLO ${hello.serverId}`
         );
 
-        connection.state = 'auth';
+      connection.state = STATES.AUTH;
 
         connection.sendAuth();
 

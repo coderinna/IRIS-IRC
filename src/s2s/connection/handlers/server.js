@@ -2,6 +2,10 @@ const {
     decodeServer
 } = require('../../messages/server');
 
+const {
+    STATES
+} = require('../../states.js');
+
 module.exports = function handleServer(
     connection,
     frame
@@ -28,7 +32,7 @@ module.exports = function handleServer(
             `(${server.serverRole})`
         );
 
-        connection.state = 'ready';
+     connection.state = STATES.READY;
 
         connection.sendReady();
 

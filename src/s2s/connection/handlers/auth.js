@@ -4,6 +4,10 @@ const {
     decodeAuth
 } = require('../../messages/auth');
 
+const {
+    STATES
+} = require('../../states.js');
+
 module.exports = function handleAuth(
     connection,
     frame
@@ -49,7 +53,7 @@ module.exports = function handleAuth(
             return false;
         }
 
-        connection.state = 'server';
+   connection.state = STATES.SERVER;
 
         connection.sendServer();
 
