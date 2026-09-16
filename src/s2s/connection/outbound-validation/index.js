@@ -2,15 +2,17 @@ const {
     TYPES
 } = require('../../protocol/frame');
 
+const MAX_SEQUENCE =
+    0xffffffffffffffffn;
+
 function validateMessageId(
     connection,
     frame
 ) {
     if (
         !frame ||
-        typeof frame.messageId !== 'number' ||
-        !Number.isInteger(frame.messageId) ||
-        frame.messageId < 0
+        !Buffer.isBuffer(frame.messageId) ||
+        frame.messageId.length !== 16
     ) {
         console.warn(
             '[IRISH] Invalid outgoing message ID'
@@ -28,9 +30,9 @@ function validateSequence(
 ) {
     if (
         !frame ||
-        typeof frame.sequence !== 'number' ||
-        !Number.isInteger(frame.sequence) ||
-        frame.sequence < 0
+        typeof frame.sequence !== 'bigint' ||
+        frame.sequence < 0n ||
+        frame.sequence > MAX_SEQUENCE
     ) {
         console.warn(
             '[IRISH] Invalid outgoing sequence'
