@@ -197,6 +197,14 @@ cleanup() {
         this.heartbeatTimeout = null;
     }
 
+    if (this.pendingAckCleanupInterval) {
+        clearInterval(
+            this.pendingAckCleanupInterval
+        );
+
+        this.pendingAckCleanupInterval = null;
+    }
+
     this.messageIds.clear();
     this.sendQueue.length = 0;
 
