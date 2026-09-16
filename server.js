@@ -4,7 +4,7 @@ const net = require('net');
 
 const config = require('./config/config');
 const Core = require('./src/core');
-const Client = require('./src/client');
+const Client = require('./src/client/client');
 const { parseLine } = require('./src/utilities/parser.js');
 const numerics = require('./src/numerics/index.js');
 const events = require('./src/events');
