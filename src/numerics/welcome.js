@@ -9,6 +9,6 @@ module.exports = function welcome(
         serverName,
         '001',
         nick,
-        ':Welcome to Iris IRC'
+        ':Welcome to Iris IRC 💕'
     );
 };

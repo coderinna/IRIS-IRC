@@ -129,15 +129,11 @@ setInterval(() => {
 */
 
 server.listen(PORT, HOST, () => {
-    console.log('');
     console.log('💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕');
-    console.log('');
     console.log('              🌸 IRIS IRC 🌸');
-    console.log('          ✨ Hardcore IRC Daemon ✨');
-    console.log('');
-    console.log(`          💗 Listening on ${HOST}:${PORT}`);
-    console.log('          🎀 Ready for connections! 🎀');
-    console.log('');
+    console.log('        ⚙️  Hardcore IRC Daemon, v1.0');
+    console.log(`          ❤️  Listening on ${HOST}:${PORT}`);
+    console.log('        🖤 Engineered with precision & attitude');
+    console.log('        🚀 Ready for connections, babe!');
     console.log('💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕');
-    console.log('');
 });

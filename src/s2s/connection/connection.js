@@ -11,6 +11,7 @@ const deduplication =   require('./deduplication/index.js');
 const stateValidation =  require('./state-validation/index.js');
 const messages =
     require('./messages/index.js');
+const outboundValidation =  require('./outbound-validation/index.js');
 
 const {   STATES } = require('../states.js');
 
@@ -186,6 +187,15 @@ sendAck(acknowledgedMessageId) {
 }
 
 sendFrame(frame) {
+    if (
+        !outboundValidation.validateOutgoingFrame(
+            this,
+            frame
+        )
+    ) {
+        return false;
+    }
+
     return transport.sendFrame(
         this,
         frame
