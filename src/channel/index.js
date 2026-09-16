@@ -1,6 +1,3 @@
-const members = require('./members/members');
-const topic = require('./topics/topic');
-
 class Channel {
     constructor(name) {
         this.name = name;
@@ -9,15 +6,43 @@ class Channel {
     }
 
     addClient(client) {
-        return members.addClient(this, client);
+        if (this.clients.has(client)) {
+            return false;
+        }
+
+        this.clients.add(client);
+        client.channels.add(this);
+
+        return true;
     }
 
     removeClient(client) {
-        return members.removeClient(this, client);
+        if (!this.clients.has(client)) {
+            return false;
+        }
+
+        this.clients.delete(client);
+        client.channels.delete(this);
+
+        return true;
     }
 
     hasClient(client) {
-        return members.hasClient(this, client);
+        return this.clients.has(client);
+    }
+
+    getMembers() {
+        return [...this.clients];
+    }
+
+    getNicknames() {
+        return [...this.clients]
+            .map(client => client.nick)
+            .filter(Boolean);
+    }
+
+    isEmpty() {
+        return this.clients.size === 0;
     }
 
     broadcast(message, except = null) {
@@ -28,28 +53,16 @@ class Channel {
         }
     }
 
-    getMembers() {
-        return members.getMembers(this);
-    }
-
-    getNicknames() {
-        return members.getNicknames(this);
-    }
-
-    isEmpty() {
-        return members.isEmpty(this);
-    }
-
     getTopic() {
-        return topic.getTopic(this);
+        return this.topic;
     }
 
     setTopic(value) {
-        topic.setTopic(this, value);
+        this.topic = value || null;
     }
 
     hasTopic() {
-        return topic.hasTopic(this);
+        return Boolean(this.topic);
     }
 }
 
