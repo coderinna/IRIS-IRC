@@ -134,6 +134,9 @@ this.maxMessageIds = 100_000;
 this.pendingAcks = new Map();
 this.maxPendingAcks = 10_000;
 
+this.pendingAckTimeout = 30_000;
+this.pendingAckCleanupInterval = null;
+
 this.sendSequence = 0n;
 this.receiveSequence = 0n;
 
@@ -206,6 +209,34 @@ nextSendSequence() {
     this.sendSequence++;
 
     return sequence;
+}
+
+startPendingAckCleanup() {
+    if (this.pendingAckCleanupInterval) {
+        return;
+    }
+
+    this.pendingAckCleanupInterval = setInterval(() => {
+        const now = Date.now();
+
+        for (const [
+            messageId,
+            pending
+        ] of this.pendingAcks) {
+            if (
+                now - pending.createdAt >=
+                this.pendingAckTimeout
+            ) {
+                this.pendingAcks.delete(
+                    messageId
+                );
+
+                console.error(
+                    `[IRISH] S2S ACK timeout: ${messageId}`
+                );
+            }
+        }
+    }, 5_000);
 }
 
 trackPendingAck(messageId) {
@@ -777,6 +808,7 @@ handleAuth(frame) {
 
             this.state = STATES.CONNECTED;
 this.startHeartbeat();
+this.startPendingAckCleanup();
 
 clearTimeout(this.handshakeTimeout);
 this.handshakeTimeout = null;
