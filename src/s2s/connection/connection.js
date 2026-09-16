@@ -166,12 +166,7 @@ this.maxMessageIds = 100_000;
         });
 
 this.socket.on('close', () => {
-    if (this.handshakeTimeout) {
-        clearTimeout(this.handshakeTimeout);
-        this.handshakeTimeout = null;
-    }
-
-    this.state = STATES.CLOSED;
+    this.cleanup();
 
     console.log(
         `[IRISH] Connection closed: ${this.remote.serverId || 'unknown'}`
@@ -185,6 +180,18 @@ this.socket.on('close', () => {
             );
         });
     }
+
+    cleanup() {
+    if (this.handshakeTimeout) {
+        clearTimeout(this.handshakeTimeout);
+        this.handshakeTimeout = null;
+    }
+
+    this.messageIds.clear();
+    this.sendQueue.length = 0;
+
+    this.state = STATES.CLOSED;
+}
 
     start() {
         this.state = STATES.HELLO;
