@@ -1,83 +1,69 @@
+const {
+    addServer,
+    removeServer,
+    getServer,
+    getServers,
+    setStatus,
+    setConnection
+} = require('./network/index.js');
+
 class NetworkManager {
     constructor() {
         this.servers = new Map();
     }
 
     addServer(server) {
-        if (!server || !server.serverId) {
-            throw new Error('Invalid server definition');
-        }
-
-        if (this.servers.has(server.serverId)) {
-            throw new Error(`Server already exists: ${server.serverId}`);
-        }
-
-        const entry = {
-            serverId: server.serverId,
-            serverName: server.serverName || server.serverId,
-            host: server.host,
-            port: server.port,
-            role: server.role || 'server',
-            status: 'offline',
-            connection: null,
-            lastSeen: null
-        };
-
-        this.servers.set(entry.serverId, entry);
-
-        return entry;
+        return addServer(
+            this,
+            server
+        );
     }
 
     removeServer(serverId) {
-        const server = this.servers.get(serverId);
-
-        if (!server) {
-            return false;
-        }
-
-        this.servers.delete(serverId);
-
-        return true;
+        return removeServer(
+            this,
+            serverId
+        );
     }
 
     getServer(serverId) {
-        return this.servers.get(serverId) || null;
+        return getServer(
+            this,
+            serverId
+        );
     }
 
     getServers() {
-        return Array.from(this.servers.values());
+        return getServers(
+            this
+        );
     }
 
     setStatus(serverId, status) {
-        const server = this.getServer(serverId);
-
-        if (!server) {
-            throw new Error(`Unknown server: ${serverId}`);
-        }
-
-        server.status = status;
-
-        if (status === 'online') {
-            server.lastSeen = Date.now();
-        }
-
-        return server;
+        return setStatus(
+            this,
+            serverId,
+            status
+        );
     }
 
-    setConnection(serverId, connection) {
-        const server = this.getServer(serverId);
-
-        if (!server) {
-            throw new Error(`Unknown server: ${serverId}`);
-        }
-
-        server.connection = connection;
-
-        return server;
+    setConnection(
+        serverId,
+        connection
+    ) {
+        return setConnection(
+            this,
+            serverId,
+            connection
+        );
     }
 
     getStatus(serverId) {
-        const server = this.getServer(serverId);
+        const server =
+            getServer(
+                this,
+                serverId
+            );
 
         if (!server) {
             return null;
