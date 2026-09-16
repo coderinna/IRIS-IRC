@@ -1,5 +1,5 @@
-const members = require('./members');
-const topic = require('./topic');
+const members = require('./members/members');
+const topic = require('./topics/topic');
 
 class Channel {
     constructor(name) {
