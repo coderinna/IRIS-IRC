@@ -587,9 +587,23 @@ handleFrame(frame) {
         return;
     }
 
+        if (
+        !frame.messageId ||
+        frame.messageId.length !== 16
+    ) {
+        console.error(
+            '[IRISH] Invalid S2S messageId'
+        );
+
+        this.socket.destroy();
+        return;
+    }
+
     this.receiveSequence++;
 
     const now = Date.now();
+
+    
 
     if (
         now - this.rateLimit.startedAt >=
