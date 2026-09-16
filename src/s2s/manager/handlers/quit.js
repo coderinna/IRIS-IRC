@@ -27,11 +27,14 @@ module.exports = function handleQuit(
             const messageId =
                 crypto.randomBytes(16);
 
+            const sequence =
+                connection.nextSendSequence();
+
             const frame = encodeQuit({
                 clientId: client.id,
                 reason,
                 serverId: manager.serverId
-            }, messageId);
+            }, messageId, sequence);
 
             connection.sendFrame(frame);
 

@@ -28,12 +28,15 @@ module.exports = function handlePart(
             const messageId =
                 crypto.randomBytes(16);
 
+            const sequence =
+                connection.nextSendSequence();
+
             const frame = encodePart({
                 clientId: client.id,
                 channel,
                 reason,
                 serverId: manager.serverId
-            }, messageId);
+            }, messageId, sequence);
 
             connection.sendFrame(frame);
 

@@ -27,11 +27,14 @@ module.exports = function handleJoin(
             const messageId =
                 crypto.randomBytes(16);
 
+            const sequence =
+                connection.nextSendSequence();
+
             const frame = encodeJoin({
                 clientId: client.id,
                 channel,
                 serverId: manager.serverId
-            }, messageId);
+            }, messageId, sequence);
 
             connection.sendFrame(frame);
 

@@ -32,12 +32,15 @@ module.exports = function handleMessage(
             const messageId =
                 crypto.randomBytes(16);
 
+            const sequence =
+                connection.nextSendSequence();
+
             const frame = encodeMessage({
                 clientId: client.id,
                 target,
                 message,
                 serverId: manager.serverId
-            }, messageId);
+            }, messageId, sequence);
 
             connection.sendFrame(frame);
 
