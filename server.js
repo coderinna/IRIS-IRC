@@ -6,7 +6,7 @@ const config = require('./config/config');
 const Core = require('./src/core');
 const Client = require('./src/client');
 const { parseLine } = require('./src/parser');
-const numerics = require('./src/numerics');
+const numerics = require('./src/numerics/index.js');
 const events = require('./src/events');
 
 const {
