@@ -1,7 +1,7 @@
 const {
     TYPES,
     encodeFrame
-} = require('../protocol/frame');
+} = require('../protocol/frame.js');
 
 const {
     encodeFields,
