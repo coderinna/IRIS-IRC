@@ -16,6 +16,16 @@ module.exports = function handleAuth(
         const auth =
             decodeAuth(frame.payload);
 
+
+if (
+    auth.serverId !==
+    connection.remote.serverId
+) {
+    throw new Error(
+        'IRISH AUTH server ID does not match HELLO'
+    );
+}
+
         console.log(
             `[IRISH] ← AUTH ${auth.serverId}`
         );

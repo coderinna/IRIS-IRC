@@ -14,8 +14,15 @@ module.exports = function handleServer(
         const server =
             decodeServer(frame.payload);
 
-        connection.remote.serverId =
-            server.serverId;
+            if (
+    server.serverId !==
+    connection.remote.serverId
+) {
+    throw new Error(
+        'IRISH SERVER server ID does not match HELLO'
+    );
+}
+
 
         connection.remote.serverName =
             server.serverName;

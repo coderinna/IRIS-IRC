@@ -14,6 +14,15 @@ module.exports = function handleReady(
         const ready =
             decodeReady(frame.payload);
 
+            if (
+    ready.serverId !==
+    connection.remote.serverId
+) {
+    throw new Error(
+        'IRISH READY server ID does not match HELLO'
+    );
+}
+
         if (ready.status !== 'ready') {
             throw new Error(
                 `Remote server is not ready: ${ready.status}`
