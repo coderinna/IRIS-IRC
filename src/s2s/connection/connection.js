@@ -20,6 +20,9 @@ const {
     encodeFrame
 } = require('../protocol/frame');
 
+const MAX_SEQUENCE =
+    0xffffffffffffffffn;
+
 const handleClient = require('./handlers/client');
 const handleNick = require('./handlers/nick');
 const handleJoin = require('./handlers/join');
@@ -129,7 +132,17 @@ destroy() {
 }
 
 nextSendSequence() {
-    const sequence = this.sendSequence;
+    if (
+        this.sendSequence >
+        MAX_SEQUENCE
+    ) {
+        throw new Error(
+            'IRISH outbound sequence exhausted'
+        );
+    }
+
+    const sequence =
+        this.sendSequence;
 
     this.sendSequence++;
 
