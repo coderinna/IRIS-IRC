@@ -167,10 +167,20 @@ this.socket.on('close', () => {
         });
     }
 
-    cleanup() {
+cleanup() {
     if (this.handshakeTimeout) {
         clearTimeout(this.handshakeTimeout);
         this.handshakeTimeout = null;
+    }
+
+    if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+    }
+
+    if (this.heartbeatTimeout) {
+        clearTimeout(this.heartbeatTimeout);
+        this.heartbeatTimeout = null;
     }
 
     this.messageIds.clear();
@@ -687,6 +697,11 @@ this.handshakeTimeout = null;
 handlePong(frame) {
     try {
         decodePong(frame.payload);
+
+        if (this.heartbeatTimeout) {
+            clearTimeout(this.heartbeatTimeout);
+            this.heartbeatTimeout = null;
+        }
 
         console.log(
             `[IRISH] ← PONG ${this.remote.serverId}`
