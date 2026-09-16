@@ -20,23 +20,69 @@ const ROLES = {
     LEAF: 'leaf'
 };
 
+const LIMITS = {
+    SERVER_ID: 64,
+    SERVER_NAME: 255,
+    SERVER_VERSION: 128
+};
+
+function validateServerId(serverId) {
+    if (
+        typeof serverId !== 'string' ||
+        serverId.length === 0 ||
+        serverId.length > LIMITS.SERVER_ID
+    ) {
+        throw new Error(
+            'IRISH SERVER serverId is invalid'
+        );
+    }
+}
+
+function validateServerName(serverName) {
+    if (
+        typeof serverName !== 'string' ||
+        serverName.length === 0 ||
+        serverName.length > LIMITS.SERVER_NAME
+    ) {
+        throw new Error(
+            'IRISH SERVER serverName is invalid'
+        );
+    }
+}
+
+function validateServerVersion(serverVersion) {
+    if (
+        typeof serverVersion !== 'string' ||
+        serverVersion.length === 0 ||
+        serverVersion.length > LIMITS.SERVER_VERSION
+    ) {
+        throw new Error(
+            'IRISH SERVER serverVersion is invalid'
+        );
+    }
+}
+
+function validateServerRole(serverRole) {
+    if (
+        serverRole !== ROLES.HUB &&
+        serverRole !== ROLES.LEAF
+    ) {
+        throw new Error(
+            'IRISH SERVER serverRole is invalid'
+        );
+    }
+}
+
 function encodeServer({
     serverId,
     serverName,
     serverVersion = 'iris-irc/0.1',
     serverRole = ROLES.HUB
 }, messageId) {
-    if (!serverId) {
-        throw new Error(
-            'IRISH SERVER requires serverId'
-        );
-    }
-
-    if (!serverName) {
-        throw new Error(
-            'IRISH SERVER requires serverName'
-        );
-    }
+    validateServerId(serverId);
+    validateServerName(serverName);
+    validateServerVersion(serverVersion);
+    validateServerRole(serverRole);
 
     if (!Buffer.isBuffer(messageId) || messageId.length !== 16) {
         throw new TypeError(
@@ -111,29 +157,10 @@ function decodeServer(payload) {
         }
     }
 
-    if (!server.serverId) {
-        throw new Error(
-            'IRISH SERVER missing server ID'
-        );
-    }
-
-    if (!server.serverName) {
-        throw new Error(
-            'IRISH SERVER missing server name'
-        );
-    }
-
-    if (!server.serverVersion) {
-        throw new Error(
-            'IRISH SERVER missing server version'
-        );
-    }
-
-    if (!server.serverRole) {
-        throw new Error(
-            'IRISH SERVER missing server role'
-        );
-    }
+    validateServerId(server.serverId);
+    validateServerName(server.serverName);
+    validateServerVersion(server.serverVersion);
+    validateServerRole(server.serverRole);
 
     return server;
 }
@@ -141,6 +168,7 @@ function decodeServer(payload) {
 module.exports = {
     FIELDS,
     ROLES,
+    LIMITS,
     encodeServer,
     decodeServer
 };
