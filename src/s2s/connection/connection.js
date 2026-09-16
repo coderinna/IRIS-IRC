@@ -227,6 +227,39 @@ trackPendingAck(messageId) {
     return true;
 }
 
+sendTrackedFrame(frame, messageId) {
+    if (
+        !Buffer.isBuffer(messageId) ||
+        messageId.length !== 16
+    ) {
+        throw new TypeError(
+            'IRISH tracked frame messageId must be a 16-byte Buffer'
+        );
+    }
+
+    const id =
+        messageId.toString('hex');
+
+    if (!this.trackPendingAck(messageId)) {
+        return false;
+    }
+
+    try {
+        const sent =
+            this.sendFrame(frame);
+
+        if (!sent) {
+            this.pendingAcks.delete(id);
+        }
+
+        return sent;
+
+    } catch (error) {
+        this.pendingAcks.delete(id);
+        throw error;
+    }
+}
+
 startHeartbeat() {
     if (this.heartbeatInterval) {
         return;
