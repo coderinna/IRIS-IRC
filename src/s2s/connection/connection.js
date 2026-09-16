@@ -33,11 +33,6 @@ const {
 } = require('../messages/ping');
 
 const {
-    encodePong,
-    decodePong
-} = require('../messages/pong');
-
-const {
     encodeAck,
     decodeAck
 } = require('../messages/ack');
@@ -48,6 +43,13 @@ const handleJoin = require('./handlers/join');
 const handlePart = require('./handlers/part');
 const handleQuit = require('./handlers/quit');
 const handleMessage = require('./handlers/message');
+const handlePing = require('./handlers/ping.js');
+const handlePong = require('./handlers/pong.js');
+const handleAck = require('./handlers/ack.js');
+const handleHello = require('./handlers/hello.js');
+const handleAuth = require('./handlers/auth.js');
+const handleServer = require('./handlers/server.js');
+const handleReady = require('./handlers/ready.js');
 
 const STATES = {
     CONNECTING: 'connecting',
@@ -73,6 +75,8 @@ const ALLOWED_STATES = {
 [TYPES.PING]: [STATES.CONNECTED],
 [TYPES.PONG]: [STATES.CONNECTED],
 [TYPES.ACK]: [STATES.CONNECTED],
+
+
 };
 
 class S2SConnection {
@@ -147,20 +151,19 @@ this.sendSequence = 0n;
 this.receiveSequence = 0n;
 
         this.handlers = {
-    [TYPES.HELLO]: frame => this.handleHello(frame),
-    [TYPES.AUTH]: frame => this.handleAuth(frame),
-    [TYPES.SERVER]: frame => this.handleServer(frame),
-    [TYPES.READY]: frame => this.handleReady(frame),
-
+    [TYPES.HELLO]: frame => handleHello(this, frame),
+    [TYPES.READY]: frame => handleReady(this, frame),
     [TYPES.CLIENT]: frame => handleClient(this, frame),
     [TYPES.NICK]: frame => handleNick(this, frame),
     [TYPES.JOIN]: frame => handleJoin(this, frame),
     [TYPES.PART]: frame => handlePart(this, frame),
     [TYPES.QUIT]: frame => handleQuit(this, frame),
     [TYPES.MESSAGE]: frame => handleMessage(this, frame),
-    [TYPES.PING]: frame => this.handlePing(frame),
-[TYPES.PONG]: frame => this.handlePong(frame),
-[TYPES.ACK]: frame => this.handleAck(frame)
+[TYPES.PING]: frame => handlePing(this, frame),
+[TYPES.PONG]: frame => handlePong(this, frame),
+[TYPES.ACK]: frame => handleAck(this, frame),
+[TYPES.AUTH]: frame => handleAuth(this, frame),
+[TYPES.SERVER]: frame => handleServer(this, frame),
 };
 
         this.setupSocket();
@@ -697,271 +700,7 @@ handleFrame(frame) {
     }
 }
 
-    handleHello(frame) {
-        try {
-            const hello =
-                decodeHello(frame.payload);
 
-            this.remote.serverId =
-                hello.serverId;
-
-            this.remote.serverName =
-                hello.serverName;
-
-            this.remote.capabilities =
-                hello.capabilities;
-
-            console.log(
-                `[IRISH] ← HELLO ${hello.serverId}`
-            );
-
-            this.state = STATES.AUTH;
-
-            this.sendAuth();
-        } catch (error) {
-            console.error(
-                '[IRISH] Invalid HELLO:',
-                error.message
-            );
-
-            this.socket.destroy();
-        }
-    }
-
-handleAuth(frame) {
-    try {
-        const auth =
-            decodeAuth(frame.payload);
-
-        console.log(
-            `[IRISH] ← AUTH ${auth.serverId}`
-        );
-
-        if (!this.authToken) {
-            throw new Error(
-                'IRISH authentication token is not configured'
-            );
-        }
-
-        if (typeof auth.token !== 'string') {
-            throw new Error(
-                'IRISH authentication token is invalid'
-            );
-        }
-
-        const expectedToken =
-            Buffer.from(this.authToken, 'utf8');
-
-        const receivedToken =
-            Buffer.from(auth.token, 'utf8');
-
-        if (
-            expectedToken.length !== receivedToken.length ||
-            !crypto.timingSafeEqual(
-                expectedToken,
-                receivedToken
-            )
-        ) {
-            console.error(
-                `[IRISH] Authentication failed for ${auth.serverId}`
-            );
-
-            this.socket.destroy();
-            return;
-        }
-
-        this.state = STATES.SERVER;
-
-        this.sendServer();
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid AUTH:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-    handleServer(frame) {
-        try {
-            const server =
-                decodeServer(frame.payload);
-
-            this.remote.serverId =
-                server.serverId;
-
-            this.remote.serverName =
-                server.serverName;
-
-            this.remote.serverVersion =
-                server.serverVersion;
-
-            this.remote.serverRole =
-                server.serverRole;
-
-            console.log(
-                `[IRISH] ← SERVER ${server.serverId} ` +
-                `${server.serverName} ` +
-                `(${server.serverRole})`
-            );
-
-            this.state = STATES.READY;
-
-            this.sendReady();
-        } catch (error) {
-            console.error(
-                '[IRISH] Invalid SERVER:',
-                error.message
-            );
-
-            this.socket.destroy();
-        }
-    }
-
-    handleReady(frame) {
-        try {
-            const ready =
-                decodeReady(frame.payload);
-
-            if (ready.status !== 'ready') {
-                throw new Error(
-                    `Remote server is not ready: ${ready.status}`
-                );
-            }
-
-            console.log(
-                `[IRISH] ← READY ${ready.serverId}`
-            );
-
-            this.state = STATES.CONNECTED;
-this.startHeartbeat();
-this.startPendingAckCleanup();
-
-clearTimeout(this.handshakeTimeout);
-this.handshakeTimeout = null;
-
-            console.log(
-                `[IRISH] ✓ CONNECTED ${this.remote.serverId}`
-            );
-        } catch (error) {
-            console.error(
-                '[IRISH] Invalid READY:',
-                error.message
-            );
-
-            this.socket.destroy();
-        }
-    }
-
-    handlePing(frame) {
-    try {
-        decodePing(frame.payload);
-
-        const messageId = crypto.randomBytes(16);
-        const sequence = this.nextSendSequence();
-
-        const pong = encodePong(
-            messageId,
-            sequence
-        );
-
-        this.sendFrame(pong);
-
-        console.log(
-            `[IRISH] ← PING → PONG ${this.remote.serverId}`
-        );
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid PING:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handlePong(frame) {
-    try {
-        decodePong(frame.payload);
-
-        if (this.heartbeatTimeout) {
-            clearTimeout(this.heartbeatTimeout);
-            this.heartbeatTimeout = null;
-        }
-
-        console.log(
-            `[IRISH] ← PONG ${this.remote.serverId}`
-        );
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid PONG:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
-
-handleAck(frame) {
-    try {
-        const ack = decodeAck(frame.payload);
-
-        const acknowledgedMessageId =
-            ack.acknowledgedMessageId.toString('hex');
-
-        const pending =
-            this.pendingAcks.get(acknowledgedMessageId);
-
-if (!pending) {
-    const now = Date.now();
-
-    if (
-        this.unknownAckWindowStartedAt === 0 ||
-        now - this.unknownAckWindowStartedAt >=
-        this.unknownAckWindow
-    ) {
-        this.unknownAckWindowStartedAt = now;
-        this.unknownAckCount = 0;
-    }
-
-    this.unknownAckCount++;
-
-    console.error(
-        `[IRISH] Unknown ACK ` +
-        `${acknowledgedMessageId} ` +
-        `(${this.unknownAckCount}/${this.maxUnknownAcks})`
-    );
-
-    if (
-        this.unknownAckCount >=
-        this.maxUnknownAcks
-    ) {
-        console.error(
-            '[IRISH] S2S unknown ACK rate limit exceeded'
-        );
-
-        this.socket.destroy();
-    }
-
-    return;
-}
-        this.pendingAcks.delete(
-            acknowledgedMessageId
-        );
-
-        console.log(
-            `[IRISH] ← ACK ${acknowledgedMessageId}`
-        );
-    } catch (error) {
-        console.error(
-            '[IRISH] Invalid ACK:',
-            error.message
-        );
-
-        this.socket.destroy();
-    }
-}
 }
 
 module.exports = {
