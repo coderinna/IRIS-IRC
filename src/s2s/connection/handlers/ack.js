@@ -51,13 +51,26 @@ module.exports = function handleAck(
             return false;
         }
 
-        connection.pendingAcks.delete(
-            acknowledgedMessageId
-        );
+        if (
+    !Number.isInteger(pending.type) ||
+    typeof pending.sequence !== 'bigint' ||
+    !Number.isFinite(pending.createdAt)
+) {
+    console.error(
+        `[IRISH] Invalid pending ACK state: ` +
+        `${acknowledgedMessageId}`
+    );
 
-        console.log(
-            `[IRISH] ← ACK ${acknowledgedMessageId}`
-        );
+    connection.socket.destroy();
+
+    return false;
+}
+
+connection.pendingAcks.delete(
+    acknowledgedMessageId
+);
+
+        console.log(    `[IRISH] ← ACK`  );
 
         return true;
 

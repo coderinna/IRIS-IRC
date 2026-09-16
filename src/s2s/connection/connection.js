@@ -153,10 +153,11 @@ startPendingAckCleanup() {
     acknowledgements.startPendingAckCleanup(this);
 }
 
-trackPendingAck(messageId) {
+trackPendingAck(messageId, frame) {
     return acknowledgements.trackPendingAck(
         this,
-        messageId
+        messageId,
+        frame
     );
 }
 

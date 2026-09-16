@@ -65,9 +65,14 @@ function sendFrame(connection, frame) {
         const messageId =
             frame.subarray(16, 32);
 
-        if (!connection.trackPendingAck(messageId)) {
-            return false;
-        }
+ if (
+    !connection.trackPendingAck(
+        messageId,
+        frame
+    )
+) {
+    return false;
+}
     }
 
     connection.sendQueue.push(frame);
