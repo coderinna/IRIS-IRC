@@ -8,6 +8,11 @@ function setupSocket(connection) {
 
 connection.socket.on('close', () => {
     if (connection.manager) {
+        connection.manager.networkManager
+            .removeClientsByConnection(
+                connection
+            );
+
         connection.manager.unregisterRemoteServer(
             connection
         );
