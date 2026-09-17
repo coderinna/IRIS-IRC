@@ -16,10 +16,20 @@ const {
     removeClientsByConnection
 } = require('./clients');
 
+const {
+    addChannel,
+    removeChannel,
+    getChannel,
+    getChannels,
+    addClient,
+    removeClient
+} = require('./channels');
+
 class NetworkManager {
     constructor() {
         this.servers = new Map();
         this.clients = new Map();
+        this.channels = new Map();
     }
 
     addServer(server) {
@@ -94,9 +104,57 @@ class NetworkManager {
         this,
         connection
     );
-
-    
 }
+
+addChannel(channel) {
+    return addChannel(
+        this,
+        channel
+    );
+}
+
+removeChannel(name) {
+    return removeChannel(
+        this,
+        name
+    );
+}
+
+getChannel(name) {
+    return getChannel(
+        this,
+        name
+    );
+}
+
+getChannels() {
+    return getChannels(
+        this
+    );
+}
+
+addClientToChannel(
+    channelName,
+    client
+) {
+    return addClient(
+        this,
+        channelName,
+        client
+    );
+}
+
+removeClientFromChannel(
+    channelName,
+    client
+) {
+    return removeClient(
+        this,
+        channelName,
+        client
+    );
+}
+
 }
 
 module.exports = NetworkManager;
