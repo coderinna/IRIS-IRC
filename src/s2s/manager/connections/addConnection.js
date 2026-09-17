@@ -1,10 +1,12 @@
 module.exports = function addConnection(
-    connection,
+    manager,
     newConnection
 ) {
-    connection.connections.add(
+    manager.connections.add(
         newConnection
     );
+
+    newConnection.manager = manager;
 
     console.log(
         `[IRISH] Connection added: ` +

@@ -6,15 +6,25 @@ function setupSocket(connection) {
         connection.handleData(chunk);
     });
 
-    connection.socket.on('close', () => {
-        connection.cleanup();
-
-        console.log(
-            `[IRISH] Connection closed: ${
-                connection.remote.serverId || 'unknown'
-            }`
+connection.socket.on('close', () => {
+    if (connection.manager) {
+        connection.manager.unregisterRemoteServer(
+            connection
         );
-    });
+
+        connection.manager.removeConnection(
+            connection
+        );
+    }
+
+    connection.cleanup();
+
+    console.log(
+        `[IRISH] Connection closed: ${
+            connection.remote.serverId || 'unknown'
+        }`
+    );
+});
 
     connection.socket.on('error', error => {
         console.error(

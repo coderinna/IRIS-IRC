@@ -33,7 +33,16 @@ module.exports = function handleReady(
             `[IRISH] ← READY ${ready.serverId}`
         );
 
-     connection.state = STATES.CONNECTED;
+connection.state = STATES.CONNECTED;
+
+if (connection.manager) {
+    connection.manager.registerRemoteServer(
+        connection
+    );
+}
+
+connection.startHeartbeat();
+connection.startPendingAckCleanup();
 
         connection.startHeartbeat();
         connection.startPendingAckCleanup();

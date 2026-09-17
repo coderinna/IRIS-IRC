@@ -1,8 +1,14 @@
 module.exports = function removeConnection(
-    connection,
+    manager,
     removedConnection
 ) {
-    connection.connections.delete(
+    manager.connections.delete(
         removedConnection
     );
+
+    if (
+        removedConnection.manager === manager
+    ) {
+        removedConnection.manager = null;
+    }
 };

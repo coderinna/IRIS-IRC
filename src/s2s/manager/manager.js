@@ -9,10 +9,12 @@ const {
 class S2SManager {
     constructor({
         serverId,
-        serverName
+        serverName,
+        networkManager
     }) {
         this.serverId = serverId;
         this.serverName = serverName;
+        this.networkManager = networkManager;
 
         this.connections = new Set();
 
@@ -31,6 +33,73 @@ class S2SManager {
             this,
             connection
         );
+    }
+
+    registerRemoteServer(connection) {
+        if (
+            !this.networkManager ||
+            !connection.remote.serverId
+        ) {
+            return false;
+        }
+
+        const server =
+            this.networkManager.getServer(
+                connection.remote.serverId
+            );
+
+        if (!server) {
+            return false;
+        }
+
+        this.networkManager.setConnection(
+            connection.remote.serverId,
+            connection
+        );
+
+        this.networkManager.setStatus(
+            connection.remote.serverId,
+            'online'
+        );
+
+        return true;
+    }
+
+    unregisterRemoteServer(connection) {
+        if (
+            !this.networkManager ||
+            !connection.remote.serverId
+        ) {
+            return false;
+        }
+
+        const server =
+            this.networkManager.getServer(
+                connection.remote.serverId
+            );
+
+        if (!server) {
+            return false;
+        }
+
+        if (
+            server.connection &&
+            server.connection !== connection
+        ) {
+            return false;
+        }
+
+        this.networkManager.setConnection(
+            connection.remote.serverId,
+            null
+        );
+
+        this.networkManager.setStatus(
+            connection.remote.serverId,
+            'offline'
+        );
+
+        return true;
     }
 }
 
