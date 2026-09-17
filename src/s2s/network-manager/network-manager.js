@@ -21,9 +21,9 @@ const {
     removeChannel,
     getChannel,
     getChannels,
-    addClient,
-    removeClient
-} = require('./channels');
+    addClient: addClientToChannel,
+    removeClient: removeClientFromChannel
+} = require('../../channel/index.js');
 
 class NetworkManager {
     constructor() {
@@ -32,16 +32,29 @@ class NetworkManager {
         this.channels = new Map();
     }
 
+    /*
+     * Servers
+     */
+
     addServer(server) {
-        return addServer(this, server);
+        return addServer(
+            this,
+            server
+        );
     }
 
     removeServer(serverId) {
-        return removeServer(this, serverId);
+        return removeServer(
+            this,
+            serverId
+        );
     }
 
     getServer(serverId) {
-        return getServer(this, serverId);
+        return getServer(
+            this,
+            serverId
+        );
     }
 
     getServers() {
@@ -49,24 +62,53 @@ class NetworkManager {
     }
 
     setStatus(serverId, status) {
-        return setStatus(this, serverId, status);
+        return setStatus(
+            this,
+            serverId,
+            status
+        );
     }
 
-    setConnection(serverId, connection) {
-        return setConnection(this, serverId, connection);
+    setConnection(
+        serverId,
+        connection
+    ) {
+        return setConnection(
+            this,
+            serverId,
+            connection
+        );
     }
 
     getStatus(serverId) {
-        const server = getServer(this, serverId);
-        if (!server) return null;
+        const server =
+            getServer(
+                this,
+                serverId
+            );
+
+        if (!server) {
+            return null;
+        }
+
         return server.status;
     }
 
+    /*
+     * Remote clients
+     */
+
     addClient(client) {
-        return addClient(this, client);
+        return addClient(
+            this,
+            client
+        );
     }
 
-    removeClient(serverId, clientId) {
+    removeClient(
+        serverId,
+        clientId
+    ) {
         return removeClient(
             this,
             serverId,
@@ -74,7 +116,10 @@ class NetworkManager {
         );
     }
 
-    getClient(serverId, clientId) {
+    getClient(
+        serverId,
+        clientId
+    ) {
         return getClient(
             this,
             serverId,
@@ -87,74 +132,77 @@ class NetworkManager {
     }
 
     updateClient(
-    serverId,
-    clientId,
-    updates
-) {
-    return updateClient(
-        this,
         serverId,
         clientId,
         updates
-    );
-}
+    ) {
+        return updateClient(
+            this,
+            serverId,
+            clientId,
+            updates
+        );
+    }
 
-    removeClientsByConnection(connection) {
-    return removeClientsByConnection(
-        this,
+    removeClientsByConnection(
         connection
-    );
-}
+    ) {
+        return removeClientsByConnection(
+            this,
+            connection
+        );
+    }
 
-addChannel(channel) {
-    return addChannel(
-        this,
-        channel
-    );
-}
+    /*
+     * Remote channels
+     */
 
-removeChannel(name) {
-    return removeChannel(
-        this,
-        name
-    );
-}
+    addChannel(channel) {
+        return addChannel(
+            this,
+            channel
+        );
+    }
 
-getChannel(name) {
-    return getChannel(
-        this,
-        name
-    );
-}
+    removeChannel(name) {
+        return removeChannel(
+            this,
+            name
+        );
+    }
 
-getChannels() {
-    return getChannels(
-        this
-    );
-}
+    getChannel(name) {
+        return getChannel(
+            this,
+            name
+        );
+    }
 
-addClientToChannel(
-    channelName,
-    client
-) {
-    return addClient(
-        this,
+    getChannels() {
+        return getChannels(this);
+    }
+
+    addClientToChannel(
         channelName,
         client
-    );
-}
+    ) {
+        return addClientToChannel(
+            this,
+            channelName,
+            client
+        );
+    }
 
-removeClientFromChannel(
-    channelName,
-    client
-) {
-    return removeClient(
-        this,
+    removeClientFromChannel(
         channelName,
         client
-    );
-}
-
+    ) {
+        return removeClientFromChannel(
+            this,
+            channelName,
+            client
+        );
+    }
 }
 
 module.exports = NetworkManager;

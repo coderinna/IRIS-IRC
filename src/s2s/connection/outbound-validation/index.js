@@ -1,6 +1,8 @@
 const {
     TYPES,
-    MAX_PAYLOAD_SIZE
+    HEADER_SIZE,
+    MAX_PAYLOAD_SIZE,
+    decodeHeader
 } = require('../../protocol/frame');
 
 const {
@@ -258,10 +260,56 @@ function validateOutgoingFrame(
     connection,
     frame
 ) {
+    if (!Buffer.isBuffer(frame)) {
+        console.warn(
+            '[IRISH] Outgoing frame must be a Buffer'
+        );
+
+        return false;
+    }
+
+    let header;
+
+    try {
+        header =
+            decodeHeader(frame);
+    } catch (error) {
+        console.warn(
+            '[IRISH] Invalid outgoing frame header:',
+            error.message
+        );
+
+        return false;
+    }
+
+    const expectedLength =
+        HEADER_SIZE +
+        header.payloadLength;
+
+    if (frame.length !== expectedLength) {
+        console.warn(
+            '[IRISH] Invalid outgoing frame length'
+        );
+
+        return false;
+    }
+
+    const normalizedFrame = {
+        version: header.version,
+        type: header.type,
+        flags: header.flags,
+        payload: frame.subarray(
+            HEADER_SIZE,
+            expectedLength
+        ),
+        messageId: header.messageId,
+        sequence: header.sequence
+    };
+
     if (
         !validateVersion(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -270,7 +318,7 @@ function validateOutgoingFrame(
     if (
         !validateFrameType(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -279,7 +327,7 @@ function validateOutgoingFrame(
     if (
         !validateFlags(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -288,7 +336,7 @@ function validateOutgoingFrame(
     if (
         !validatePayload(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -297,7 +345,7 @@ function validateOutgoingFrame(
     if (
         !validateMessageId(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -306,7 +354,7 @@ function validateOutgoingFrame(
     if (
         !validateSequence(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -315,7 +363,7 @@ function validateOutgoingFrame(
     if (
         !validateState(
             connection,
-            frame
+            normalizedFrame
         )
     ) {
         return false;
@@ -323,7 +371,6 @@ function validateOutgoingFrame(
 
     return true;
 }
-
 
 module.exports = {
     validateVersion,

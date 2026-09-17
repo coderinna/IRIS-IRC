@@ -13,7 +13,7 @@ const messages =
     require('./messages/index.js');
 const outboundValidation =  require('./outbound-validation/index.js');
 
-const {   STATES } = require('../states.js');
+const {   STATES } = require('./states.js');
 
 const {
     TYPES,
