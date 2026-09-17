@@ -10,14 +10,85 @@ module.exports = function handlePart(
         const part =
             decodePart(frame.payload);
 
+        if (!connection.manager) {
+            throw new Error(
+                'S2S manager is not available'
+            );
+        }
+
+        if (!connection.manager.networkManager) {
+            throw new Error(
+                'Network manager is not available'
+            );
+        }
+
+        if (!connection.remote.serverId) {
+            throw new Error(
+                'Remote server identity is not available'
+            );
+        }
+
+        if (
+            part.serverId !==
+            connection.remote.serverId
+        ) {
+            throw new Error(
+                'PART server ID does not match remote server'
+            );
+        }
+
+        const networkManager =
+            connection.manager.networkManager;
+
+        const client =
+            networkManager.getClient(
+                part.serverId,
+                part.clientId
+            );
+
+        if (!client) {
+            throw new Error(
+                `Unknown remote client: ${part.clientId}`
+            );
+        }
+
+        if (
+            client.connection !== connection
+        ) {
+            throw new Error(
+                'Remote client does not belong to this connection'
+            );
+        }
+
+        const channel =
+            networkManager.getChannel(
+                part.channel
+            );
+
+        if (!channel) {
+            throw new Error(
+                `Unknown remote channel: ${part.channel}`
+            );
+        }
+
+        if (!channel.clients.has(client)) {
+            throw new Error(
+                `Remote client is not in channel: ${part.channel}`
+            );
+        }
+
+        networkManager.removeClientFromChannel(
+            part.channel,
+            client
+        );
+
         console.log(
             `[IRISH] ← PART ` +
             `${part.clientId} ` +
-            `← ${part.channel} ` +
-            `from ${part.serverId}`
+            `${part.channel}`
         );
-        return true;
 
+        return true;
 
     } catch (error) {
         console.error(
