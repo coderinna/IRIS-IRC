@@ -96,6 +96,13 @@ this.unknownAckWindowStartedAt = 0;
 this.maxUnknownAcks = 20;
 this.unknownAckWindow = 10_000;
 
+this.rateLimit = {
+    startedAt: Date.now(),
+    windowMs: 10_000,
+    frames: 0,
+    maxFrames: 1_000
+};
+
 
 this.sendSequence = 0n;
 this.receiveSequence = 0n;
