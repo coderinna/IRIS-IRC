@@ -21,13 +21,14 @@ module.exports = function addClient(
         );
     }
 
-    const entry = {
-        clientId: client.clientId,
-        serverId: client.serverId,
-        nick: client.nick || null,
-        user: client.user || null,
-        host: client.host || null
-    };
+const entry = {
+    clientId: client.clientId,
+    serverId: client.serverId,
+    nick: client.nick || null,
+    user: client.user || null,
+    host: client.host || null,
+    connection: client.connection || null
+};
 
     manager.clients.set(key, entry);
 

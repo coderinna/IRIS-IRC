@@ -11,7 +11,8 @@ const {
     addClient,
     removeClient,
     getClient,
-    getClients
+    getClients,
+    removeClientsByConnection
 } = require('./clients');
 
 class NetworkManager {
@@ -73,6 +74,13 @@ class NetworkManager {
     getClients() {
         return getClients(this);
     }
+
+    removeClientsByConnection(connection) {
+    return removeClientsByConnection(
+        this,
+        connection
+    );
+}
 }
 
 module.exports = NetworkManager;

@@ -31,13 +31,14 @@ module.exports = function handleClient(
             );
         }
 
-        connection.manager.networkManager.addClient({
-            clientId: client.clientId,
-            serverId: client.serverId,
-            nick: client.nick,
-            user: client.user,
-            host: client.host
-        });
+connection.manager.networkManager.addClient({
+    clientId: client.clientId,
+    serverId: client.serverId,
+    nick: client.nick,
+    user: client.user,
+    host: client.host,
+    connection
+});
 
         console.log(
             `[IRISH] ← CLIENT ` +
