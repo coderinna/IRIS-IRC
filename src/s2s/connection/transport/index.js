@@ -51,7 +51,7 @@ function sendFrame(connection, frame) {
         return false;
     }
 
-    const type = frame.readUInt8(1);
+ /*   const type = frame.readUInt8(1);
 
     const requiresAck =
         type === TYPES.CLIENT ||
@@ -73,7 +73,7 @@ function sendFrame(connection, frame) {
 ) {
     return false;
 }
-    }
+    }*/
 
     connection.sendQueue.push(frame);
 
