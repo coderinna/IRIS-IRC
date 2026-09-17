@@ -12,6 +12,7 @@ const {
     removeClient,
     getClient,
     getClients,
+    updateClient,
     removeClientsByConnection
 } = require('./clients');
 
@@ -75,11 +76,26 @@ class NetworkManager {
         return getClients(this);
     }
 
+    updateClient(
+    serverId,
+    clientId,
+    updates
+) {
+    return updateClient(
+        this,
+        serverId,
+        clientId,
+        updates
+    );
+}
+
     removeClientsByConnection(connection) {
     return removeClientsByConnection(
         this,
         connection
     );
+
+    
 }
 }
 
