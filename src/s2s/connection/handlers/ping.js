@@ -26,14 +26,14 @@ module.exports = function handlePing(
         connection.sendFrame(pong);
 
         console.log(
-            `[IRISH] ← PING → PONG ${connection.remote.serverId}`
+            `[IRIS] ← PING → PONG ${connection.remote.serverId}`
         );
 
         return true;
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid PING:',
+            '[IRIS] Invalid PING:',
             error.message
         );
 

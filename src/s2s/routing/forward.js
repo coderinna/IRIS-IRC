@@ -46,7 +46,7 @@ module.exports = function forwardMessage(
         );
 
         console.log(
-            `[IRISH] → MESSAGE ` +
+            `[IRIS] → MESSAGE ` +
             `${message.clientId} → ` +
             `${target.client.nick} ` +
             `via ${target.client.serverId}`
@@ -107,7 +107,7 @@ module.exports = function forwardMessage(
             forwarded = true;
 
             console.log(
-                `[IRISH] → MESSAGE ` +
+                `[IRIS] → MESSAGE ` +
                 `${message.clientId} → ` +
                 `${target.channel.name} ` +
                 `via ${targetConnection.remote.serverId}`

@@ -271,7 +271,7 @@ handleFrame(frame) {
 
     if (!handler) {
         console.log(
-            `[IRISH] Unknown frame type: ` +
+            `[IRIS] Unknown frame type: ` +
             `0x${frame.type.toString(16)}`
         );
 

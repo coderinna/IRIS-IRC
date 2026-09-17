@@ -14,7 +14,7 @@ module.exports = function handleQuit(
     }
 
     console.log(
-        `[IRISH] Broadcasting QUIT: ` +
+        `[IRIS] Broadcasting QUIT: ` +
         `${client.nick}`
     );
 
@@ -39,14 +39,14 @@ module.exports = function handleQuit(
             connection.sendTrackedFrame(frame, messageId);
 
             console.log(
-                `[IRISH] → QUIT ` +
+                `[IRIS] → QUIT ` +
                 `${client.nick} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] QUIT event failed:',
+                '[IRIS] QUIT event failed:',
                 error.message
             );
         }

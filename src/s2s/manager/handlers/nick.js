@@ -19,7 +19,7 @@ module.exports = function handleNick(
     }
 
     console.log(
-        `[IRISH] Broadcasting NICK: ` +
+        `[IRIS] Broadcasting NICK: ` +
         `${oldNick} → ${newNick}`
     );
 
@@ -45,14 +45,14 @@ module.exports = function handleNick(
             connection.sendTrackedFrame(frame, messageId);
 
             console.log(
-                `[IRISH] → NICK ` +
+                `[IRIS] → NICK ` +
                 `${oldNick} → ${newNick} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] NICK event failed:',
+                '[IRIS] NICK event failed:',
                 error.message
             );
         }

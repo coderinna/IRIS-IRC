@@ -25,7 +25,7 @@ function validateVersion(
         frame.version !== CURRENT_PROTOCOL_VERSION
     ) {
         console.warn(
-            '[IRISH] Unsupported outgoing protocol version'
+            '[IRIS] Unsupported outgoing protocol version'
         );
 
         return false;
@@ -46,7 +46,7 @@ function validateFrameType(
         frame.type > 0xff
     ) {
         console.warn(
-            '[IRISH] Invalid outgoing frame type'
+            '[IRIS] Invalid outgoing frame type'
         );
 
         return false;
@@ -58,7 +58,7 @@ function validateFrameType(
         )
     ) {
         console.warn(
-            `[IRISH] Unknown outgoing frame type: ` +
+            `[IRIS] Unknown outgoing frame type: ` +
             `0x${frame.type.toString(16)}`
         );
 
@@ -80,7 +80,7 @@ function validateFlags(
         frame.flags > 0xffff
     ) {
         console.warn(
-            '[IRISH] Invalid outgoing frame flags'
+            '[IRIS] Invalid outgoing frame flags'
         );
 
         return false;
@@ -99,7 +99,7 @@ function validatePayload(
         !Buffer.isBuffer(frame.payload)
     ) {
         console.warn(
-            '[IRISH] Invalid outgoing frame payload'
+            '[IRIS] Invalid outgoing frame payload'
         );
 
         return false;
@@ -110,7 +110,7 @@ function validatePayload(
         MAX_PAYLOAD_SIZE
     ) {
         console.warn(
-            '[IRISH] Outgoing frame payload ' +
+            '[IRIS] Outgoing frame payload ' +
             'exceeds maximum size'
         );
 
@@ -131,7 +131,7 @@ function validateMessageId(
         frame.messageId.length !== 16
     ) {
         console.warn(
-            '[IRISH] Invalid outgoing message ID'
+            '[IRIS] Invalid outgoing message ID'
         );
 
         return false;
@@ -152,7 +152,7 @@ function validateSequence(
         frame.sequence > MAX_SEQUENCE
     ) {
         console.warn(
-            '[IRISH] Invalid outgoing sequence'
+            '[IRIS] Invalid outgoing sequence'
         );
 
         return false;
@@ -232,7 +232,7 @@ function validateState(
 
     if (!states) {
         console.warn(
-            '[IRISH] No outbound state policy for frame'
+            '[IRIS] No outbound state policy for frame'
         );
 
         return false;
@@ -244,7 +244,7 @@ function validateState(
         )
     ) {
         console.warn(
-            `[IRISH] Blocked outbound frame ` +
+            `[IRIS] Blocked outbound frame ` +
             `0x${frame.type.toString(16)} ` +
             `in state ${connection.state}`
         );
@@ -262,7 +262,7 @@ function validateOutgoingFrame(
 ) {
     if (!Buffer.isBuffer(frame)) {
         console.warn(
-            '[IRISH] Outgoing frame must be a Buffer'
+            '[IRIS] Outgoing frame must be a Buffer'
         );
 
         return false;
@@ -275,7 +275,7 @@ function validateOutgoingFrame(
             decodeHeader(frame);
     } catch (error) {
         console.warn(
-            '[IRISH] Invalid outgoing frame header:',
+            '[IRIS] Invalid outgoing frame header:',
             error.message
         );
 
@@ -288,7 +288,7 @@ function validateOutgoingFrame(
 
     if (frame.length !== expectedLength) {
         console.warn(
-            '[IRISH] Invalid outgoing frame length'
+            '[IRIS] Invalid outgoing frame length'
         );
 
         return false;

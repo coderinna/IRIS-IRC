@@ -15,14 +15,14 @@ module.exports = function handlePong(
         }
 
         console.log(
-            `[IRISH] ← PONG ${connection.remote.serverId}`
+            `[IRIS] ← PONG ${connection.remote.serverId}`
         );
 
         return true;
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid PONG:',
+            '[IRIS] Invalid PONG:',
             error.message
         );
 

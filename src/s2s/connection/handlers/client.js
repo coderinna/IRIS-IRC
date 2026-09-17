@@ -41,7 +41,7 @@ connection.manager.networkManager.addClient({
 });
 
         console.log(
-            `[IRISH] ← CLIENT ` +
+            `[IRIS] ← CLIENT ` +
             `${client.clientId} ` +
             `${client.nick} ` +
             `from ${client.serverId}`
@@ -51,7 +51,7 @@ connection.manager.networkManager.addClient({
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid CLIENT:',
+            '[IRIS] Invalid CLIENT:',
             error.message
         );
 

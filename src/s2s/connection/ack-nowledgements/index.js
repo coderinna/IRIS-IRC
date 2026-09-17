@@ -19,7 +19,7 @@ const startPendingAckCleanup = connection => {
                 );
 
                 console.error(
-                    `[IRISH] S2S ACK timeout: ${messageId}`
+                    `[IRIS] S2S ACK timeout: ${messageId}`
                 );
             }
         }
@@ -51,7 +51,7 @@ const trackPendingAck = (
 
     if (connection.pendingAcks.has(id)) {
         console.error(
-            `[IRISH] Duplicate pending ACK messageId: ${id}`
+            `[IRIS] Duplicate pending ACK messageId: ${id}`
         );
 
         connection.socket.destroy();
@@ -64,7 +64,7 @@ const trackPendingAck = (
         connection.maxPendingAcks
     ) {
         console.error(
-            '[IRISH] S2S pending ACK limit exceeded'
+            '[IRIS] S2S pending ACK limit exceeded'
         );
 
         connection.socket.destroy();

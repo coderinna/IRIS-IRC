@@ -70,7 +70,7 @@ const validateState = (
 
     if (!allowedStates) {
         console.error(
-            `[IRISH] Frame type not allowed: ` +
+            `[IRIS] Frame type not allowed: ` +
             `0x${frame.type.toString(16)}`
         );
 
@@ -85,7 +85,7 @@ const validateState = (
         )
     ) {
         console.error(
-            `[IRISH] Frame 0x${frame.type.toString(16)} ` +
+            `[IRIS] Frame 0x${frame.type.toString(16)} ` +
             `not allowed in state ${connection.state}`
         );
 

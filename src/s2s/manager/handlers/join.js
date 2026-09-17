@@ -14,7 +14,7 @@ module.exports = function handleJoin(
     }
 
     console.log(
-        `[IRISH] Broadcasting JOIN: ` +
+        `[IRIS] Broadcasting JOIN: ` +
         `${client.nick} → ${channel}`
     );
 
@@ -39,14 +39,14 @@ module.exports = function handleJoin(
             connection.sendTrackedFrame(frame, messageId);
 
             console.log(
-                `[IRISH] → JOIN ` +
+                `[IRIS] → JOIN ` +
                 `${client.nick} → ${channel} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] JOIN event failed:',
+                '[IRIS] JOIN event failed:',
                 error.message
             );
         }

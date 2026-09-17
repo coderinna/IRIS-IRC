@@ -15,7 +15,7 @@ module.exports = function handlePart(
     }
 
     console.log(
-        `[IRISH] Broadcasting PART: ` +
+        `[IRIS] Broadcasting PART: ` +
         `${client.nick} ← ${channel}`
     );
 
@@ -41,14 +41,14 @@ module.exports = function handlePart(
             connection.sendTrackedFrame(frame, messageId);
 
             console.log(
-                `[IRISH] → PART ` +
+                `[IRIS] → PART ` +
                 `${client.nick} ← ${channel} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] PART event failed:',
+                '[IRIS] PART event failed:',
                 error.message
             );
         }

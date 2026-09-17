@@ -66,7 +66,7 @@ module.exports = function handleNick(
         );
 
         console.log(
-            `[IRISH] ← NICK ` +
+            `[IRIS] ← NICK ` +
             `${nick.clientId} ` +
             `${nick.oldNick} -> ${nick.newNick}`
         );
@@ -75,7 +75,7 @@ module.exports = function handleNick(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid NICK:',
+            '[IRIS] Invalid NICK:',
             error.message
         );
 

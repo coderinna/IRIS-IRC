@@ -27,7 +27,7 @@ if (
 }
 
         console.log(
-            `[IRISH] ← AUTH ${auth.serverId}`
+            `[IRIS] ← AUTH ${auth.serverId}`
         );
 
         if (!connection.authToken) {
@@ -56,7 +56,7 @@ if (
             )
         ) {
             console.error(
-                `[IRISH] Authentication failed for ${auth.serverId}`
+                `[IRIS] Authentication failed for ${auth.serverId}`
             );
 
             connection.socket.destroy();
@@ -71,7 +71,7 @@ if (
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid AUTH:',
+            '[IRIS] Invalid AUTH:',
             error.message
         );
 

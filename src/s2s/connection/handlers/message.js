@@ -88,7 +88,7 @@ module.exports = function handleMessage(
         }
 
         console.log(
-            `[IRISH] ← MESSAGE ` +
+            `[IRIS] ← MESSAGE ` +
             `${client.nick} → ` +
             `${message.target}: ` +
             `${message.message}`
@@ -98,7 +98,7 @@ module.exports = function handleMessage(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid MESSAGE:',
+            '[IRIS] Invalid MESSAGE:',
             error.message
         );
 

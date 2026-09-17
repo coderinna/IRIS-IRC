@@ -7,7 +7,7 @@ const validateSequence = (
         connection.receiveSequence
     ) {
         console.error(
-            `[IRISH] Invalid S2S sequence: ` +
+            `[IRIS] Invalid S2S sequence: ` +
             `expected ${connection.receiveSequence}, ` +
             `received ${frame.sequence}`
         );
@@ -29,7 +29,7 @@ const validateMessageId = (
         frame.messageId.length !== 16
     ) {
         console.error(
-            '[IRISH] Invalid S2S messageId'
+            '[IRIS] Invalid S2S messageId'
         );
 
         connection.socket.destroy();
@@ -58,7 +58,7 @@ const validateRateLimit = connection => {
         connection.rateLimit.maxFrames
     ) {
         console.error(
-            '[IRISH] S2S frame rate limit exceeded'
+            '[IRIS] S2S frame rate limit exceeded'
         );
 
         connection.socket.destroy();

@@ -4,7 +4,7 @@ function start(connection) {
     connection.state = STATES.HELLO;
 
     console.log(
-        `[IRISH] Starting handshake as ${connection.serverId}`
+        `[IRIS] Starting handshake as ${connection.serverId}`
     );
 
     connection.sendHello();
@@ -17,7 +17,7 @@ function startHandshakeTimeout(connection) {
         }
 
         console.error(
-            '[IRISH] S2S handshake timeout'
+            '[IRIS] S2S handshake timeout'
         );
 
         destroy(connection);

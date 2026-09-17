@@ -9,7 +9,7 @@ module.exports = function addConnection(
     newConnection.manager = manager;
 
     console.log(
-        `[IRISH] Connection added: ` +
+        `[IRIS] Connection added: ` +
         `${newConnection.remote.serverId || 'unknown'}`
     );
 };

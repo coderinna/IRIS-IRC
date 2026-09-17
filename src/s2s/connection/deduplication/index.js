@@ -7,7 +7,7 @@ const isDuplicate = (
 
     if (connection.messageIds.has(id)) {
         console.log(
-            `[IRISH] Duplicate message ignored: ${id}`
+            `[IRIS] Duplicate message ignored: ${id}`
         );
 
         return true;

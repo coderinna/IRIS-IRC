@@ -30,7 +30,7 @@ module.exports = function handleReady(
         }
 
         console.log(
-            `[IRISH] ← READY ${ready.serverId}`
+            `[IRIS] ← READY ${ready.serverId}`
         );
 
 connection.state = STATES.CONNECTED;
@@ -54,14 +54,14 @@ connection.startPendingAckCleanup();
         connection.handshakeTimeout = null;
 
         console.log(
-            `[IRISH] ✓ CONNECTED ${connection.remote.serverId}`
+            `[IRIS] ✓ CONNECTED ${connection.remote.serverId}`
         );
 
         return true;
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid READY:',
+            '[IRIS] Invalid READY:',
             error.message
         );
 

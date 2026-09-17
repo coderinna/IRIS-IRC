@@ -13,7 +13,7 @@ module.exports = function handleClient(
     }
 
     console.log(
-        `[IRISH] Broadcasting CLIENT: ${client.nick}`
+        `[IRIS] Broadcasting CLIENT: ${client.nick}`
     );
 
     for (const connection of manager.connections) {
@@ -39,14 +39,14 @@ const frame = encodeClient({
 connection.sendTrackedFrame(frame, messageId);
 
             console.log(
-                `[IRISH] → CLIENT ` +
+                `[IRIS] → CLIENT ` +
                 `${client.nick} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] CLIENT event failed:',
+                '[IRIS] CLIENT event failed:',
                 error.message
             );
         }

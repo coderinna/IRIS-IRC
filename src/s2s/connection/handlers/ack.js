@@ -32,7 +32,7 @@ module.exports = function handleAck(
             connection.unknownAckCount++;
 
             console.error(
-                `[IRISH] Unknown ACK ` +
+                `[IRIS] Unknown ACK ` +
                 `${acknowledgedMessageId} ` +
                 `(${connection.unknownAckCount}/${connection.maxUnknownAcks})`
             );
@@ -42,7 +42,7 @@ module.exports = function handleAck(
                 connection.maxUnknownAcks
             ) {
                 console.error(
-                    '[IRISH] S2S unknown ACK rate limit exceeded'
+                    '[IRIS] S2S unknown ACK rate limit exceeded'
                 );
 
                 connection.socket.destroy();
@@ -57,7 +57,7 @@ module.exports = function handleAck(
     !Number.isFinite(pending.createdAt)
 ) {
     console.error(
-        `[IRISH] Invalid pending ACK state: ` +
+        `[IRIS] Invalid pending ACK state: ` +
         `${acknowledgedMessageId}`
     );
 
@@ -70,13 +70,13 @@ connection.pendingAcks.delete(
     acknowledgedMessageId
 );
 
-        console.log(    `[IRISH] ← ACK`  );
+        console.log(    `[IRIS] ← ACK`  );
 
         return true;
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid ACK:',
+            '[IRIS] Invalid ACK:',
             error.message
         );
 

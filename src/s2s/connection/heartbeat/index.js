@@ -35,7 +35,7 @@ const startHeartbeat = connection => {
         connection.sendFrame(ping);
 
         console.log(
-            `[IRISH] → PING ${connection.remote.serverId}`
+            `[IRIS] → PING ${connection.remote.serverId}`
         );
 
         if (connection.heartbeatTimeout) {
@@ -47,7 +47,7 @@ const startHeartbeat = connection => {
         connection.heartbeatTimeout =
             setTimeout(() => {
                 console.error(
-                    `[IRISH] S2S heartbeat timeout: ` +
+                    `[IRIS] S2S heartbeat timeout: ` +
                     `${connection.remote.serverId}`
                 );
 

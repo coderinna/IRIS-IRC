@@ -83,7 +83,7 @@ module.exports = function handlePart(
         );
 
         console.log(
-            `[IRISH] ← PART ` +
+            `[IRIS] ← PART ` +
             `${part.clientId} ` +
             `${part.channel}`
         );
@@ -92,7 +92,7 @@ module.exports = function handlePart(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid PART:',
+            '[IRIS] Invalid PART:',
             error.message
         );
 

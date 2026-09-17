@@ -25,7 +25,7 @@ connection.socket.on('close', () => {
     connection.cleanup();
 
     console.log(
-        `[IRISH] Connection closed: ${
+        `[IRIS] Connection closed: ${
             connection.remote.serverId || 'unknown'
         }`
     );
@@ -33,7 +33,7 @@ connection.socket.on('close', () => {
 
     connection.socket.on('error', error => {
         console.error(
-            '[IRISH] Socket error:',
+            '[IRIS] Socket error:',
             error.message
         );
     });
@@ -58,7 +58,7 @@ function sendFrame(connection, frame) {
         connection.maxSendQueue
     ) {
         console.error(
-            '[IRISH] S2S send queue limit exceeded'
+            '[IRIS] S2S send queue limit exceeded'
         );
 
         connection.socket.destroy();
@@ -134,7 +134,7 @@ function handleData(connection, chunk) {
         connection.maxChunkSize
     ) {
         console.error(
-            `[IRISH] S2S data chunk too large: ${chunk.length} bytes`
+            `[IRIS] S2S data chunk too large: ${chunk.length} bytes`
         );
 
         connection.socket.destroy();
@@ -149,7 +149,7 @@ function handleData(connection, chunk) {
             connection.parser.push(chunk);
     } catch (error) {
         console.error(
-            '[IRISH] Parser error:',
+            '[IRIS] Parser error:',
             error.message
         );
 

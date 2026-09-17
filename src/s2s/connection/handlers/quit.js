@@ -78,7 +78,7 @@ module.exports = function handleQuit(
         );
 
         console.log(
-            `[IRISH] ← QUIT ` +
+            `[IRIS] ← QUIT ` +
             `${quit.clientId} ` +
             `${quit.reason || ''}`
         );
@@ -87,7 +87,7 @@ module.exports = function handleQuit(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid QUIT:',
+            '[IRIS] Invalid QUIT:',
             error.message
         );
 

@@ -34,7 +34,7 @@ module.exports = function handleServer(
             server.serverRole;
 
         console.log(
-            `[IRISH] ← SERVER ${server.serverId} ` +
+            `[IRIS] ← SERVER ${server.serverId} ` +
             `${server.serverName} ` +
             `(${server.serverRole})`
         );
@@ -47,7 +47,7 @@ module.exports = function handleServer(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid SERVER:',
+            '[IRIS] Invalid SERVER:',
             error.message
         );
 

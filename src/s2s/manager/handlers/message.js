@@ -19,7 +19,7 @@ module.exports = function handleMessage(
     }
 
     console.log(
-        `[IRISH] Broadcasting MESSAGE: ` +
+        `[IRIS] Broadcasting MESSAGE: ` +
         `${client.nick} → ${target}`
     );
 
@@ -45,14 +45,14 @@ module.exports = function handleMessage(
             connection.sendTrackedFrame(frame, messageId);
 
             console.log(
-                `[IRISH] → MESSAGE ` +
+                `[IRIS] → MESSAGE ` +
                 `${client.nick} → ${target} ` +
                 `via ${connection.remote.serverId}`
             );
 
         } catch (error) {
             console.error(
-                '[IRISH] MESSAGE event failed:',
+                '[IRIS] MESSAGE event failed:',
                 error.message
             );
         }

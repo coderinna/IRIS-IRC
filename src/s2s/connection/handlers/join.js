@@ -78,7 +78,7 @@ module.exports = function handleJoin(
         );
 
         console.log(
-            `[IRISH] ← JOIN ` +
+            `[IRIS] ← JOIN ` +
             `${join.clientId} ` +
             `${join.channel}`
         );
@@ -87,7 +87,7 @@ module.exports = function handleJoin(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid JOIN:',
+            '[IRIS] Invalid JOIN:',
             error.message
         );
 

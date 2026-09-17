@@ -24,7 +24,7 @@ module.exports = function handleHello(
             hello.capabilities;
 
         console.log(
-            `[IRISH] ← HELLO ${hello.serverId}`
+            `[IRIS] ← HELLO ${hello.serverId}`
         );
 
       connection.state = STATES.AUTH;
@@ -35,7 +35,7 @@ module.exports = function handleHello(
 
     } catch (error) {
         console.error(
-            '[IRISH] Invalid HELLO:',
+            '[IRIS] Invalid HELLO:',
             error.message
         );
 

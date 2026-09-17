@@ -8,7 +8,8 @@ const Client = require('./src/client/client');
 const { parseLine } = require('./src/utilities/parser.js');
 const numerics = require('./src/numerics/index.js');
 const events = require('./src/events');
-
+const connectS2S =
+    require('./src/s2s/connector/connect.js');
 const {
     createCommandRouter
 } = require('./src/commands/router');
@@ -19,13 +20,20 @@ const S2SManager =
 const NetworkManager =
     require('./src/s2s/network-manager/network-manager.js');
 
-const S2SConnection =
-    require('./src/s2s/connection/connection.js');
+const {
+    S2SConnection
+} = require('./src/s2s/connection/connection.js');
 
 const {
     server: serverConfig
 } = config;
+const S2S_PEER_HOST =
+    process.env.S2S_PEER_HOST || null;
 
+const S2S_PEER_PORT =
+    process.env.S2S_PEER_PORT
+        ? Number(process.env.S2S_PEER_PORT)
+        : null;
 const PORT = serverConfig.port;
 const HOST = serverConfig.host;
 const SERVER_NAME = serverConfig.name;
@@ -182,45 +190,40 @@ const s2sServer =
             `[S2S] Incoming connection from ${socket.remoteAddress}:${socket.remotePort}`
         );
 
-        const connection =
-            new S2SConnection({
-                socket,
+const connection =
+    new S2SConnection(
+        socket,
+        {
+            serverId: S2S_SERVER_ID,
+            serverName: S2S_SERVER_NAME,
+            serverVersion: S2S_SERVER_VERSION,
+            serverRole: S2S_SERVER_ROLE,
 
-                serverId:
-                    S2S_SERVER_ID,
+            capabilities: [
+                'message-id',
+                'multiserver',
+                'channel-sync'
+            ],
 
-                serverName:
-                    S2S_SERVER_NAME,
+            authToken: S2S_AUTH_TOKEN,
 
-                serverVersion:
-                    S2S_SERVER_VERSION,
+            manager: s2sManager,
+            networkManager
+        }
+    );
 
-                serverRole:
-                    S2S_SERVER_ROLE,
+s2sManager.addConnection(
+    connection
+);
 
-                capabilities: [
-                    'message-id',
-                    'multiserver',
-                    'channel-sync'
-                ],
-
-                authToken:
-                    S2S_AUTH_TOKEN,
-
-                manager:
-                    s2sManager,
-
-                networkManager
-            });
+console.log(
+    `[S2S] Connection registered: ${S2S_SERVER_ID}`
+);
 
 
         s2sManager.addConnection(
             connection
         );
-
-
-        connection.setupSocket();
-
 
         console.log(
             `[S2S] Connection registered: ${S2S_SERVER_ID}`
@@ -312,3 +315,28 @@ s2sServer.listen(
 
     }
 );
+
+if (S2S_PEER_HOST && S2S_PEER_PORT) {
+
+    connectS2S({
+        manager: s2sManager,
+        networkManager,
+
+        host: S2S_PEER_HOST,
+        port: S2S_PEER_PORT,
+
+        serverId: S2S_SERVER_ID,
+        serverName: S2S_SERVER_NAME,
+        serverVersion: S2S_SERVER_VERSION,
+        serverRole: S2S_SERVER_ROLE,
+
+        capabilities: [
+            'message-id',
+            'multiserver',
+            'channel-sync'
+        ],
+
+        authToken: S2S_AUTH_TOKEN
+    });
+
+}
