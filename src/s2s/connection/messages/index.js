@@ -20,6 +20,10 @@ const {
     encodeAck
 } = require('../../messages/ack');
 
+const {
+    encodeMessage
+} = require('../../messages/message');
+
 const sendHello = connection => {
     const messageId =
         crypto.randomBytes(16);
@@ -121,10 +125,38 @@ const sendAck = (
     return connection.sendFrame(frame);
 };
 
+const sendMessage = (
+    connection,
+    message,
+    messageId
+) => {
+    if (
+        !Buffer.isBuffer(messageId) ||
+        messageId.length !== 16
+    ) {
+        throw new TypeError(
+            'IRISH MESSAGE messageId must be a 16-byte Buffer'
+        );
+    }
+
+    const sequence =
+        connection.nextSendSequence();
+
+    const frame =
+        encodeMessage(
+            message,
+            messageId,
+            sequence
+        );
+
+    return connection.sendFrame(frame);
+};
+
 module.exports = {
     sendHello,
     sendAuth,
     sendServer,
     sendReady,
-    sendAck
+    sendAck,
+    sendMessage
 };
