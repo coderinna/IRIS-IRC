@@ -12,9 +12,10 @@ const ALLOWED_STATES = {
     STATES.HELLO
 ],
 
-    [TYPES.AUTH]: [
-        STATES.AUTH
-    ],
+[TYPES.AUTH]: [
+    STATES.HELLO,
+    STATES.AUTH
+],
 
     [TYPES.SERVER]: [
         STATES.SERVER

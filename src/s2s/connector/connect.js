@@ -1,10 +1,7 @@
 const net = require('net');
+const { S2SConnection } = require('../connection/connection.js');
 
-const {
-    S2SConnection
-} = require('../connection/connection.js');
-
-module.exports = function connect({
+module.exports = function connectS2S({
     manager,
     networkManager,
     host,
@@ -16,56 +13,50 @@ module.exports = function connect({
     capabilities,
     authToken
 }) {
-
     console.log(
         `[S2S] Connecting to ${host}:${port}`
     );
 
-    const socket =
-        net.createConnection({
-            host,
-            port
-        });
+    const socket = net.createConnection({
+        host,
+        port
+    });
 
     socket.on('connect', () => {
-
         console.log(
             `[S2S] Connected to ${host}:${port}`
         );
 
-        const connection =
-            new S2SConnection({
-                socket,
-
+        const connection = new S2SConnection(
+            socket,
+            {
                 serverId,
                 serverName,
                 serverVersion,
                 serverRole,
                 capabilities,
                 authToken,
-
                 manager,
                 networkManager
-            });
-
-        manager.addConnection(
-            connection
+            }
         );
 
-        connection.setupSocket();
+        manager.addConnection(connection);
+
+
+connection.start();
+
 
         console.log(
-            `[S2S] Outbound connection registered`
+            '[S2S] Outbound connection registered'
         );
     });
 
     socket.on('error', error => {
-
         console.error(
-            `[S2S] Connection error:`,
+            '[S2S] Connection error:',
             error.message
         );
-
     });
 
     return socket;

@@ -22,7 +22,10 @@ if (
     connection.remote.serverId
 ) {
     throw new Error(
-        'IRISH AUTH server ID does not match HELLO'
+        `IRISH AUTH server ID mismatch: ` +
+        `auth=${auth.serverId}, ` +
+        `hello=${connection.remote.serverId}, ` +
+        `local=${connection.serverId}`
     );
 }
 
