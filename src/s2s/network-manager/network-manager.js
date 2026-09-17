@@ -23,7 +23,7 @@ const {
     getChannels,
     addClient: addClientToChannel,
     removeClient: removeClientFromChannel
-} = require('../../channel/index.js');
+} = require('./channels');
 
 class NetworkManager {
     constructor() {

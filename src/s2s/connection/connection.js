@@ -103,6 +103,10 @@ this.rateLimit = {
     maxFrames: 1_000
 };
 
+this.heartbeatInterval = null;
+this.heartbeatTimeout = null;
+this.heartbeatIntervalMs = 10_000;
+this.heartbeatTimeoutMs = 5_000;
 
 this.sendSequence = 0n;
 this.receiveSequence = 0n;
