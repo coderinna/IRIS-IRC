@@ -64,13 +64,14 @@ class FrameParser {
                 )
             );
 
-            frames.push({
-                version: header.version,
-                type: header.type,
-                flags: header.flags,
-                messageId: header.messageId,
-                payload
-            });
+frames.push({
+    version: header.version,
+    type: header.type,
+    flags: header.flags,
+    sequence: header.sequence,
+    messageId: header.messageId,
+    payload
+});
 
             // Poista käsitelty frame bufferista
             this.buffer = this.buffer.subarray(
