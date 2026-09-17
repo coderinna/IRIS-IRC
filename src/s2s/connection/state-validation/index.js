@@ -7,9 +7,10 @@ const {
 } = require('../states.js');
 
 const ALLOWED_STATES = {
-    [TYPES.HELLO]: [
-        STATES.CONNECTING
-    ],
+[TYPES.HELLO]: [
+    STATES.CONNECTING,
+    STATES.HELLO
+],
 
     [TYPES.AUTH]: [
         STATES.AUTH
