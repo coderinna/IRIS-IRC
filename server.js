@@ -13,6 +13,15 @@ const {
     createCommandRouter
 } = require('./src/commands/router');
 
+const S2SManager =
+    require('./src/s2s/manager/manager.js');
+
+const NetworkManager =
+    require('./src/s2s/network-manager/network-manager.js');
+
+const S2SConnection =
+    require('./src/s2s/connection/connection.js');
+
 const {
     server: serverConfig
 } = config;
@@ -73,6 +82,13 @@ function handleCommand(client, line) {
     }
 }
 
+
+/*
+ * ============================================================
+ * IRC CLIENT SERVER
+ * ============================================================
+ */
+
 const server = net.createServer(socket => {
     const client = new Client(socket);
 
@@ -102,13 +118,13 @@ const server = net.createServer(socket => {
         }
     });
 
-socket.on('close', () => {
-    core.unregisterClient(client);
+    socket.on('close', () => {
+        core.unregisterClient(client);
 
-    console.log(
-        `Client disconnected: ${client.id}`
-    );
-});
+        console.log(
+            `Client disconnected: ${client.id}`
+        );
+    });
 
     socket.on('error', error => {
         console.error(
@@ -117,23 +133,182 @@ socket.on('close', () => {
         );
     });
 });
+
+
+/*
+ * ============================================================
+ * S2S / IRISH NETWORK
+ * ============================================================
+ */
+
+const S2S_PORT =
+    Number(process.env.S2S_PORT || 7001);
+
+const S2S_HOST =
+    process.env.S2S_HOST || '127.0.0.1';
+
+const S2S_SERVER_ID =
+    process.env.SERVER_ID || 'iris-01';
+
+const S2S_SERVER_NAME =
+    process.env.SERVER_NAME || 'iris-01.local';
+
+const S2S_SERVER_VERSION =
+    process.env.SERVER_VERSION || 'iris-irc/0.1';
+
+const S2S_SERVER_ROLE =
+    process.env.SERVER_ROLE || 'hub';
+
+const S2S_AUTH_TOKEN =
+    process.env.S2S_AUTH_TOKEN || 'dev-secret';
+
+
+const networkManager =
+    new NetworkManager();
+
+
+const s2sManager =
+    new S2SManager({
+        serverId: S2S_SERVER_ID,
+        serverName: S2S_SERVER_NAME,
+        networkManager
+    });
+
+
+const s2sServer =
+    net.createServer(socket => {
+
+        console.log(
+            `[S2S] Incoming connection from ${socket.remoteAddress}:${socket.remotePort}`
+        );
+
+        const connection =
+            new S2SConnection({
+                socket,
+
+                serverId:
+                    S2S_SERVER_ID,
+
+                serverName:
+                    S2S_SERVER_NAME,
+
+                serverVersion:
+                    S2S_SERVER_VERSION,
+
+                serverRole:
+                    S2S_SERVER_ROLE,
+
+                capabilities: [
+                    'message-id',
+                    'multiserver',
+                    'channel-sync'
+                ],
+
+                authToken:
+                    S2S_AUTH_TOKEN,
+
+                manager:
+                    s2sManager,
+
+                networkManager
+            });
+
+
+        s2sManager.addConnection(
+            connection
+        );
+
+
+        connection.setupSocket();
+
+
+        console.log(
+            `[S2S] Connection registered: ${S2S_SERVER_ID}`
+        );
+    });
+
+
+s2sServer.on('error', error => {
+
+    console.error(
+        '[S2S] Listener error:',
+        error.message
+    );
+
+});
+
+
+/*
+ * ============================================================
+ * DEBUG
+ * ============================================================
+ */
+
 /*
 console.log(
     '[STATUS]',
     status.getStatus(core)
 );
-debug varten! 
+
 setInterval(() => {
-    console.log('[METRICS]', metrics.getMetrics());
+    console.log(
+        '[METRICS]',
+        metrics.getMetrics()
+    );
 }, 10000);
 */
 
+
+/*
+ * ============================================================
+ * START SERVERS
+ * ============================================================
+ */
+
 server.listen(PORT, HOST, () => {
-    console.log('💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕');
-    console.log('              🌸 IRIS IRC 🌸');
-    console.log('        ⚙️  Hardcore IRC Daemon, v1.0');
-    console.log(`          ❤️  Listening on ${HOST}:${PORT}`);
-    console.log('        🖤 Engineered with precision & attitude');
-    console.log('        🚀 Ready for connections, babe!');
-    console.log('💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕');
+
+    console.log(
+        '💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕'
+    );
+
+    console.log(
+        '              🌸 IRIS IRC 🌸'
+    );
+
+    console.log(
+        '        ⚙️  Hardcore IRC Daemon, v1.0'
+    );
+
+    console.log(
+        `          ❤️  Listening on ${HOST}:${PORT}`
+    );
+
+    console.log(
+        '        🖤 Engineered with precision & attitude'
+    );
+
+    console.log(
+        '        🚀 Ready for connections, babe!'
+    );
+
+    console.log(
+        '💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕💕'
+    );
 });
+
+
+s2sServer.listen(
+    S2S_PORT,
+    S2S_HOST,
+    () => {
+
+        console.log(
+            `[S2S] Listening on ${S2S_HOST}:${S2S_PORT}`
+        );
+
+        console.log(
+            `[S2S] Server ID: ${S2S_SERVER_ID}`
+        );
+
+    }
+);
