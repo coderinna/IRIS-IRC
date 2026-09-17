@@ -28,9 +28,20 @@ module.exports = function routeMessage(
         return false;
     }
 
-    return forwardMessage(
+    /*
+     * Target löytyi ja MESSAGE on validi.
+     *
+     * forwardMessage() voi palauttaa false,
+     * jos viestiä ei tarvitse lähettää takaisin
+     * samaa yhteyttä pitkin.
+     *
+     * Se ei tarkoita routing-virhettä.
+     */
+    forwardMessage(
         connection,
         message,
         target
     );
+
+    return true;
 };

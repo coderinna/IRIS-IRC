@@ -1,22 +1,34 @@
+
 const net = require('net');
 
 const NetworkManager =
     require('../network-manager/network-manager');
-
 const S2SManager =
     require('../manager/manager');
-
 const {
     S2SConnection
 } = require('../connection/connection');
-
 const events =
     require('../../events');
 
 const PORT = 7003;
 const HOST = '127.0.0.1';
-
 const AUTH_TOKEN = 'test-secret-123';
+
+/*
+ * --------------------------------------------------
+ * TEST CLIENT / CHANNEL
+ * --------------------------------------------------
+ */
+
+const client = {
+    id: 'client-001',
+    nick: 'IrisNew',
+    user: 'iris',
+    host: 'localhost'
+};
+
+const channel = '#iris';
 
 /*
  * --------------------------------------------------
@@ -74,7 +86,6 @@ const managerB =
 
 const server =
     net.createServer(socket => {
-
         console.log(
             '[TEST] Incoming S2S connection'
         );
@@ -107,17 +118,10 @@ server.listen(
     PORT,
     HOST,
     () => {
-
         console.log(
             `[TEST] iris-b listening on ` +
             `${HOST}:${PORT}`
         );
-
-        /*
-         * --------------------------------------------------
-         * OUTBOUND CONNECTION A -> B
-         * --------------------------------------------------
-         */
 
         const socket =
             net.createConnection({
@@ -143,7 +147,6 @@ server.listen(
         socket.on(
             'connect',
             () => {
-
                 console.log(
                     '[TEST] iris-a connected to iris-b'
                 );
@@ -153,39 +156,25 @@ server.listen(
         );
 
         /*
-         * --------------------------------------------------
          * CLIENT
-         * --------------------------------------------------
          */
 
         setTimeout(() => {
-
             console.log(
                 '[TEST] Emitting client:registered'
             );
 
             events.emit(
                 'client:registered',
-                {
-                    client: {
-                        id: 'client-001',
-                        nick: 'IrisTest',
-                        user: 'iris',
-                        host: 'localhost'
-                    }
-                }
+                { client }
             );
-
         }, 1000);
 
         /*
-         * --------------------------------------------------
          * NICK
-         * --------------------------------------------------
          */
 
         setTimeout(() => {
-
             console.log(
                 '[TEST] Emitting client:nick_changed'
             );
@@ -193,24 +182,18 @@ server.listen(
             events.emit(
                 'client:nick_changed',
                 {
-                    client: {
-                        id: 'client-001'
-                    },
+                    client,
                     oldNick: 'IrisTest',
                     newNick: 'IrisNew'
                 }
             );
-
         }, 2000);
 
         /*
-         * --------------------------------------------------
          * JOIN
-         * --------------------------------------------------
          */
 
         setTimeout(() => {
-
             console.log(
                 '[TEST] Emitting channel:joined'
             );
@@ -218,50 +201,17 @@ server.listen(
             events.emit(
                 'channel:joined',
                 {
-                    client: {
-                        id: 'client-001',
-                        nick: 'IrisNew'
-                    },
-                    channel: '#iris'
+                    client,
+                    channel
                 }
             );
-
         }, 3000);
 
         /*
-         * --------------------------------------------------
-         * PART
-         * --------------------------------------------------
-         */
-
-        setTimeout(() => {
-
-            console.log(
-                '[TEST] Emitting channel:parted'
-            );
-
-            events.emit(
-                'channel:parted',
-                {
-                    client: {
-                        id: 'client-001',
-                        nick: 'IrisNew'
-                    },
-                    channel: '#iris',
-                    reason: 'Leaving test channel'
-                }
-            );
-
-        }, 4000);
-
-        /*
-         * --------------------------------------------------
          * MESSAGE
-         * --------------------------------------------------
          */
 
         setTimeout(() => {
-
             console.log(
                 '[TEST] Emitting message:sent'
             );
@@ -269,25 +219,37 @@ server.listen(
             events.emit(
                 'message:sent',
                 {
-                    client: {
-                        id: 'client-001',
-                        nick: 'IrisNew'
-                    },
-                    target: '#iris',
-                    message: 'Hello from IRIS'
+                    client,
+                    target: channel,
+                    message: 'Hello from Iris'
                 }
             );
-
-        }, 5000);
+        }, 4000);
 
         /*
-         * --------------------------------------------------
-         * QUIT
-         * --------------------------------------------------
+         * PART
          */
 
         setTimeout(() => {
+            console.log(
+                '[TEST] Emitting channel:parted'
+            );
 
+            events.emit(
+                'channel:parted',
+                {
+                    client,
+                    channel,
+                    reason: 'test'
+                }
+            );
+        }, 5000);
+
+        /*
+         * QUIT
+         */
+
+        setTimeout(() => {
             console.log(
                 '[TEST] Emitting client:quit'
             );
@@ -295,16 +257,11 @@ server.listen(
             events.emit(
                 'client:quit',
                 {
-                    client: {
-                        id: 'client-001',
-                        nick: 'IrisNew'
-                    },
+                    client,
                     reason: 'Test complete'
                 }
             );
-
         }, 6000);
-
     }
 );
 
@@ -317,7 +274,6 @@ server.listen(
 process.on(
     'SIGINT',
     () => {
-
         console.log(
             '\nStopping S2S test...'
         );
