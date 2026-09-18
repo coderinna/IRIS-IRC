@@ -10,6 +10,9 @@ const {
     removeConnection
 } = require('./connections');
 
+const NetworkState =
+    require('../network/state');
+
 class S2SManager {
 constructor({
     serverId,
@@ -23,6 +26,9 @@ constructor({
 
         this.connections = new Set();
 
+this.networkState =
+    new NetworkState(serverId);
+
         this.remoteClients =
     new RemoteClientRegistry();
 
@@ -31,6 +37,14 @@ constructor({
 
         setupEvents(this);
     }
+
+    getNetworkState() {
+    return this.networkState;
+}
+
+    isLocalClient(client) {
+    return client?.isOwnedBy(this.serverId) === true;
+}
 
     addConnection(connection) {
         addConnection(

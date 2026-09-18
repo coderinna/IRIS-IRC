@@ -3,9 +3,9 @@ class RemoteClientRegistry {
         this.clients = new Map();
     }
 
-    key(serverId, clientId) {
-        return `${serverId}:${clientId}`;
-    }
+key(serverId, clientId) {
+    return `${serverId}:${clientId}`;
+}
 
     register(client) {
         if (!client?.serverId || !client?.clientId) {

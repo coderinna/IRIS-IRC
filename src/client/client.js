@@ -29,6 +29,10 @@ class Client {
     return this.serverId === serverId;
 }
 
+get identity() {
+    return `${this.serverId}:${this.id}`;
+}
+
     send(message) {
         this.socket.write(message + '\r\n');
     }
