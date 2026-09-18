@@ -76,7 +76,8 @@ module.exports = function handleMessage(
         const routed =
             routeMessage(
                 connection,
-                message
+                message,
+        client
             );
 
         if (!routed) {

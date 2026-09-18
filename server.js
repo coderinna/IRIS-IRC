@@ -34,6 +34,16 @@ const status = require('./src/services/status');
 require('./src/services/logger');
 require('./src/services/metrics');
 
+const networkManager = new NetworkManager();
+
+const s2sManager = new S2SManager({
+    serverId: S2S_SERVER_ID,
+    serverName: S2S_SERVER_NAME,
+    networkManager,
+    getLocalClientByNick:
+        core.getClientByNick.bind(core)
+});
+
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
     core,
@@ -43,16 +53,12 @@ const routeCommand = createCommandRouter({
     getChannel: core.getChannel.bind(core),
     deleteChannel: core.deleteChannel.bind(core),
     getClientByNick: core.getClientByNick.bind(core),
+    getRemoteClientByNick:
+        s2sManager.remoteClients.getByNick.bind(
+            s2sManager.remoteClients
+        ),
     removeClient: core.removeClient.bind(core),
     events
-});
-
-const networkManager = new NetworkManager();
-
-const s2sManager = new S2SManager({
-    serverId: S2S_SERVER_ID,
-    serverName: S2S_SERVER_NAME,
-    networkManager
 });
 
 const s2sListener = new S2SListener({

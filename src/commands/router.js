@@ -9,6 +9,7 @@ function createCommandRouter({
     getChannel,
     deleteChannel,
     getClientByNick,
+getRemoteClientByNick,
     removeClient
 }) {
     return function routeCommand(client, parsed) {
@@ -16,7 +17,7 @@ function createCommandRouter({
         return false;
     }
 
-    
+
         const {
             command,
             params,
@@ -82,15 +83,16 @@ function createCommandRouter({
                 );
                 break;
 
-            case 'PRIVMSG':
-                handler(
-                    client,
-                    params[0],
-                    trailing,
-                    getClientByNick,
-                    getChannel
-                );
-                break;
+case 'PRIVMSG':
+    handler(
+        client,
+        params[0],
+        trailing,
+        getClientByNick,
+        getChannel,
+        getRemoteClientByNick
+    );
+    break;
 
             case 'NOTICE':
                 handler(

@@ -6,11 +6,13 @@ const forwardMessage =
 
 module.exports = function routeMessage(
     connection,
-    message
+    message,
+    sourceClient
 ) {
     if (
         !connection.manager ||
-        !connection.manager.networkManager
+        !connection.manager.networkManager ||
+        !connection.manager.remoteClients
     ) {
         return false;
     }
@@ -18,9 +20,14 @@ module.exports = function routeMessage(
     const networkManager =
         connection.manager.networkManager;
 
+    const remoteClients =
+        connection.manager.remoteClients;
+
     const target =
         resolveTarget(
             networkManager,
+            remoteClients,
+            connection.manager.getLocalClientByNick,
             message.target
         );
 
@@ -28,20 +35,10 @@ module.exports = function routeMessage(
         return false;
     }
 
-    /*
-     * Target löytyi ja MESSAGE on validi.
-     *
-     * forwardMessage() voi palauttaa false,
-     * jos viestiä ei tarvitse lähettää takaisin
-     * samaa yhteyttä pitkin.
-     *
-     * Se ei tarkoita routing-virhettä.
-     */
-    forwardMessage(
+    return forwardMessage(
         connection,
         message,
-        target
+        target,
+        sourceClient
     );
-
-    return true;
 };

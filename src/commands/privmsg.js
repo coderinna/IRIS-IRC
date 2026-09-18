@@ -5,7 +5,8 @@ function handlePrivmsg(
     target,
     message,
     getClientByNick,
-    getChannel
+    getChannel,
+    getRemoteClientByNick
 ) {
     if (!target || !message) {
         return;
@@ -37,15 +38,32 @@ function handlePrivmsg(
         return;
     }
 
-    const targetClient = getClientByNick(target);
+let targetClient =
+    getClientByNick(target);
 
-    if (!targetClient) {
-        client.send(
-            `:irc.iris.local 401 ${client.nick} ${target} :No such nick`
-        );
+const remoteClient =
+    getRemoteClientByNick
+        ? getRemoteClientByNick(target)
+        : null;
 
-        return;
-    }
+if (!targetClient && !remoteClient) {
+    client.send(
+        `:irc.iris.local 401 ${client.nick} ${target} :No such nick`
+    );
+
+    return;
+}
+
+if (remoteClient) {
+    events.emit('message:sent', {
+        client,
+        target: remoteClient.nick,
+        message,
+        type: 'private'
+    });
+
+    return;
+}
 
     targetClient.send(
         `:${client.mask} PRIVMSG ${targetClient.nick} :${message}`

@@ -5,11 +5,42 @@ const {
 module.exports = function forwardMessage(
     connection,
     message,
-    target
+    target,
+    sourceClient
 ) {
     if (!target) {
         return false;
     }
+
+/*
+ * Local client target
+ */
+if (target.type === 'local-client') {
+    const targetClient =
+        target.client;
+
+    if (!targetClient) {
+        return false;
+    }
+
+    if (!sourceClient) {
+        return false;
+    }
+
+    targetClient.send(
+        `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
+        `PRIVMSG ${targetClient.nick} :${message.message}`
+    );
+
+    console.log(
+        `[IRIS] ← MESSAGE ` +
+        `${sourceClient.nick} → ` +
+        `${targetClient.nick} ` +
+        `(local)`
+    );
+
+    return true;
+}
 
     /*
      * Direct client target

@@ -11,11 +11,12 @@ const {
 } = require('./connections');
 
 class S2SManager {
-    constructor({
-        serverId,
-        serverName,
-        networkManager
-    }) {
+constructor({
+    serverId,
+    serverName,
+    networkManager,
+    getLocalClientByNick
+}) {
         this.serverId = serverId;
         this.serverName = serverName;
         this.networkManager = networkManager;
@@ -24,6 +25,9 @@ class S2SManager {
 
         this.remoteClients =
     new RemoteClientRegistry();
+
+    this.getLocalClientByNick =
+    getLocalClientByNick;
 
         setupEvents(this);
     }

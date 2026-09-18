@@ -22,15 +22,24 @@ module.exports = function handleMessage(
         return;
     }
 
+    const targetName =
+        typeof target === 'string'
+            ? target
+            : target.nick;
+
+    if (!targetName) {
+        return;
+    }
+
     console.log(
         `[IRIS] Broadcasting MESSAGE: ` +
-        `${client.nick} → ${target}`
+        `${client.nick} → ${targetName}`
     );
 
     for (const connection of manager.connections) {
-if (connection.state !== STATES.CONNECTED) {
-    continue;
-}
+        if (connection.state !== STATES.CONNECTED) {
+            continue;
+        }
 
         try {
             const messageId =
@@ -41,16 +50,19 @@ if (connection.state !== STATES.CONNECTED) {
 
             const frame = encodeMessage({
                 clientId: client.id,
-                target,
+                target: targetName,
                 message,
                 serverId: manager.serverId
             }, messageId, sequence);
 
-            connection.sendTrackedFrame(frame, messageId);
+            connection.sendTrackedFrame(
+                frame,
+                messageId
+            );
 
             console.log(
                 `[IRIS] → MESSAGE ` +
-                `${client.nick} → ${target} ` +
+                `${client.nick} → ${targetName} ` +
                 `via ${connection.remote.serverId}`
             );
 

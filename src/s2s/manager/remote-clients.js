@@ -30,6 +30,16 @@ class RemoteClientRegistry {
         );
     }
 
+    getByNick(nick) {
+    for (const client of this.clients.values()) {
+        if (client.nick === nick) {
+            return client;
+        }
+    }
+
+    return null;
+}
+
     has(serverId, clientId) {
         return this.clients.has(
             this.key(serverId, clientId)

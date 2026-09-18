@@ -1,5 +1,7 @@
 module.exports = function resolveTarget(
     networkManager,
+    remoteClients,
+    getLocalClientByNick,
     target
 ) {
     if (!target) {
@@ -17,36 +19,43 @@ module.exports = function resolveTarget(
             return null;
         }
 
-        const clients =
-            [...channel.clients];
-
         return {
             type: 'channel',
             channel,
-            clients
+            clients: [...channel.clients]
         };
     }
 
     /*
-     * Client target
+     * Local client
      */
-    const client =
-        networkManager
-            .getClients()
-            .find(
-                remoteClient =>
-                    remoteClient.nick &&
-                    remoteClient.nick.toLowerCase() ===
-                    target.toLowerCase()
-            );
+    const localClient =
+        getLocalClientByNick
+            ? getLocalClientByNick(target)
+            : null;
 
-    if (!client) {
+    if (localClient) {
+        return {
+            type: 'local-client',
+            client: localClient
+        };
+    }
+
+    /*
+     * Remote client
+     */
+    const remoteClient =
+        remoteClients
+            ? remoteClients.getByNick(target)
+            : null;
+
+    if (!remoteClient) {
         return null;
     }
 
     const server =
         networkManager.getServer(
-            client.serverId
+            remoteClient.serverId
         );
 
     if (!server) {
@@ -54,9 +63,9 @@ module.exports = function resolveTarget(
     }
 
     return {
-        type: 'client',
-        client,
+        type: 'remote-client',
+        client: remoteClient,
         server,
-        connection: client.connection
+        connection: remoteClient.connection
     };
 };
