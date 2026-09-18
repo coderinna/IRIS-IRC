@@ -19,15 +19,16 @@ class S2SListener {
         this.host = host;
         this.port = port;
 
-        this.connectionOptions = {
-            serverId,
-            serverName,
-            serverVersion,
-            serverRole,
-            capabilities,
-            authToken
-        };
-
+this.connectionOptions = {
+    serverId,
+    serverName,
+    serverVersion,
+    serverRole,
+    capabilities,
+    authToken,
+    manager,
+    networkManager: manager?.networkManager
+};
         this.manager = manager;
         this.server = null;
     }
