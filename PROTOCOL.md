@@ -1,52 +1,6 @@
 
 
-# IRIS IRC Protocol
-
-IRIS IRC introduces the **IRIS IRC Protocol**.
-
-IRIS is the native server-to-server protocol designed for IRIS IRC.
-
-It provides a structured foundation for communication between independent IRIS servers while allowing the protocol to evolve independently from the traditional IRC client protocol.
-
-IRIS is designed around structured binary frames and explicit protocol state.
-
-Current protocol concepts include:
-
-* binary framing
-* typed messages
-* TLV-based fields
-* message identifiers
-* sequence numbers
-* acknowledgements
-* handshake states
-* server authentication
-* server identification
-* capability negotiation
-* connection lifecycle management
-* heartbeat handling
-* duplicate protection
-* rate limiting
-* state validation
-* protocol handlers
-* transport abstraction
-
-The protocol is **intentionally** separated from the client-facing IRC protocol.
-
-```text
-IRC CLIENT PROTOCOL
-        │
-        │ client ↔ server
-        ▼
-   IRIS IRC SERVER
-        │
-        │ server ↔ server
-        ▼
-   IRIS PROTOCOL
-```
-
----
-
-## 🇫🇮 Suomeksi
+# IRIS IRC Protokolla
 
 IRIS IRC tuo mukanaan **IRIS IRC Protocolin**.
 

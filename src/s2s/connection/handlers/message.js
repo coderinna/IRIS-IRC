@@ -19,9 +19,9 @@ module.exports = function handleMessage(
             );
         }
 
-        if (!connection.manager.networkManager) {
+        if (!connection.manager.remoteClients) {
             throw new Error(
-                'Network manager is not available'
+                'Remote client registry is not available'
             );
         }
 
@@ -40,18 +40,16 @@ module.exports = function handleMessage(
             );
         }
 
-        const networkManager =
-            connection.manager.networkManager;
-
         const client =
-            networkManager.getClient(
+            connection.manager.remoteClients.get(
                 message.serverId,
                 message.clientId
             );
 
         if (!client) {
             throw new Error(
-                `Unknown remote client: ${message.clientId}`
+                `Unknown remote client: ` +
+                `${message.serverId}:${message.clientId}`
             );
         }
 
@@ -83,7 +81,8 @@ module.exports = function handleMessage(
 
         if (!routed) {
             throw new Error(
-                `Unable to route MESSAGE to ${message.target}`
+                `Unable to route MESSAGE to ` +
+                `${message.target}`
             );
         }
 
@@ -102,7 +101,9 @@ module.exports = function handleMessage(
             error.message
         );
 
-        connection.socket.destroy();
+        if (connection?.socket) {
+            connection.socket.destroy();
+        }
 
         return false;
     }

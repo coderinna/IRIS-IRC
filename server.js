@@ -76,20 +76,29 @@ const server = net.createServer(socket => {
 );
     socket.setNoDelay(true);
 
-    socket.on('data', data => {
-        const lines = data.toString().split('\r\n');
+socket.on('data', data => {
+    const lines = data.toString().split('\r\n');
 
-        for (const line of lines) {
-            if (!line) continue;
+    for (const line of lines) {
+        if (!line) continue;
 
-            try {
-                const parsed = parseLine(line);
-                routeCommand(client, parsed);
-            } catch (error) {
-                console.error('[IRC] Command error:', error.message);
+        try {
+            const parsed = parseLine(line);
+
+            if (!parsed) {
+                continue;
             }
+
+            routeCommand(client, parsed);
+
+        } catch (error) {
+            console.error(
+                '[IRC] Command error:',
+                error.message
+            );
         }
-    });
+    }
+});
 
     socket.on('error', error => {
         console.error('[IRC] Socket error:', error.message);

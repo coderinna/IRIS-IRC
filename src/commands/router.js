@@ -12,6 +12,11 @@ function createCommandRouter({
     removeClient
 }) {
     return function routeCommand(client, parsed) {
+            if (!parsed) {
+        return false;
+    }
+
+    
         const {
             command,
             params,
