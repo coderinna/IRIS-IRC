@@ -15,30 +15,44 @@ const FIELDS = {
     SERVER_ID: 0x04
 };
 
-function encodeMessage({
-    clientId,
-    target,
-    message,
-    serverId
-}, messageId, sequence = 0n) {
-
+function encodeMessage(
+    {
+        clientId,
+        target,
+        message,
+        serverId
+    },
+    messageId,
+    sequence = 0n
+) {
     if (!clientId) {
-        throw new Error('IRISH MESSAGE requires clientId');
+        throw new Error(
+            'IRISH MESSAGE requires clientId'
+        );
     }
 
     if (!target) {
-        throw new Error('IRISH MESSAGE requires target');
+        throw new Error(
+            'IRISH MESSAGE requires target'
+        );
     }
 
     if (!message) {
-        throw new Error('IRISH MESSAGE requires message');
+        throw new Error(
+            'IRISH MESSAGE requires message'
+        );
     }
 
     if (!serverId) {
-        throw new Error('IRISH MESSAGE requires serverId');
+        throw new Error(
+            'IRISH MESSAGE requires serverId'
+        );
     }
 
-    if (!Buffer.isBuffer(messageId) || messageId.length !== 16) {
+    if (
+        !Buffer.isBuffer(messageId) ||
+        messageId.length !== 16
+    ) {
         throw new TypeError(
             'IRISH MESSAGE messageId must be a 16-byte Buffer'
         );
@@ -66,15 +80,20 @@ function encodeMessage({
     return encodeFrame({
         type: TYPES.MESSAGE,
         messageId,
-    sequence,
+        sequence,
         payload
     });
 }
 
-function decodeMessage(payload) {
-    const fields = decodeFields(payload);
+function decodeMessage(
+    payload,
+    messageId = null
+) {
+    const fields =
+        decodeFields(payload);
 
     const message = {
+        messageId,
         clientId: null,
         target: null,
         message: null,
