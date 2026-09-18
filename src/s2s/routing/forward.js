@@ -45,46 +45,46 @@ if (target.type === 'local-client') {
     /*
      * Direct client target
      */
-    if (target.type === 'client') {
-        const targetConnection =
-            target.connection;
+if (target.type === 'remote-client') {
+    const targetConnection =
+        target.connection;
 
-        if (!targetConnection) {
-            return false;
-        }
-
-        /*
-         * Never send the message back
-         * through the connection it came from.
-         */
-        if (
-            targetConnection === connection
-        ) {
-            return false;
-        }
-
-        if (
-            targetConnection.state !==
-            'connected'
-        ) {
-            return false;
-        }
-
-        sendMessage(
-            targetConnection,
-            message,
-            message.messageId
-        );
-
-        console.log(
-            `[IRIS] → MESSAGE ` +
-            `${message.clientId} → ` +
-            `${target.client.nick} ` +
-            `via ${target.client.serverId}`
-        );
-
-        return true;
+    if (!targetConnection) {
+        return false;
     }
+
+    /*
+     * Never send the message back
+     * through the connection it came from.
+     */
+    if (
+        targetConnection === connection
+    ) {
+        return false;
+    }
+
+    if (
+        targetConnection.state !==
+        'connected'
+    ) {
+        return false;
+    }
+
+    sendMessage(
+        targetConnection,
+        message,
+        message.messageId
+    );
+
+    console.log(
+        `[IRIS] → MESSAGE ` +
+        `${message.clientId} → ` +
+        `${target.client.nick} ` +
+        `via ${target.client.serverId}`
+    );
+
+    return true;
+}
 
     /*
      * Channel target

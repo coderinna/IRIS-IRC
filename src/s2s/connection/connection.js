@@ -239,6 +239,11 @@ handleData(chunk) {
 }
 
 handleFrame(frame) {
+        console.log(
+        `[IRIS] ← FRAME type=0x${frame.type.toString(16)} ` +
+        `messageId=${frame.messageId?.toString('hex') || 'none'}`
+    );
+
     if (
         !validation.validateIncomingFrame(
             this,

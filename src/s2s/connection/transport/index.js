@@ -66,29 +66,19 @@ function sendFrame(connection, frame) {
         return false;
     }
 
- /*   const type = frame.readUInt8(1);
+    const type =
+        frame.readUInt8(1);
 
-    const requiresAck =
-        type === TYPES.CLIENT ||
-        type === TYPES.NICK ||
-        type === TYPES.JOIN ||
-        type === TYPES.PART ||
-        type === TYPES.QUIT ||
-        type === TYPES.MESSAGE;
+    const messageId =
+        frame.subarray(16, 32).toString('hex');
 
-    if (requiresAck) {
-        const messageId =
-            frame.subarray(16, 32);
-
- if (
-    !connection.trackPendingAck(
-        messageId,
-        frame
-    )
-) {
-    return false;
-}
-    }*/
+    console.log(
+        `[IRIS] → QUEUE ` +
+        `remote=${connection.remote.serverId} ` +
+        `type=0x${type.toString(16)} ` +
+        `messageId=${messageId} ` +
+        `socket=${connection.socket.localPort}->${connection.socket.remotePort}`
+    );
 
     connection.sendQueue.push(frame);
 
@@ -112,8 +102,21 @@ function flushSendQueue(connection) {
         const frame =
             connection.sendQueue.shift();
 
+        console.log(
+            `[IRIS] → SOCKET WRITE ` +
+            `type=0x${frame.readUInt8(1).toString(16)} ` +
+            `messageId=${frame.subarray(16, 32).toString('hex')} ` +
+            `bytes=${frame.length}`
+        );
+
         const canContinue =
             connection.socket.write(frame);
+
+        console.log(
+            `[IRIS] → SOCKET WRITE RESULT ` +
+            `type=0x${frame.readUInt8(1).toString(16)} ` +
+            `result=${canContinue}`
+        );
 
         if (!canContinue) {
             connection.socket.once('drain', () => {

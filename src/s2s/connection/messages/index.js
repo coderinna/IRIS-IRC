@@ -24,6 +24,7 @@ const {
     encodeMessage
 } = require('../../messages/message');
 
+
 const sendHello = connection => {
     const messageId =
         crypto.randomBytes(16);
@@ -31,17 +32,21 @@ const sendHello = connection => {
     const sequence =
         connection.nextSendSequence();
 
-    const frame = encodeHello({
-        protocolVersion: 1,
-        serverId: connection.serverId,
-        serverName: connection.serverName,
-        capabilities: connection.capabilities
-    }, messageId, sequence);
+    const frame =
+        encodeHello(
+            {
+                protocolVersion: 1,
+                serverId: connection.serverId,
+                serverName: connection.serverName,
+                capabilities: connection.capabilities
+            },
+            messageId,
+            sequence
+        );
 
-   return connection.sendFrame(frame);
-
-
+    return connection.sendFrame(frame);
 };
+
 
 const sendAuth = connection => {
     const messageId =
@@ -50,15 +55,20 @@ const sendAuth = connection => {
     const sequence =
         connection.nextSendSequence();
 
-    const frame = encodeAuth({
-        method: 'token',
-        serverId: connection.serverId,
-        token: connection.authToken
-    }, messageId, sequence);
+    const frame =
+        encodeAuth(
+            {
+                method: 'token',
+                serverId: connection.serverId,
+                token: connection.authToken
+            },
+            messageId,
+            sequence
+        );
 
-  return connection.sendFrame(frame);
-
+    return connection.sendFrame(frame);
 };
+
 
 const sendServer = connection => {
     const messageId =
@@ -67,16 +77,21 @@ const sendServer = connection => {
     const sequence =
         connection.nextSendSequence();
 
-    const frame = encodeServer({
-        serverId: connection.serverId,
-        serverName: connection.serverName,
-        serverVersion: connection.serverVersion,
-        serverRole: connection.serverRole
-    }, messageId, sequence);
+    const frame =
+        encodeServer(
+            {
+                serverId: connection.serverId,
+                serverName: connection.serverName,
+                serverVersion: connection.serverVersion,
+                serverRole: connection.serverRole
+            },
+            messageId,
+            sequence
+        );
 
-return connection.sendFrame(frame);
-
+    return connection.sendFrame(frame);
 };
+
 
 const sendReady = connection => {
     const messageId =
@@ -85,14 +100,19 @@ const sendReady = connection => {
     const sequence =
         connection.nextSendSequence();
 
-    const frame = encodeReady({
-        serverId: connection.serverId,
-        status: 'ready'
-    }, messageId, sequence);
+    const frame =
+        encodeReady(
+            {
+                serverId: connection.serverId,
+                status: 'ready'
+            },
+            messageId,
+            sequence
+        );
 
     return connection.sendFrame(frame);
-
 };
+
 
 const sendAck = (
     connection,
@@ -125,6 +145,7 @@ const sendAck = (
     return connection.sendFrame(frame);
 };
 
+
 const sendMessage = (
     connection,
     message,
@@ -149,8 +170,12 @@ const sendMessage = (
             sequence
         );
 
-    return connection.sendFrame(frame);
+    return connection.sendTrackedFrame(
+        frame,
+        messageId
+    );
 };
+
 
 module.exports = {
     sendHello,
