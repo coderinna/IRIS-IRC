@@ -25,6 +25,10 @@ class Client {
         return `${this.nick || '*'}!${this.user || '*'}@${this.host}`;
     }
 
+    isOwnedBy(serverId) {
+    return this.serverId === serverId;
+}
+
     send(message) {
         this.socket.write(message + '\r\n');
     }
