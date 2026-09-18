@@ -4,6 +4,10 @@ const {
     encodeMessage
 } = require('../../messages/message');
 
+const {
+    STATES
+} = require('../../connection/states');
+
 module.exports = function handleMessage(
     manager,
     client,
@@ -24,9 +28,9 @@ module.exports = function handleMessage(
     );
 
     for (const connection of manager.connections) {
-        if (connection.state !== 'connected') {
-            continue;
-        }
+if (connection.state !== STATES.CONNECTED) {
+    continue;
+}
 
         try {
             const messageId =
