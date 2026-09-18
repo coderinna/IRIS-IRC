@@ -38,6 +38,8 @@ class Core {
             return false;
         }
 
+    this.addClient(client);
+    
         client.send(
             `:${this.serverName} 001 ${client.nick} :Welcome to Iris IRC`
         );

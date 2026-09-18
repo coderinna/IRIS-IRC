@@ -25,7 +25,12 @@ module.exports = function resolveTarget(
             clients: [...channel.clients]
         };
     }
-
+console.log(
+    '[ROUTE] resolving local target:',
+    target,
+    'hasLocalLookup:',
+    typeof getLocalClientByNick
+);
     /*
      * Local client
      */
@@ -40,6 +45,11 @@ module.exports = function resolveTarget(
             client: localClient
         };
     }
+
+    console.log(
+    '[ROUTE] local target result:',
+    localClient?.nick || null
+);
 
     /*
      * Remote client
