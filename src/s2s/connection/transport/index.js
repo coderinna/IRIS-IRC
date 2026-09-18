@@ -2,9 +2,17 @@ const { TYPES } =  require('../../protocol/frame');
 const {   STATES } = require('../states.js');
 
 function setupSocket(connection) {
-    connection.socket.on('data', chunk => {
-        connection.handleData(chunk);
-    });
+connection.socket.on('data', chunk => {
+    console.log(
+        `[IRIS] ← TCP DATA ` +
+        `local=${connection.socket.localPort} ` +
+        `remote=${connection.socket.remotePort} ` +
+        `bytes=${chunk.length} ` +
+        `firstByte=0x${chunk[0]?.toString(16)}`
+    );
+
+    connection.handleData(chunk);
+});
 
 connection.socket.on('close', () => {
     if (connection.manager) {
