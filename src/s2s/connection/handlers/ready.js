@@ -1,3 +1,4 @@
+
 const {
     decodeReady
 } = require('../../messages/ready');
@@ -39,6 +40,11 @@ module.exports = function handleReady(
             connection.manager.registerRemoteServer(
                 connection
             );
+
+                console.log(
+        '[IRIS] Network State:',
+        [...connection.manager.getNetworkState().values()]
+    );
         }
 
         connection.startHeartbeat();

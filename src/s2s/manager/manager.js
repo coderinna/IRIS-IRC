@@ -59,45 +59,25 @@ this.networkState =
             connection
         );
     }
-
- registerRemoteServer(connection) {
-    if (
-        !this.networkManager ||
-        !connection.remote.serverId
-    ) {
+registerRemoteServer(connection) {
+    if (!connection?.remote?.serverId) {
         return false;
     }
 
     const serverId =
         connection.remote.serverId;
 
-    let server =
-        this.networkManager.getServer(
-            serverId
-        );
-
-    if (!server) {
-        server =
-            this.networkManager.addServer({
-                serverId,
-                serverName:
-                    connection.remote.serverName ||
-                    serverId,
-                role:
-                    connection.remote.serverRole ||
-                    'server'
-            });
+    if (serverId === this.serverId) {
+        return false;
     }
 
-    this.networkManager.setConnection(
+    this.networkState.addServer({
         serverId,
+        serverName:
+            connection.remote.serverName,
+        local: false,
         connection
-    );
-
-    this.networkManager.setStatus(
-        serverId,
-        'online'
-    );
+    });
 
     return true;
 }
