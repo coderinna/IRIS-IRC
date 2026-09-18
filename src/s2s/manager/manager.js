@@ -13,6 +13,12 @@ const {
 const NetworkState =
     require('../network/state');
 
+    const EventRegistry =
+    require('../events/registry');
+
+    const validateRemoteEvent =
+    require('../messages/validate-event');
+
 class S2SManager {
 constructor({
     serverId,
@@ -26,6 +32,9 @@ constructor({
 
         this.connections = new Set();
 
+        this.eventRegistry =
+    new EventRegistry();
+
 this.networkState =
     new NetworkState(serverId);
 
@@ -37,6 +46,22 @@ this.networkState =
 
         setupEvents(this);
     }
+
+    acceptEvent(event) {
+    if (!validateRemoteEvent(event)) {
+        return false;
+    }
+
+    if (this.eventRegistry.has(event.eventId)) {
+        return false;
+    }
+
+    this.eventRegistry.remember(
+        event.eventId
+    );
+
+    return true;
+}
 
     getNetworkState() {
     return this.networkState;
