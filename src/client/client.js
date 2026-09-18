@@ -1,8 +1,11 @@
+const crypto = require('crypto');
+
 class Client {
-    constructor(socket) {
+    constructor(socket, core, events, serverId) {
         this.socket = socket;
 
-        this.id = `${socket.remoteAddress}:${socket.remotePort}`;
+        this.serverId = serverId;
+        this.id = crypto.randomUUID();
 
         this.nick = null;
         this.user = null;

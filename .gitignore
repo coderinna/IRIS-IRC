@@ -1,1 +1,4 @@
 .testitTEe.txt
+.env
+.env.*
+!.env.example

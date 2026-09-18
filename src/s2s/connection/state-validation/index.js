@@ -9,7 +9,8 @@ const {
 const ALLOWED_STATES = {
 [TYPES.HELLO]: [
     STATES.CONNECTING,
-    STATES.HELLO
+    STATES.HELLO,
+    STATES.AUTH
 ],
 
 [TYPES.AUTH]: [

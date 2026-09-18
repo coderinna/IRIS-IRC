@@ -12,11 +12,17 @@ module.exports = function handleClient(
         return;
     }
 
-    console.log(
-        `[IRIS] Broadcasting CLIENT: ${client.nick}`
-    );
+console.log(
+    `[IRIS] Broadcasting CLIENT: ${client.nick} ` +
+    `connections=${manager.connections.size}`
+);
 
-    for (const connection of manager.connections) {
+for (const connection of manager.connections) {
+    console.log(
+        `[IRIS] CLIENT connection: ` +
+        `${connection.remote.serverId || 'unknown'} ` +
+        `state=${connection.state}`
+    );
         if (connection.state !== 'connected') {
             continue;
         }

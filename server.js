@@ -68,7 +68,12 @@ const s2sListener = new S2SListener({
 });
 
 const server = net.createServer(socket => {
-    const client = new Client(socket, core, events);
+   const client = new Client(
+    socket,
+    core,
+    events,
+    S2S_SERVER_ID
+);
     socket.setNoDelay(true);
 
     socket.on('data', data => {
