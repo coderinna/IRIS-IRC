@@ -77,7 +77,12 @@ const server = net.createServer(socket => {
     socket.setNoDelay(true);
 
 socket.on('data', data => {
-    const lines = data.toString().split('\r\n');
+    console.log(
+        '[IRC] RAW:',
+        JSON.stringify(data.toString())
+    );
+
+const lines = data.toString().split(/\r?\n/);
 
     for (const line of lines) {
         if (!line) continue;
