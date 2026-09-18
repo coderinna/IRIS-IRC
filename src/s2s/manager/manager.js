@@ -35,35 +35,47 @@ class S2SManager {
         );
     }
 
-    registerRemoteServer(connection) {
-        if (
-            !this.networkManager ||
-            !connection.remote.serverId
-        ) {
-            return false;
-        }
-
-        const server =
-            this.networkManager.getServer(
-                connection.remote.serverId
-            );
-
-        if (!server) {
-            return false;
-        }
-
-        this.networkManager.setConnection(
-            connection.remote.serverId,
-            connection
-        );
-
-        this.networkManager.setStatus(
-            connection.remote.serverId,
-            'online'
-        );
-
-        return true;
+ registerRemoteServer(connection) {
+    if (
+        !this.networkManager ||
+        !connection.remote.serverId
+    ) {
+        return false;
     }
+
+    const serverId =
+        connection.remote.serverId;
+
+    let server =
+        this.networkManager.getServer(
+            serverId
+        );
+
+    if (!server) {
+        server =
+            this.networkManager.addServer({
+                serverId,
+                serverName:
+                    connection.remote.serverName ||
+                    serverId,
+                role:
+                    connection.remote.serverRole ||
+                    'server'
+            });
+    }
+
+    this.networkManager.setConnection(
+        serverId,
+        connection
+    );
+
+    this.networkManager.setStatus(
+        serverId,
+        'online'
+    );
+
+    return true;
+}
 
     unregisterRemoteServer(connection) {
         if (

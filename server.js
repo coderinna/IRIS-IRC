@@ -37,6 +37,13 @@ require('./src/services/metrics');
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
     core,
+    status,
+    registerClient: core.registerClient.bind(core),
+    getOrCreateChannel: core.getOrCreateChannel.bind(core),
+    getChannel: core.getChannel.bind(core),
+    deleteChannel: core.deleteChannel.bind(core),
+    getClientByNick: core.getClientByNick.bind(core),
+    removeClient: core.removeClient.bind(core),
     events
 });
 

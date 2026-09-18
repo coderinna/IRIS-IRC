@@ -14,14 +14,14 @@ module.exports = function handleReady(
         const ready =
             decodeReady(frame.payload);
 
-            if (
-    ready.serverId !==
-    connection.remote.serverId
-) {
-    throw new Error(
-        'IRISH READY server ID does not match HELLO'
-    );
-}
+        if (
+            ready.serverId !==
+            connection.remote.serverId
+        ) {
+            throw new Error(
+                'IRISH READY server ID does not match HELLO'
+            );
+        }
 
         if (ready.status !== 'ready') {
             throw new Error(
@@ -33,16 +33,13 @@ module.exports = function handleReady(
             `[IRIS] ← READY ${ready.serverId}`
         );
 
-connection.state = STATES.CONNECTED;
+        connection.state = STATES.CONNECTED;
 
-if (connection.manager) {
-    connection.manager.registerRemoteServer(
-        connection
-    );
-}
-
-connection.startHeartbeat();
-connection.startPendingAckCleanup();
+        if (connection.manager) {
+            connection.manager.registerRemoteServer(
+                connection
+            );
+        }
 
         connection.startHeartbeat();
         connection.startPendingAckCleanup();
