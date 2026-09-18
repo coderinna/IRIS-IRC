@@ -1,6 +1,10 @@
 const setupEvents =
     require('./handlers/setupEvents.js');
 
+const RemoteClientRegistry =
+    require('./remote-clients.js');
+
+
 const {
     addConnection,
     removeConnection
@@ -17,6 +21,9 @@ class S2SManager {
         this.networkManager = networkManager;
 
         this.connections = new Set();
+
+        this.remoteClients =
+    new RemoteClientRegistry();
 
         setupEvents(this);
     }

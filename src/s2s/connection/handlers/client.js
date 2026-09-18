@@ -31,20 +31,19 @@ module.exports = function handleClient(
             );
         }
 
-connection.manager.networkManager.addClient({
-    clientId: client.clientId,
-    serverId: client.serverId,
-    nick: client.nick,
-    user: client.user,
-    host: client.host,
-    connection
-});
+        connection.manager.remoteClients.register({
+            clientId: client.clientId,
+            serverId: client.serverId,
+            nick: client.nick,
+            user: client.user || '',
+            host: client.host || '',
+            connection
+        });
 
         console.log(
             `[IRIS] ← CLIENT ` +
-            `${client.clientId} ` +
-            `${client.nick} ` +
-            `from ${client.serverId}`
+            `${client.serverId}:${client.clientId} ` +
+            `${client.nick}`
         );
 
         return true;
@@ -55,7 +54,9 @@ connection.manager.networkManager.addClient({
             error.message
         );
 
-        connection.socket.destroy();
+        if (connection?.socket) {
+            connection.socket.destroy();
+        }
 
         return false;
     }
