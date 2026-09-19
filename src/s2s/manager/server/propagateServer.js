@@ -15,6 +15,11 @@ module.exports = function propagateServer(
 
     let propagated = 0;
 
+    console.log(
+        `[IRIS] Propagating server ${server.serverId} ` +
+        `from ${manager.serverId}`
+    );
+
     for (const connection of manager.connections) {
         if (
             !connection ||
@@ -41,6 +46,11 @@ module.exports = function propagateServer(
             continue;
         }
 
+        console.log(
+            `[IRIS] → PROPAGATE ${server.serverId} ` +
+            `to ${connection.remote.serverId}`
+        );
+
         connection.sendServer({
             serverId:
                 server.serverId,
@@ -55,7 +65,7 @@ module.exports = function propagateServer(
                 server.role,
 
             parentServerId:
-                server.parentServerId,
+                manager.serverId,
 
             hopCount:
                 server.hopCount + 1
@@ -63,6 +73,11 @@ module.exports = function propagateServer(
 
         propagated++;
     }
+
+    console.log(
+        `[IRIS] Propagated ${server.serverId} ` +
+        `to ${propagated} connection(s)`
+    );
 
     return propagated;
 };
