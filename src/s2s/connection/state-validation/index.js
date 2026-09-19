@@ -18,9 +18,11 @@ const ALLOWED_STATES = {
     STATES.AUTH
 ],
 
-    [TYPES.SERVER]: [
-        STATES.SERVER
-    ],
+[TYPES.SERVER]: [
+    STATES.SERVER,
+    STATES.READY,
+    STATES.CONNECTED
+],
 
     [TYPES.READY]: [
         STATES.READY

@@ -17,7 +17,7 @@ const {
     registerRemoteServer,
     unregisterRemoteServer,
     registerIntroducedServer,
-    propagateServer
+    propagateServer,
 } = require('./server');
 
 

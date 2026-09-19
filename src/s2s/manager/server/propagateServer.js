@@ -9,6 +9,10 @@ module.exports = function propagateServer(
     server,
     excludeConnection = null
 ) {
+    console.log(
+    `[IRIS] 🔥 PROPAGATE CALLED server=${server?.serverId} manager=${manager?.serverId}`
+);
+
     if (!server?.serverId) {
         return false;
     }
@@ -16,7 +20,7 @@ module.exports = function propagateServer(
     let propagated = 0;
 
     console.log(
-        `[IRIS] Propagating server ${server.serverId} ` +
+        `🌐 [IRIS] Propagating server ${server.serverId} ` +
         `from ${manager.serverId}`
     );
 

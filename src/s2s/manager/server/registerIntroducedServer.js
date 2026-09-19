@@ -1,5 +1,5 @@
 
-// src/s2s/manager/servers/registerIntroducedServer.js
+// src/s2s/manager/server/registerIntroducedServer.js
 
 // Tämä on nyt se varsinainen kohta, jossa IRIS alkaa muuttua monipalvelinverkoksi. 🌸
 
@@ -102,7 +102,9 @@ module.exports = function registerIntroducedServer(
         `${entry.serverId} ` +
         `(hop ${entry.hopCount})`
     );
-
+console.log(
+    `[IRIS] 🔥 ABOUT TO PROPAGATE ${entry.serverId} via ${connection.remote.serverId}`
+);
     manager.propagateServer(
         entry,
         connection

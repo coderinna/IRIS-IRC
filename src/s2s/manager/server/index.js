@@ -13,6 +13,6 @@ module.exports = {
 
 
     propagateServer:
-        require('./propagateServer')
+        require('./propagateServer'),
 
 };

@@ -1,4 +1,4 @@
-// src/s2s/manager/registerRemoteServer.js
+// src/s2s/manager/server/registerRemoteServer.js
 
 module.exports = function registerRemoteServer(
     manager,
@@ -93,6 +93,11 @@ module.exports = function registerRemoteServer(
         `${server.parentServerId} → ` +
         `${server.serverId} ` +
         `(hop ${server.hopCount})`
+    );
+
+    manager.propagateServer(
+        server,
+        connection
     );
 
     return true;

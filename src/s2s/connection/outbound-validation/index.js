@@ -168,18 +168,22 @@ function validateState(
 ) {
     const allowedStates = {
 
-        [TYPES.HELLO]: [
-            STATES.HELLO
-        ],
+[TYPES.HELLO]: [
+    STATES.CONNECTING,
+    STATES.HELLO,
+    STATES.AUTH
+],
 
-        [TYPES.AUTH]: [
-            STATES.AUTH
-        ],
+[TYPES.AUTH]: [
+    STATES.HELLO,
+    STATES.AUTH
+],
 
-        [TYPES.SERVER]: [
-            STATES.SERVER
-        ],
-
+[TYPES.SERVER]: [
+    STATES.SERVER,
+    STATES.READY,
+    STATES.CONNECTED
+],
         [TYPES.READY]: [
             STATES.READY
         ],
