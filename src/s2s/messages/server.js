@@ -43,18 +43,8 @@ const LIMITS = {
     HOP_COUNT: 65535
 };
 
-function validateServerId(serverId) {
-    if (
-        typeof serverId !== 'string' ||
-        serverId.length === 0 ||
-        serverId.length > LIMITS.SERVER_ID
-    ) {
-        throw new Error(
-            'IRIS SERVER serverId is invalid'
-        );
-    }
-}
-
+validateServerId(serverId)
+validateServerName(serverName);
 validateServerName(serverName);
 validateServerVersion(serverVersion);
 validateServerRole(serverRole);

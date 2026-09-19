@@ -1,6 +1,10 @@
 // src/s2s/messages/server/index.js
 
 module.exports = {
+
+    validateServerId: 
+        require('./validateServerId.js'),
+
     validateServerName:
         require('./validateServerName'),
 
