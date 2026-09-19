@@ -43,15 +43,6 @@ const LIMITS = {
     HOP_COUNT: 65535
 };
 
-validateServerId(serverId)
-validateServerName(serverName);
-validateServerName(serverName);
-validateServerVersion(serverVersion);
-validateServerRole(serverRole);
-validateParentServerId(parentServerId);
-validateHopCount(hopCount);
-validateMessageId(messageId);
-
 function encodeServer(
     {
         serverId,

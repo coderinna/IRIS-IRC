@@ -3,7 +3,6 @@
 
 // Tämä on nyt se varsinainen kohta, jossa IRIS alkaa muuttua monipalvelinverkoksi. 🌸
 
-
 module.exports = function registerIntroducedServer(
     manager,
     connection,
@@ -102,6 +101,11 @@ module.exports = function registerIntroducedServer(
         `${entry.parentServerId} → ` +
         `${entry.serverId} ` +
         `(hop ${entry.hopCount})`
+    );
+
+    manager.propagateServer(
+        entry,
+        connection
     );
 
     return true;

@@ -16,7 +16,8 @@ const {
 const {
     registerRemoteServer,
     unregisterRemoteServer,
-    registerIntroducedServer
+    registerIntroducedServer,
+    propagateServer
 } = require('./server');
 
 
@@ -85,6 +86,16 @@ acceptEvent(event) {
             connection
         );
     }
+    propagateServer(
+    server,
+    excludeConnection = null
+) {
+    return propagateServer(
+        this,
+        server,
+        excludeConnection
+    );
+}
 
 registerIntroducedServer(
     connection,

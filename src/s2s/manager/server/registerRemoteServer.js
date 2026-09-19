@@ -68,20 +68,31 @@ module.exports = function registerRemoteServer(
     );
 
     manager.networkState.addServer({
-        serverId,
+        serverId:
+            server.serverId,
+
         serverName:
-            connection.remote.serverName,
+            server.serverName,
+
         role:
-            connection.remote.serverRole,
+            server.role,
+
         local: false,
+
         connection,
+
         parentServerId:
-            manager.serverId,
-        hopCount: 1
+            server.parentServerId,
+
+        hopCount:
+            server.hopCount
     });
 
     console.log(
-        `[IRIS] Topology: ${manager.serverId} → ${serverId} (hop 1)`
+        `[IRIS] Topology: ` +
+        `${server.parentServerId} → ` +
+        `${server.serverId} ` +
+        `(hop ${server.hopCount})`
     );
 
     return true;

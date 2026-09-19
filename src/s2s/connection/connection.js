@@ -198,8 +198,11 @@ sendAuth() {
     return messages.sendAuth(this);
 }
 
-sendServer() {
-    return messages.sendServer(this);
+sendServer(server = null) {
+    return messages.sendServer(
+        this,
+        server
+    );
 }
 
 sendReady() {

@@ -9,6 +9,10 @@ module.exports = {
         require('./registerIntroducedServer'),
 
     unregisterRemoteServer:
-        require('./unregisterRemoteServer')
+        require('./unregisterRemoteServer'),
+
+
+    propagateServer:
+        require('./propagateServer')
 
 };

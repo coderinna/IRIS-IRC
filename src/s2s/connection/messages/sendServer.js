@@ -6,33 +6,63 @@ const {
     encodeServer
 } = require('../../messages/server');
 
-module.exports = function sendServer(connection) {
+module.exports = function sendServer(
+    connection,
+    server = null
+) {
     const messageId =
         crypto.randomBytes(16);
 
     const sequence =
         connection.nextSendSequence();
 
+    const data =
+        server || {
+            serverId:
+                connection.serverId,
+
+            serverName:
+                connection.serverName,
+
+            serverVersion:
+                connection.serverVersion,
+
+            serverRole:
+                connection.serverRole,
+
+            parentServerId:
+                null,
+
+            hopCount:
+                0
+        };
+
     const frame =
         encodeServer(
             {
                 serverId:
-                    connection.serverId,
+                    data.serverId,
 
                 serverName:
-                    connection.serverName,
+                    data.serverName,
 
                 serverVersion:
+                    data.serverVersion ||
                     connection.serverVersion,
 
                 serverRole:
+                    data.serverRole ||
                     connection.serverRole,
 
                 parentServerId:
-                    connection.parentServerId || null,
+                    data.parentServerId || null,
 
                 hopCount:
-                    connection.hopCount || 0
+                    Number.isInteger(
+                        data.hopCount
+                    )
+                        ? data.hopCount
+                        : 0
             },
             messageId,
             sequence
