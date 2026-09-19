@@ -1,3 +1,5 @@
+// src/s2s/manager/handlers/setupEvents.js
+
 const events = require('../../../events');
 
 const handleClient = require('./client');

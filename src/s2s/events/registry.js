@@ -1,3 +1,5 @@
+// src/s2s/event/registry.js
+
 class EventRegistry {
     constructor(maxEvents = 100000) {
         this.events = new Set();

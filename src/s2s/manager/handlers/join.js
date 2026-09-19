@@ -1,3 +1,5 @@
+// src/s2s/manager/handlers/join.js
+
 const crypto = require('crypto');
 
 const {
@@ -13,10 +15,7 @@ module.exports = function handleJoin(
         return;
     }
 
-    console.log(
-        `[IRIS] Broadcasting JOIN: ` +
-        `${client.nick} → ${channel}`
-    );
+    console.log(   `[IRIS] Broadcasting JOIN: ` +    `${client.nick} → ${channel.name}` );
 
     for (const connection of manager.connections) {
         if (connection.state !== 'connected') {
@@ -32,17 +31,16 @@ module.exports = function handleJoin(
 
             const frame = encodeJoin({
                 clientId: client.id,
-                channel,
+                channel: channel.name,
                 serverId: manager.serverId
             }, messageId, sequence);
 
-            connection.sendTrackedFrame(frame, messageId);
-
-            console.log(
-                `[IRIS] → JOIN ` +
-                `${client.nick} → ${channel} ` +
-                `via ${connection.remote.serverId}`
+            connection.sendTrackedFrame(
+                frame,
+                messageId
             );
+
+            console.log(    `[IRIS] → JOIN ` +     `${client.nick} → ${channel.name} ` +    `via ${connection.remote.serverId}`    );
 
         } catch (error) {
             console.error(

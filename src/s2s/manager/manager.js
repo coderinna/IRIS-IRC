@@ -1,3 +1,5 @@
+// src/s2s/manager/manager.js
+
 const setupEvents =
     require('./handlers/setupEvents.js');
 

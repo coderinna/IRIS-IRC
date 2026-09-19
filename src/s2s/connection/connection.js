@@ -1,3 +1,5 @@
+// src/s2s/connections/connection.js
+
 const crypto = require('crypto');
 
 const FrameParser = require('../protocol/parser');

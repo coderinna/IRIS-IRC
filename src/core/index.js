@@ -1,3 +1,5 @@
+// src/core/index.js
+
 const Channel = require('../channel');
 const events = require('../events');
 

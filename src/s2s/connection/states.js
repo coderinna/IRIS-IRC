@@ -1,3 +1,5 @@
+// src/s2s/connections/states.js
+
 const STATES = {
     CONNECTING: 'connecting',
     HELLO: 'hello',

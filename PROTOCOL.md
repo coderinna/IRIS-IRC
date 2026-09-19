@@ -2,13 +2,12 @@
 
 # IRIS IRC Protokolla
 
-IRIS IRC tuo mukanaan **IRIS IRC Protocolin**.
+**IRIS-protokolla** on IRIS IRC:tä varten suunniteltu palvelinten välinen protokolla.
 
-IRIS on IRIS IRC:tä varten suunniteltu palvelinten välinen protokolla.
+Sen tarkoituksena on tarjota selkeä perusta itsenäisten IRIS-palvelinten väliselle kommunikaatiolle 
+ja samalla mahdollistaa protokollan kehittäminen riippumatta perinteisen IRC-client-protokollan rajoituksista.
 
-Sen tarkoituksena on tarjota selkeä perusta itsenäisten IRIS-palvelinten väliselle kommunikaatiolle ja samalla mahdollistaa protokollan kehittäminen riippumatta perinteisen IRC-client-protokollan rajoituksista.
-
-IRIS rakentuu rakenteisten binäärikehysten ja eksplisiittisten protokollatilojen ympärille.
+IRIS rakentuu rakenteisten **binäärikehysten** ja eksplisiittisten protokollatilojen ympärille.
 
 Nykyisiä protokollan konsepteja ovat muun muassa:
 

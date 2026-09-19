@@ -1,3 +1,6 @@
+// src/s2s/network-manager/clients/addClient.js
+
+
 module.exports = function addClient(
     manager,
     client

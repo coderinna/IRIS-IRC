@@ -1,3 +1,5 @@
+// src/s2s/network/state.js
+
 class NetworkState {
     constructor(serverId) {
         this.serverId = serverId;

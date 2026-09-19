@@ -1,3 +1,5 @@
+// src/s2s/network-manager/clients/getClient.js
+
 module.exports = function getClient(
     manager,
     serverId,

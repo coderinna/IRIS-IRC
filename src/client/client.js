@@ -1,3 +1,5 @@
+// src/client/client.js
+
 const crypto = require('crypto');
 
 class Client {

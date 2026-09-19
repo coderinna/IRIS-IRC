@@ -1,3 +1,5 @@
+// src/s2s/network-manager/network-manager.js
+
 const {
     addServer,
     removeServer,

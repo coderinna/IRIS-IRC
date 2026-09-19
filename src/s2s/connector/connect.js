@@ -1,3 +1,5 @@
+// src/s2s/connector/connect.js
+
 const net = require('net');
 const { S2SConnection } = require('../connection/connection.js');
 

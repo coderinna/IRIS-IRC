@@ -1,3 +1,5 @@
+// src/s2s/connection/handlers/join.js
+
 const {
     decodeJoin
 } = require('../../messages/join');

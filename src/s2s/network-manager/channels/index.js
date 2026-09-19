@@ -1,3 +1,5 @@
+// src/s2s/network-manager/channels/index.js
+
 const addChannel = (networkManager, channel) => {
     if (!channel || !channel.name) {
         throw new Error(
