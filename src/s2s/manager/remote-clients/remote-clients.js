@@ -4,6 +4,9 @@ class RemoteClientRegistry {
     constructor() {
         this.clients = new Map();
     }
+register(client) {
+    return this.add(client);
+}
 
     add(client) {
         if (!client?.clientId || !client?.serverId) {
