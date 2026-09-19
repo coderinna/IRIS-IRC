@@ -1,3 +1,5 @@
+// src/s2s/network-manager/manager/index.js
+
 module.exports = {
     addServer:
         require('./addServer.js'),

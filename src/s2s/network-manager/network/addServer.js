@@ -1,3 +1,5 @@
+// src/s2s/network-manager/network/addServer.js
+
 module.exports = function addServer(
     manager,
     server
@@ -23,7 +25,13 @@ module.exports = function addServer(
         role: server.role || 'server',
         status: 'offline',
         connection: null,
-        lastSeen: null
+        lastSeen: null,
+        parentServerId:
+            server.parentServerId || null,
+        hopCount:
+            Number.isInteger(server.hopCount)
+                ? server.hopCount
+                : 0
     };
 
     manager.servers.set(
