@@ -6,11 +6,14 @@ const setupEvents =
 const RemoteClientRegistry =
     require('./remote-clients/remote-clients.js');
 
+const {
+    sendRemoteMessage
+} = require('./routing');
 
 const {
     addConnection,
     removeConnection,
-} = require('./connections');
+} = require('./connections/index.js');
 
 
 const {
@@ -18,14 +21,17 @@ const {
     unregisterRemoteServer,
     registerIntroducedServer,
     propagateServer,
-} = require('./server');
+} = require('./server/index.js');
 
 
 const NetworkState =
-    require('../network/state');
+    require('../network/state.js');
 
     const EventRegistry =
-    require('../events/registry');
+    require('../events/registry.js');
+
+    const RouteResolver =
+    require('../network/routing/route-resolver.js');
 
 const acceptEvent =
     require('./acceptEvent.js');
@@ -49,6 +55,9 @@ constructor({
 this.networkState =
     new NetworkState(serverId);
 
+this.routeResolver =
+    new RouteResolver(this);
+
         this.remoteClients =
     new RemoteClientRegistry();
 
@@ -57,6 +66,59 @@ this.networkState =
 
         setupEvents(this);
     }
+
+    sendRemoteMessage(
+    clientId,
+    message
+) {
+    return sendRemoteMessage(
+        this,
+        clientId,
+        message
+    );
+}
+
+    getClientRoute(clientId) {
+    const serverId =
+        this.remoteClients.getServerId(
+            clientId
+        );
+
+    if (!serverId) {
+        return null;
+    }
+
+    return this.getRoute(
+        serverId
+    );
+}
+
+getClientNextHop(clientId) {
+    const serverId =
+        this.remoteClients.getServerId(
+            clientId
+        );
+
+    if (!serverId) {
+        return null;
+    }
+
+    return this.getNextHop(
+        serverId
+    );
+}
+
+    getRoute(serverId) {
+    return this.routeResolver.getRoute(
+        serverId
+    );
+}
+
+getNextHop(serverId) {
+    return this.routeResolver.getNextHop(
+        serverId
+    );
+}
 
 acceptEvent(event) {
     return acceptEvent(

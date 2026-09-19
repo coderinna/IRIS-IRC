@@ -5,61 +5,53 @@ class RemoteClientRegistry {
         this.clients = new Map();
     }
 
-key(serverId, clientId) {
-    return `${serverId}:${clientId}`;
-}
-
-    register(client) {
-        if (!client?.serverId || !client?.clientId) {
-            throw new Error('Remote client requires serverId and clientId');
+    add(client) {
+        if (!client?.clientId || !client?.serverId) {
+            throw new Error(
+                'Remote client requires clientId and serverId'
+            );
         }
 
-        const key = this.key(
-            client.serverId,
+        this.clients.set(
+            client.clientId,
+            { ...client }
+        );
+
+        return this.clients.get(
             client.clientId
         );
-
-        this.clients.set(key, {
-            ...client
-        });
-
-        return this.clients.get(key);
     }
 
-    get(serverId, clientId) {
-        return this.clients.get(
-            this.key(serverId, clientId)
+    remove(clientId) {
+        return this.clients.delete(
+            clientId
         );
+    }
+
+    get(clientId) {
+        return this.clients.get(
+            clientId
+        ) || null;
     }
 
     getByNick(nick) {
-    for (const client of this.clients.values()) {
-        if (client.nick === nick) {
-            return client;
+        if (!nick) {
+            return null;
         }
-    }
 
-    return null;
-}
-
-    has(serverId, clientId) {
-        return this.clients.has(
-            this.key(serverId, clientId)
-        );
-    }
-
-    remove(serverId, clientId) {
-        return this.clients.delete(
-            this.key(serverId, clientId)
-        );
-    }
-
-    clearServer(serverId) {
-        for (const [key, client] of this.clients) {
-            if (client.serverId === serverId) {
-                this.clients.delete(key);
+        for (const client of this.clients.values()) {
+            if (client.nick === nick) {
+                return client;
             }
         }
+
+        return null;
+    }
+
+    has(clientId) {
+        return this.clients.has(
+            clientId
+        );
     }
 
     values() {
@@ -68,6 +60,13 @@ key(serverId, clientId) {
 
     size() {
         return this.clients.size;
+    }
+
+    getServerId(clientId) {
+        const client =
+            this.get(clientId);
+
+        return client?.serverId || null;
     }
 }
 

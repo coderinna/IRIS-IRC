@@ -116,17 +116,19 @@ const lines = data.toString().split(/\r?\n/);
     });
 });
 
+// server.js
+
 server.listen(PORT, HOST, () => {
-   console.log('══════════════════════════════════════════════════════════════');
+    console.log('══════════════════════════════════════════════════════════════');
     console.log('\x1b[36m%s\x1b[0m', '  ___  ____   ___  ____  ');
-    console.log('\x1b[36m%s\x1b[0m', ' |_ _| |  _ \\\\ |_ _|/ ___| ');
+    console.log('\x1b[36m%s\x1b[0m', ' |_ _| |  _ \\ |_ _|/ ___| ');
     console.log('\x1b[36m%s\x1b[0m', '  | |  | |_) | | | \\___ \\  ');
     console.log('\x1b[36m%s\x1b[0m', '  | |  |  _ <  | |  ___) | ');
-    console.log('\x1b[36m%s\x1b[0m', ' |___| |_| \\_\\\\|___||____/  ');
+    console.log('\x1b[36m%s\x1b[0m', ' |___| |_| \\_\\|___||____/  ');
     console.log('🌸 ✨  I R I S   I R C D  ✨🌸');
     console.log('⚙️  IRC Daemon, v1.0.0 Stable');
     console.log(`🚀  Listening on ${HOST}:${PORT}`);
-   console.log('══════════════════════════════════════════════════════════════');
+    console.log('══════════════════════════════════════════════════════════════');
 });
 
 s2sListener.start();
