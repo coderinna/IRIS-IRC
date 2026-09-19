@@ -1,3 +1,5 @@
+// src/s2s/manager/handlers/part.js
+
 const crypto = require('crypto');
 
 const {
@@ -14,10 +16,7 @@ module.exports = function handlePart(
         return;
     }
 
-    console.log(
-        `[IRIS] Broadcasting PART: ` +
-        `${client.nick} ← ${channel}`
-    );
+    console.log(`[IRIS] Broadcasting PART: ${client.nick} ← ${channel.name}`);
 
     for (const connection of manager.connections) {
         if (connection.state !== 'connected') {
@@ -25,32 +24,21 @@ module.exports = function handlePart(
         }
 
         try {
-            const messageId =
-                crypto.randomBytes(16);
-
-            const sequence =
-                connection.nextSendSequence();
+            const messageId = crypto.randomBytes(16);
+            const sequence = connection.nextSendSequence();
 
             const frame = encodePart({
                 clientId: client.id,
-                channel,
+                channel: channel.name,
                 reason,
                 serverId: manager.serverId
             }, messageId, sequence);
 
             connection.sendTrackedFrame(frame, messageId);
 
-            console.log(
-                `[IRIS] → PART ` +
-                `${client.nick} ← ${channel} ` +
-                `via ${connection.remote.serverId}`
-            );
-
+            console.log(`[IRIS] → PART ${client.nick} ← ${channel.name} via ${connection.remote.serverId}`);
         } catch (error) {
-            console.error(
-                '[IRIS] PART event failed:',
-                error.message
-            );
+            console.error('[IRIS] PART event failed:', error.message);
         }
     }
 };

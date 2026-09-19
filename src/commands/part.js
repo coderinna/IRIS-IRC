@@ -1,3 +1,5 @@
+// src/commands/part.js
+
 const events = require('../events');
 
 function handlePart(

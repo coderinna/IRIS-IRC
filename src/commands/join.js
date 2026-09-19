@@ -1,3 +1,4 @@
+// src/commands/join.js
 
 const events = require('../events');
 

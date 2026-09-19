@@ -1,3 +1,6 @@
+// src/s2s/connection/handlers/part.js
+
+
 const {
     decodePart
 } = require('../../messages/part');
