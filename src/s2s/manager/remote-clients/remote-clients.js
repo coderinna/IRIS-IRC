@@ -1,3 +1,5 @@
+// src/s2s/manager/remote-clients/remote-clients.js
+
 class RemoteClientRegistry {
     constructor() {
         this.clients = new Map();

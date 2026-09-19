@@ -1,3 +1,5 @@
+// src/s2s/messages/server.js
+
 const {
     TYPES,
     encodeFrame
@@ -8,11 +10,24 @@ const {
     decodeFields
 } = require('../protocol/tlv');
 
+const {
+    validateServerId,
+    validateServerName,
+    validateServerVersion,
+    validateServerRole,
+    validateParentServerId,
+    validateHopCount,
+    validateMessageId
+} = require('./server/index.js');
+
+
 const FIELDS = {
     SERVER_ID: 0x01,
     SERVER_NAME: 0x02,
     SERVER_VERSION: 0x03,
-    SERVER_ROLE: 0x04
+    SERVER_ROLE: 0x04,
+    PARENT_SERVER_ID: 0x05,
+    HOP_COUNT: 0x06
 };
 
 const ROLES = {
@@ -23,7 +38,9 @@ const ROLES = {
 const LIMITS = {
     SERVER_ID: 64,
     SERVER_NAME: 255,
-    SERVER_VERSION: 128
+    SERVER_VERSION: 128,
+    PARENT_SERVER_ID: 64,
+    HOP_COUNT: 65535
 };
 
 function validateServerId(serverId) {
@@ -33,63 +50,37 @@ function validateServerId(serverId) {
         serverId.length > LIMITS.SERVER_ID
     ) {
         throw new Error(
-            'IRISH SERVER serverId is invalid'
+            'IRIS SERVER serverId is invalid'
         );
     }
 }
 
-function validateServerName(serverName) {
-    if (
-        typeof serverName !== 'string' ||
-        serverName.length === 0 ||
-        serverName.length > LIMITS.SERVER_NAME
-    ) {
-        throw new Error(
-            'IRISH SERVER serverName is invalid'
-        );
-    }
-}
+validateServerName(serverName);
+validateServerVersion(serverVersion);
+validateServerRole(serverRole);
+validateParentServerId(parentServerId);
+validateHopCount(hopCount);
+validateMessageId(messageId);
 
-function validateServerVersion(serverVersion) {
-    if (
-        typeof serverVersion !== 'string' ||
-        serverVersion.length === 0 ||
-        serverVersion.length > LIMITS.SERVER_VERSION
-    ) {
-        throw new Error(
-            'IRISH SERVER serverVersion is invalid'
-        );
-    }
-}
-
-function validateServerRole(serverRole) {
-    if (
-        serverRole !== ROLES.HUB &&
-        serverRole !== ROLES.LEAF
-    ) {
-        throw new Error(
-            'IRISH SERVER serverRole is invalid'
-        );
-    }
-}
-
-function encodeServer({
-    serverId,
-    serverName,
-    serverVersion = 'iris-irc/0.1',
-    serverRole = ROLES.HUB
-}, messageId, sequence = 0n) {
-    
+function encodeServer(
+    {
+        serverId,
+        serverName,
+        serverVersion = 'iris-irc/0.1',
+        serverRole = ROLES.HUB,
+        parentServerId = null,
+        hopCount = 0
+    },
+    messageId,
+    sequence = 0n
+) {
     validateServerId(serverId);
     validateServerName(serverName);
     validateServerVersion(serverVersion);
     validateServerRole(serverRole);
-
-    if (!Buffer.isBuffer(messageId) || messageId.length !== 16) {
-        throw new TypeError(
-            'IRISH SERVER messageId must be a 16-byte Buffer'
-        );
-    }
+    validateParentServerId(parentServerId);
+    validateHopCount(hopCount);
+    validateMessageId(messageId);
 
     const fields = [
         {
@@ -107,27 +98,42 @@ function encodeServer({
         {
             type: FIELDS.SERVER_ROLE,
             value: serverRole
+        },
+        {
+            type: FIELDS.HOP_COUNT,
+            value: String(hopCount)
         }
     ];
 
-    const payload = encodeFields(fields);
+    if (parentServerId !== null) {
+        fields.push({
+            type: FIELDS.PARENT_SERVER_ID,
+            value: parentServerId
+        });
+    }
 
-return encodeFrame({
-    type: TYPES.SERVER,
-    sequence,
-    messageId,
-    payload
-});
+    const payload =
+        encodeFields(fields);
+
+    return encodeFrame({
+        type: TYPES.SERVER,
+        sequence,
+        messageId,
+        payload
+    });
 }
 
 function decodeServer(payload) {
-    const fields = decodeFields(payload);
+    const fields =
+        decodeFields(payload);
 
     const server = {
         serverId: null,
         serverName: null,
         serverVersion: null,
-        serverRole: null
+        serverRole: null,
+        parentServerId: null,
+        hopCount: 0
     };
 
     for (const field of fields) {
@@ -152,17 +158,47 @@ function decodeServer(payload) {
                     field.value.toString('utf8');
                 break;
 
+            case FIELDS.PARENT_SERVER_ID:
+                server.parentServerId =
+                    field.value.toString('utf8');
+                break;
+
+            case FIELDS.HOP_COUNT:
+                server.hopCount =
+                    Number(
+                        field.value.toString('utf8')
+                    );
+                break;
+
             default:
-                // Forward compatibility:
-                // tuntemattomat kentät ohitetaan.
+                // Tuntemattomat kentät ohitetaan.
                 break;
         }
     }
 
-    validateServerId(server.serverId);
-    validateServerName(server.serverName);
-    validateServerVersion(server.serverVersion);
-    validateServerRole(server.serverRole);
+    validateServerId(
+        server.serverId
+    );
+
+    validateServerName(
+        server.serverName
+    );
+
+    validateServerVersion(
+        server.serverVersion
+    );
+
+    validateServerRole(
+        server.serverRole
+    );
+
+    validateParentServerId(
+        server.parentServerId
+    );
+
+    validateHopCount(
+        server.hopCount
+    );
 
     return server;
 }
