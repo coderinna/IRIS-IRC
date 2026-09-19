@@ -1,4 +1,4 @@
-// src/s2s/network-manager/manager/index.js
+// src/s2s/network-manager/network/index.js
 
 module.exports = {
     addServer:
@@ -17,5 +17,8 @@ module.exports = {
         require('./setStatus.js'),
 
     setConnection:
-        require('./setConnection.js')
+        require('./setConnection.js'),
+
+    updateTopology:
+        require('./updateTopology.js')
 };

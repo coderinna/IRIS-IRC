@@ -1,12 +1,14 @@
 // src/s2s/network-manager/network-manager.js
 
+
 const {
     addServer,
     removeServer,
     getServer,
     getServers,
     setStatus,
-    setConnection
+    setConnection,
+    updateTopology
 } = require('./network/index.js');
 
 const {
@@ -34,9 +36,18 @@ class NetworkManager {
         this.channels = new Map();
     }
 
-    /*
-     * Servers
-     */
+updateTopology(
+    serverId,
+    parentServerId,
+    hopCount
+) {
+    return updateTopology(
+        this,
+        serverId,
+        parentServerId,
+        hopCount
+    );
+}
 
     addServer(server) {
         return addServer(

@@ -4,13 +4,20 @@ const setupEvents =
     require('./handlers/setupEvents.js');
 
 const RemoteClientRegistry =
-    require('./remote-clients.js');
+    require('./remote-clients/remote-clients.js');
 
 
 const {
     addConnection,
-    removeConnection
+    removeConnection,
 } = require('./connections');
+
+
+const {
+    registerRemoteServer,
+    unregisterRemoteServer
+} = require('./server');
+
 
 const NetworkState =
     require('../network/state');
@@ -18,8 +25,8 @@ const NetworkState =
     const EventRegistry =
     require('../events/registry');
 
-    const validateRemoteEvent =
-    require('../messages/validate-event');
+const acceptEvent =
+    require('./acceptEvent.js');
 
 class S2SManager {
 constructor({
@@ -49,20 +56,11 @@ this.networkState =
         setupEvents(this);
     }
 
-    acceptEvent(event) {
-    if (!validateRemoteEvent(event)) {
-        return false;
-    }
-
-    if (this.eventRegistry.has(event.eventId)) {
-        return false;
-    }
-
-    this.eventRegistry.remember(
-        event.eventId
+acceptEvent(event) {
+    return acceptEvent(
+        this,
+        event
     );
-
-    return true;
 }
 
     getNetworkState() {
@@ -87,64 +85,18 @@ this.networkState =
         );
     }
 registerRemoteServer(connection) {
-    if (!connection?.remote?.serverId) {
-        return false;
-    }
-
-    const serverId =
-        connection.remote.serverId;
-
-    if (serverId === this.serverId) {
-        return false;
-    }
-
-    this.networkState.addServer({
-        serverId,
-        serverName:
-            connection.remote.serverName,
-        local: false,
+    return registerRemoteServer(
+        this,
         connection
-    });
-
-    return true;
+    );
 }
 
-    unregisterRemoteServer(connection) {
-        if (
-            !this.networkManager ||
-            !connection.remote.serverId
-        ) {
-            return false;
-        }
-
-        const server =
-            this.networkManager.getServer(
-                connection.remote.serverId
-            );
-
-        if (!server) {
-            return false;
-        }
-
-        if (
-            server.connection &&
-            server.connection !== connection
-        ) {
-            return false;
-        }
-
-        this.networkManager.setConnection(
-            connection.remote.serverId,
-            null
-        );
-
-        this.networkManager.setStatus(
-            connection.remote.serverId,
-            'offline'
-        );
-
-        return true;
-    }
+unregisterRemoteServer(connection) {
+    return unregisterRemoteServer(
+        this,
+        connection
+    );
+}
 }
 
 module.exports = S2SManager;
