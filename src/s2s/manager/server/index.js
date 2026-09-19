@@ -1,6 +1,14 @@
-// src/s2s/manager/connections/server
+// src/s2s/manager/servers/index.js
 
 module.exports = {
-    registerRemoteServer: require('./registerRemoteServer'),
-    unregisterRemoteServer: require('./unregisterRemoteServer')
+
+    registerRemoteServer:
+        require('./registerRemoteServer'),
+
+    registerIntroducedServer:
+        require('./registerIntroducedServer'),
+
+    unregisterRemoteServer:
+        require('./unregisterRemoteServer')
+
 };

@@ -15,7 +15,8 @@ const {
 
 const {
     registerRemoteServer,
-    unregisterRemoteServer
+    unregisterRemoteServer,
+    registerIntroducedServer
 } = require('./server');
 
 
@@ -84,6 +85,18 @@ acceptEvent(event) {
             connection
         );
     }
+
+registerIntroducedServer(
+    connection,
+    server
+) {
+    return registerIntroducedServer(
+        this,
+        connection,
+        server
+    );
+}
+
 registerRemoteServer(connection) {
     return registerRemoteServer(
         this,
