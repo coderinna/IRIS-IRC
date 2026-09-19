@@ -129,6 +129,7 @@ server.listen(PORT, HOST, () => {
     console.log('⚙️  IRC Daemon, v1.0.0 Stable');
     console.log(`🚀  Listening on ${HOST}:${PORT}`);
     console.log('══════════════════════════════════════════════════════════════');
+    
 });
 
 s2sListener.start();
@@ -147,3 +148,13 @@ if (S2S_PEER_HOST && S2S_PEER_PORT) {
         authToken: S2S_AUTH_TOKEN
     });
 }
+
+s2sManager.sendRemoteMessage(
+    '29d3336e-82ab-474d-a7b7-5bd43935abbc',
+    {
+        clientId: 'TEST',
+        target: '29d3336e-82ab-474d-a7b7-5bd43935abbc',
+        message: 'hello from iris-01',
+        serverId: 'iris-01'
+    }
+);

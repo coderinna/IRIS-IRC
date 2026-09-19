@@ -1,4 +1,6 @@
-const crypto = require('crypto');
+// src/s2s/manager/handlers/client.js
+
+const crypto = require('node:crypto');
 
 const {
     encodeClient
@@ -8,74 +10,71 @@ module.exports = function handleClient(
     manager,
     client
 ) {
-    if (!client || !client.nick) {
-        return;
+    if (!manager) {
+        return false;
     }
 
-    if (!client.id) {
-        return;
+    if (!client) {
+        return false;
     }
 
     const remoteClient = {
-        serverId: manager.serverId,
         clientId: client.id,
+        serverId: manager.serverId,
         nick: client.nick,
         user: client.user || '',
-        host: 'localhost'
+        host: client.host || ''
     };
 
     manager.remoteClients.register(
         remoteClient
     );
 
-    console.log(
-        `[IRIS] Local client registered: ` +
-        `${remoteClient.serverId}:${remoteClient.clientId} ` +
-        `(${remoteClient.nick})`
+    manager.networkManager.addClient(
+        remoteClient
     );
 
     console.log(
-        `[IRIS] Broadcasting CLIENT: ${client.nick} ` +
-        `connections=${manager.connections.size}`
+        `[IRIS] → CLIENT ` +
+        `${remoteClient.clientId} ` +
+        `${remoteClient.nick} ` +
+        `from ${manager.serverId}`
     );
 
-    for (const connection of manager.connections) {
-
-        if (connection.state !== 'connected') {
+    for (
+        const connection
+        of manager.connections
+    ) {
+        if (
+            connection.state !== 'connected'
+        ) {
             continue;
         }
 
-        try {
-            const messageId =
-                crypto.randomBytes(16);
+        const messageId =
+            crypto.randomBytes(16);
 
-            const sequence =
-                connection.nextSendSequence();
+        const sequence =
+            connection.nextSendSequence();
 
-            const frame = encodeClient({
-                clientId: client.id,
-                nick: client.nick,
-                user: client.user || '',
-                host: 'localhost',
-                serverId: manager.serverId
-            }, messageId, sequence);
-
-            connection.sendTrackedFrame(
-                frame,
-                messageId
+        const frame =
+            encodeClient(
+                remoteClient,
+                messageId,
+                sequence
             );
 
-            console.log(
-                `[IRIS] → CLIENT ` +
-                `${client.nick} ` +
-                `via ${connection.remote.serverId}`
-            );
+        connection.sendTrackedFrame(
+            frame,
+            messageId
+        );
 
-        } catch (error) {
-            console.error(
-                '[IRIS] CLIENT event failed:',
-                error.message
-            );
-        }
+        console.log(
+            `[IRIS] → CLIENT ` +
+            `${remoteClient.nick} ` +
+            `via ${connection.remote?.serverId}`
+        );
     }
+
+    return true;
 };

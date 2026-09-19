@@ -1,7 +1,10 @@
 // src/s2s/connection/handlers/client.js
 
+const crypto = require('node:crypto');
+
 const {
-    decodeClient
+    decodeClient,
+    encodeClient
 } = require('../../messages/client');
 
 module.exports = function handleClient(
@@ -18,7 +21,7 @@ module.exports = function handleClient(
             );
         }
 
-        if (!connection.remote.serverId) {
+        if (!connection.remote?.serverId) {
             throw new Error(
                 'Remote server identity is not available'
             );
@@ -43,6 +46,10 @@ module.exports = function handleClient(
                 connection
             });
 
+        connection.manager.networkManager.addClient(
+            remoteClient
+        );
+
         console.log(
             `[IRIS] CLIENT REGISTERED ` +
             `clientId=${remoteClient.clientId} ` +
@@ -51,22 +58,73 @@ module.exports = function handleClient(
         );
 
         console.log(
-            '[IRIS] Remote clients:',
-            Array.from(
-                connection.manager.remoteClients.values()
-            )
-        );
-
-        connection.manager.networkManager.addClient(
-            remoteClient
-        );
-
-        console.log(
             `[IRIS] ← CLIENT ` +
             `${client.serverId}:` +
             `${client.clientId} ` +
             `${client.nick}`
         );
+
+        /*
+         * Forward CLIENT to every other connected
+         * S2S link, except the link it came from.
+         */
+
+        for (
+            const nextConnection
+            of connection.manager.connections
+        ) {
+            if (
+                nextConnection === connection
+            ) {
+                continue;
+            }
+
+            if (
+                nextConnection.state !==
+                'connected'
+            ) {
+                continue;
+            }
+
+            const messageId =
+                crypto.randomBytes(16);
+
+            const sequence =
+                nextConnection.nextSendSequence();
+
+            const nextFrame =
+                encodeClient(
+                    {
+                        clientId:
+                            client.clientId,
+
+                        nick:
+                            client.nick,
+
+                        user:
+                            client.user || '',
+
+                        host:
+                            client.host || '',
+
+                        serverId:
+                            client.serverId
+                    },
+                    messageId,
+                    sequence
+                );
+
+            nextConnection.sendTrackedFrame(
+                nextFrame,
+                messageId
+            );
+
+            console.log(
+                `[IRIS] → CLIENT ` +
+                `${client.nick} ` +
+                `via ${nextConnection.remote?.serverId}`
+            );
+        }
 
         return true;
 
