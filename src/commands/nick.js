@@ -1,3 +1,5 @@
+// src/commands/nick.js
+
 const events = require('../events');
 
 function isValidNick(nick) {

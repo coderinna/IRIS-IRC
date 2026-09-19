@@ -1,3 +1,5 @@
+// src/s2s/connection/handlers/nick.js
+
 const {
     decodeNick
 } = require('../../messages/nick');

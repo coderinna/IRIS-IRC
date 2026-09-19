@@ -1,3 +1,5 @@
+// src/s2s/manager/handlers/nick.js
+
 const crypto = require('crypto');
 
 const {
