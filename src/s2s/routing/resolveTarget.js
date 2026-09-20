@@ -17,6 +17,12 @@ module.exports = function resolveTarget(
      * Channel target
      */
     if (target.startsWith('#')) {
+            console.log(
+        `[ROUTE] CHANNEL LOOKUP target=${target} ` +
+        `channels=${networkManager.getChannels().map(channel => channel.name).join(',')}`
+    );
+
+    
         const channel =
             networkManager.getChannel(target);
 

@@ -14,9 +14,6 @@ module.exports = function forwardMessage(
         return false;
     }
 
-    /*
-     * Local client target
-     */
     if (target.type === 'local-client') {
         const targetClient =
             target.client;
@@ -39,9 +36,6 @@ module.exports = function forwardMessage(
         return true;
     }
 
-    /*
-     * Remote client target
-     */
     if (target.type === 'remote-client') {
         const targetConnection =
             target.connection;
@@ -79,9 +73,6 @@ module.exports = function forwardMessage(
         return true;
     }
 
-    /*
-     * Channel target
-     */
     if (target.type === 'channel') {
         const connections =
             new Set();
@@ -90,7 +81,7 @@ module.exports = function forwardMessage(
             false;
 
         /*
-         * Deliver to local clients
+         * Deliver to local clients.
          */
         for (
             const client
@@ -114,39 +105,41 @@ module.exports = function forwardMessage(
                     console.log(
                         `[IRIS] ← MESSAGE ` +
                         `${sourceClient.nick} → ` +
-                        `${target.channel.name} ` +
-                        `local`
+                        `${target.channel.name} local`
                     );
                 }
-
-                continue;
             }
+        }
 
-            /*
-             * Remote client:
-             * collect its S2S connection.
-             */
+        /*
+         * Forward to every other connected S2S peer.
+         *
+         * The incoming connection is excluded.
+         * The channel membership is already synchronized
+         * through JOIN propagation.
+         */
+        for (
+            const nextConnection
+            of connection.manager.connections
+        ) {
             if (
-                client.connection === connection
+                nextConnection === connection
             ) {
                 continue;
             }
 
             if (
-                client.connection.state !==
+                nextConnection.state !==
                 'connected'
             ) {
                 continue;
             }
 
             connections.add(
-                client.connection
+                nextConnection
             );
         }
 
-        /*
-         * Forward once per S2S connection
-         */
         let forwardedRemote =
             false;
 
@@ -166,7 +159,7 @@ module.exports = function forwardMessage(
                 `[IRIS] → MESSAGE ` +
                 `${message.clientId} → ` +
                 `${target.channel.name} ` +
-                `via ${targetConnection.remote.serverId}`
+                `via ${targetConnection.remote?.serverId}`
             );
         }
 

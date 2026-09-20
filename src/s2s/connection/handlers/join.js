@@ -1,7 +1,10 @@
 // src/s2s/connection/handlers/join.js
 
+const crypto = require('crypto');
+
 const {
-    decodeJoin
+    decodeJoin,
+    encodeJoin
 } = require('../../messages/join');
 
 module.exports = function handleJoin(
@@ -30,15 +33,6 @@ module.exports = function handleJoin(
             );
         }
 
-        if (
-            join.serverId !==
-            connection.remote.serverId
-        ) {
-            throw new Error(
-                'JOIN server ID does not match remote server'
-            );
-        }
-
         const networkManager =
             connection.manager.networkManager;
 
@@ -53,6 +47,12 @@ module.exports = function handleJoin(
                 `Unknown remote client: ${join.clientId}`
             );
         }
+
+        console.log(
+    `[IRIS] JOIN ROUTE client=${client.clientId} ` +
+    `server=${client.serverId} ` +
+    `connection=${client.connection?.remote?.serverId || 'local'}`
+);
 
         if (
             client.connection !== connection
@@ -80,10 +80,77 @@ module.exports = function handleJoin(
         );
 
         console.log(
+            `[IRIS] CHANNEL STATE ` +
+            `${join.channel} ` +
+            `clients=${channel.clients.size}`
+        );
+
+        console.log(
             `[IRIS] ← JOIN ` +
             `${join.clientId} ` +
             `${join.channel}`
         );
+
+        /*
+         * Forward JOIN to every other connected S2S peer.
+         * The incoming connection is excluded so the JOIN
+         * cannot immediately travel back to the sender.
+         */
+        for (
+            const nextConnection
+            of connection.manager.connections
+        ) {
+            if (
+                nextConnection === connection
+            ) {
+                continue;
+            }
+
+            if (
+                nextConnection.state !==
+                'connected'
+            ) {
+                continue;
+            }
+
+            try {
+                const messageId =
+                    frame.messageId ||
+                    crypto.randomBytes(16);
+
+                const sequence =
+                    nextConnection.nextSendSequence();
+
+                const nextFrame =
+                    encodeJoin(
+                        {
+                            clientId: join.clientId,
+                            channel: join.channel,
+                            serverId: join.serverId
+                        },
+                        messageId,
+                        sequence
+                    );
+
+                nextConnection.sendTrackedFrame(
+                    nextFrame,
+                    messageId
+                );
+
+                console.log(
+                    `[IRIS] → JOIN ` +
+                    `${join.clientId} ` +
+                    `${join.channel} ` +
+                    `via ${nextConnection.remote?.serverId}`
+                );
+
+            } catch (error) {
+                console.error(
+                    '[IRIS] JOIN propagation failed:',
+                    error.message
+                );
+            }
+        }
 
         return true;
 
@@ -93,7 +160,9 @@ module.exports = function handleJoin(
             error.message
         );
 
-        connection.socket.destroy();
+        if (connection?.socket) {
+            connection.socket.destroy();
+        }
 
         return false;
     }
