@@ -4,10 +4,9 @@ const {
     MAX_PAYLOAD_SIZE,
     decodeHeader
 } = require('../../protocol/frame');
-
 const {
-    STATES
-} = require('../states.js');
+  ALLOWED_STATES
+} = require('../allowed-states.js.js');
 
 const CURRENT_PROTOCOL_VERSION = 1;
 
@@ -166,73 +165,9 @@ function validateState(
     connection,
     frame
 ) {
-    const allowedStates = {
-
-[TYPES.HELLO]: [
-    STATES.CONNECTING,
-    STATES.HELLO,
-    STATES.AUTH
-],
-
-[TYPES.AUTH]: [
-    STATES.HELLO,
-    STATES.AUTH
-],
-
-[TYPES.SERVER]: [
-    STATES.SERVER,
-    STATES.READY,
-    STATES.CONNECTED
-],
-        [TYPES.READY]: [
-            STATES.READY
-        ],
-
-        [TYPES.CLIENT]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.NICK]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.JOIN]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.PART]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.QUIT]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.MESSAGE]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.NOTICE]: [
-            STATES.CONNECTED
-        ],
-
-        [TYPES.PING]: [
-            STATES.READY,
-            STATES.CONNECTED
-        ],
-
-        [TYPES.PONG]: [
-            STATES.READY,
-            STATES.CONNECTED
-        ],
-
-        [TYPES.ACK]: [
-            STATES.CONNECTED
-        ]
-    };
 
     const states =
-        allowedStates[frame.type];
+        ALLOWED_STATES[frame.type];
 
     if (!states) {
         console.warn(
