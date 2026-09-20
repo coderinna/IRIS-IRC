@@ -1,3 +1,5 @@
+// src/s2s/routing/forward.js
+
 const {
     sendMessage
 } = require('../connection/messages');
@@ -12,99 +14,118 @@ module.exports = function forwardMessage(
         return false;
     }
 
-/*
- * Local client target
- */
-if (target.type === 'local-client') {
-    const targetClient =
-        target.client;
-
-    if (!targetClient) {
-        return false;
-    }
-
-    if (!sourceClient) {
-        return false;
-    }
-
-    targetClient.send(
-        `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
-        `PRIVMSG ${targetClient.nick} :${message.message}`
-    );
-
-    console.log(
-        `[IRIS] ← MESSAGE ` +
-        `${sourceClient.nick} → ` +
-        `${targetClient.nick} ` +
-        `(local)`
-    );
-
-    return true;
-}
-
     /*
-     * Direct client target
+     * Local client target
      */
-if (target.type === 'remote-client') {
-    const targetConnection =
-        target.connection;
+    if (target.type === 'local-client') {
+        const targetClient =
+            target.client;
 
-    if (!targetConnection) {
-        return false;
+        if (!targetClient || !sourceClient) {
+            return false;
+        }
+
+        targetClient.send(
+            `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
+            `PRIVMSG ${targetClient.nick} :${message.message}`
+        );
+
+        console.log(
+            `[IRIS] ← MESSAGE ` +
+            `${sourceClient.nick} → ` +
+            `${targetClient.nick} (local)`
+        );
+
+        return true;
     }
 
     /*
-     * Never send the message back
-     * through the connection it came from.
+     * Remote client target
      */
-    if (
-        targetConnection === connection
-    ) {
-        return false;
+    if (target.type === 'remote-client') {
+        const targetConnection =
+            target.connection;
+
+        if (!targetConnection) {
+            return false;
+        }
+
+        if (
+            targetConnection === connection
+        ) {
+            return false;
+        }
+
+        if (
+            targetConnection.state !==
+            'connected'
+        ) {
+            return false;
+        }
+
+        sendMessage(
+            targetConnection,
+            message,
+            message.messageId
+        );
+
+        console.log(
+            `[IRIS] → MESSAGE ` +
+            `${message.clientId} → ` +
+            `${target.client.nick} ` +
+            `via ${target.client.serverId}`
+        );
+
+        return true;
     }
-
-    if (
-        targetConnection.state !==
-        'connected'
-    ) {
-        return false;
-    }
-
-    sendMessage(
-        targetConnection,
-        message,
-        message.messageId
-    );
-
-    console.log(
-        `[IRIS] → MESSAGE ` +
-        `${message.clientId} → ` +
-        `${target.client.nick} ` +
-        `via ${target.client.serverId}`
-    );
-
-    return true;
-}
 
     /*
      * Channel target
-     *
-     * Multiple remote clients can exist
-     * on the same server. Send the MESSAGE
-     * only once to that S2S connection.
      */
     if (target.type === 'channel') {
         const connections =
             new Set();
 
+        let deliveredLocal =
+            false;
+
+        /*
+         * Deliver to local clients
+         */
         for (
             const client
             of target.clients
         ) {
-            if (!client.connection) {
+            if (!client) {
                 continue;
             }
 
+            if (!client.connection) {
+                if (
+                    client !== sourceClient
+                ) {
+                    client.send(
+                        `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
+                        `PRIVMSG ${target.channel.name} :${message.message}`
+                    );
+
+                    deliveredLocal = true;
+
+                    console.log(
+                        `[IRIS] ← MESSAGE ` +
+                        `${sourceClient.nick} → ` +
+                        `${target.channel.name} ` +
+                        `local`
+                    );
+                }
+
+                continue;
+            }
+
+            /*
+             * Remote client:
+             * collect its S2S connection.
+             */
             if (
                 client.connection === connection
             ) {
@@ -123,7 +144,11 @@ if (target.type === 'remote-client') {
             );
         }
 
-        let forwarded = false;
+        /*
+         * Forward once per S2S connection
+         */
+        let forwardedRemote =
+            false;
 
         for (
             const targetConnection
@@ -135,7 +160,7 @@ if (target.type === 'remote-client') {
                 message.messageId
             );
 
-            forwarded = true;
+            forwardedRemote = true;
 
             console.log(
                 `[IRIS] → MESSAGE ` +
@@ -145,7 +170,10 @@ if (target.type === 'remote-client') {
             );
         }
 
-        return forwarded;
+        return (
+            deliveredLocal ||
+            forwardedRemote
+        );
     }
 
     return false;

@@ -64,12 +64,10 @@ module.exports = function handleMessage(
                 'MESSAGE server ID does not match remote server'
             );
         }
-
-        const client =
-            connection.manager.remoteClients.get(
-                message.serverId,
-                message.clientId
-            );
+const client =
+    connection.manager.remoteClients.get(
+        message.clientId
+    );
 
         if (!client) {
             throw new Error(
