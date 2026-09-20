@@ -36,12 +36,8 @@ module.exports = function resolveTarget(
             clients: [...channel.clients]
         };
     }
-console.log(
-    '[ROUTE] resolving local target:',
-    target,
-    'hasLocalLookup:',
-    typeof getLocalClientByNick
-);
+
+
     /*
      * Local client
      */
@@ -49,6 +45,20 @@ console.log(
         getLocalClientByNick
             ? getLocalClientByNick(target)
             : null;
+
+
+console.log(
+    '[ROUTE] local target result:',
+    localClient
+        ? {
+            nick: localClient.nick,
+            clientId: localClient.clientId,
+            hasSend: typeof localClient.send === 'function',
+            hasSocket: !!localClient.socket,
+            socketDestroyed: localClient.socket?.destroyed
+        }
+        : null
+);
 
     if (localClient) {
         return {

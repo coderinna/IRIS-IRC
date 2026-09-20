@@ -149,7 +149,7 @@ if (S2S_PEER_HOST && S2S_PEER_PORT) {
     });
 }
 
-s2sManager.sendRemoteMessage(
+/*s2sManager.sendRemoteMessage(
     '29d3336e-82ab-474d-a7b7-5bd43935abbc',
     {
         clientId: 'TEST',
@@ -157,4 +157,4 @@ s2sManager.sendRemoteMessage(
         message: 'hello from iris-01',
         serverId: 'iris-01'
     }
-);
+);*/

@@ -4,19 +4,6 @@ Routeriii aloita lisäää NAMES
 Myöhemmin tehdään se kunnolla niin, että se osaa lukea sekä paikalliset 
 että verkosta tulleet jäsenet ja palauttaa normaalit 353/366-vastaukset
 
-# VALID STATES
-Kyllä ❤️ Korjasin muistiin: tässä vaiheessa connectionin ei oleteta katkeavan,
- eikä sitä lähdetä nyt debuggaamaan. CLIENT propagation on todistetusti kunnossa,
-  ja seuraava työ on MESSAGE routing. 🌸🔥
-
-  hdistä Irssi iris-03:een
-Irssissä:
-/CONNECT 127.0.0.1 6669
-3. Liity kanavalle
-/join #test
-4. Lähetä MESSAGE
-/msg #test HELLO-IRIS
-
 
 ### Jäljellä oleva ydintyö
 
