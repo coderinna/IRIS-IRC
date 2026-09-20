@@ -37,28 +37,32 @@ module.exports = function forwardMessage(
     }
 
     if (target.type === 'remote-client') {
-        const targetConnection =
-            target.connection;
+        if (!connection.manager) {
+            return false;
+        }
 
-        if (!targetConnection) {
+        const route =
+            connection.manager.getRoute(
+                target.client.serverId
+            );
+
+        if (!route) {
+            return false;
+        }
+
+        if (route === connection) {
             return false;
         }
 
         if (
-            targetConnection === connection
-        ) {
-            return false;
-        }
-
-        if (
-            targetConnection.state !==
+            route.state !==
             'connected'
         ) {
             return false;
         }
 
         sendMessage(
-            targetConnection,
+            route,
             message,
             message.messageId
         );
@@ -67,22 +71,20 @@ module.exports = function forwardMessage(
             `[IRIS] → MESSAGE ` +
             `${message.clientId} → ` +
             `${target.client.nick} ` +
-            `via ${target.client.serverId}`
+            `via ${route.remote?.serverId}`
         );
 
         return true;
     }
 
     if (target.type === 'channel') {
-        const connections =
+        if (!connection.manager) {
+            return false;
+        }
+
+        const routeConnections =
             new Set();
 
-        let deliveredLocal =
-            false;
-
-        /*
-         * Deliver to local clients.
-         */
         for (
             const client
             of target.clients
@@ -91,82 +93,86 @@ module.exports = function forwardMessage(
                 continue;
             }
 
-            if (!client.connection) {
+            /*
+             * Local client.
+             */
+            if (!client.serverId) {
                 if (
-                    client !== sourceClient
+                    client ===
+                    sourceClient
                 ) {
-                    client.send(
-                        `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
-                        `PRIVMSG ${target.channel.name} :${message.message}`
-                    );
-
-                    deliveredLocal = true;
-
-                    console.log(
-                        `[IRIS] ← MESSAGE ` +
-                        `${sourceClient.nick} → ` +
-                        `${target.channel.name} local`
-                    );
+                    continue;
                 }
-            }
-        }
 
-        /*
-         * Forward to every other connected S2S peer.
-         *
-         * The incoming connection is excluded.
-         * The channel membership is already synchronized
-         * through JOIN propagation.
-         */
-        for (
-            const nextConnection
-            of connection.manager.connections
-        ) {
-            if (
-                nextConnection === connection
-            ) {
+                client.send(
+                    `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
+                    `PRIVMSG ${target.channel.name} :${message.message}`
+                );
+
+                console.log(
+                    `[IRIS] ← MESSAGE ` +
+                    `${sourceClient.nick} → ` +
+                    `${target.channel.name} (local)`
+                );
+
+                continue;
+            }
+
+            /*
+             * Do not send the message back
+             * to the server where it came from.
+             */
+            const route =
+                connection.manager.getRoute(
+                    client.serverId
+                );
+
+            if (!route) {
+                continue;
+            }
+
+            if (route === connection) {
                 continue;
             }
 
             if (
-                nextConnection.state !==
+                route.state !==
                 'connected'
             ) {
                 continue;
             }
 
-            connections.add(
-                nextConnection
+            routeConnections.add(
+                route
             );
         }
 
-        let forwardedRemote =
-            false;
-
+        /*
+         * Send only once per next-hop connection.
+         */
         for (
-            const targetConnection
-            of connections
+            const route
+            of routeConnections
         ) {
             sendMessage(
-                targetConnection,
+                route,
                 message,
                 message.messageId
             );
-
-            forwardedRemote = true;
 
             console.log(
                 `[IRIS] → MESSAGE ` +
                 `${message.clientId} → ` +
                 `${target.channel.name} ` +
-                `via ${targetConnection.remote?.serverId}`
+                `via ${route.remote?.serverId}`
             );
         }
 
-        return (
-            deliveredLocal ||
-            forwardedRemote
-        );
+        /*
+         * The channel itself was a valid target.
+         * No remote recipient is not a routing error.
+         */
+        return true;
     }
 
     return false;

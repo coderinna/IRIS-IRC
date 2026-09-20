@@ -15,10 +15,20 @@ module.exports = function handleJoin(
         return;
     }
 
-    console.log(   `[IRIS] Broadcasting JOIN: ` +    `${client.nick} → ${channel.name}` );
+    console.log(
+        `[IRIS] Broadcasting JOIN: ` +
+        `${client.nick} → ${channel.name}`
+    );
+
+    console.log(
+    `[IRIS] JOIN connections=${manager.connections.size}`
+);
 
     for (const connection of manager.connections) {
-        if (connection.state !== 'connected') {
+        if (
+            connection.state !==
+            'connected'
+        ) {
             continue;
         }
 
@@ -29,18 +39,28 @@ module.exports = function handleJoin(
             const sequence =
                 connection.nextSendSequence();
 
-            const frame = encodeJoin({
-                clientId: client.id,
-                channel: channel.name,
-                serverId: manager.serverId
-            }, messageId, sequence);
+            const frame =
+                encodeJoin(
+                    {
+                        clientId: client.id,
+                        channel: channel.name,
+                        serverId: manager.serverId
+                    },
+                    messageId,
+                    sequence
+                );
 
             connection.sendTrackedFrame(
                 frame,
                 messageId
             );
 
-            console.log(    `[IRIS] → JOIN ` +     `${client.nick} → ${channel.name} ` +    `via ${connection.remote.serverId}`    );
+            console.log(
+                `[IRIS] → JOIN ` +
+                `${client.nick} → ` +
+                `${channel.name} ` +
+                `via ${connection.remote.serverId}`
+            );
 
         } catch (error) {
             console.error(
