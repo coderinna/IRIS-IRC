@@ -14,7 +14,7 @@ että verkosta tulleet jäsenet ja palauttaa normaalit 353/366-vastaukset
 ✅ JOIN — toteutettu
 ✅ PART — toteutettu
 ✅ QUIT — toteutettu
-🟡 NOTICE — toteutus on olemassa, mutta S2S:n päästä pitää vielä varmistaa
+✅ NOTICE — toteutus on olemassa, mutta S2S:n päästä pitää vielä varmistaa
 🟡 MESSAGE state-propagointi — itse MESSAGE kulkee nyt varmasti; mahdollinen state/metadata-puoli on eri asia
 
 2. **Routing** 
