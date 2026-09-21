@@ -35,9 +35,20 @@ get identity() {
     return `${this.serverId}:${this.id}`;
 }
 
-    send(message) {
-        this.socket.write(message + '\r\n');
-    }
+send(message) {
+    console.log(
+        `[IRC SEND] ${this.nick}: ${JSON.stringify(message)}`
+    );
+
+    const result =
+        this.socket.write(
+            message + '\r\n'
+        );
+
+    console.log(
+        `[IRC SEND] socket.write result=${result}`
+    );
+}
 
     addChannel(channel) {
         this.channels.add(channel);
