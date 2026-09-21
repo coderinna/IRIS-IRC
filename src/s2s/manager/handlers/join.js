@@ -15,14 +15,45 @@ module.exports = function handleJoin(
         return;
     }
 
+    manager.networkManager.addClientToChannel(
+        channel.name,
+        {
+            clientId: client.id,
+            serverId: manager.serverId,
+            nick: client.nick,
+            user: client.user,
+            host: client.host,
+            connection: null
+        }
+    );
+
+    console.log(
+    `[IRIS] LOCAL CHANNEL STATE ` +
+    `${channel.name}: ` +
+    manager.networkManager
+        .getChannel(channel.name)
+        .clients
+        .size
+);
+
+console.log(
+    `[IRIS] LOCAL CHANNEL MEMBERS ` +
+    `${channel.name}: ` +
+    [...manager.networkManager.getChannel(channel.name).clients]
+        .map(client =>
+            `${client.nick}@${client.serverId}`
+        )
+        .join(', ')
+);
+
     console.log(
         `[IRIS] Broadcasting JOIN: ` +
         `${client.nick} → ${channel.name}`
     );
 
     console.log(
-    `[IRIS] JOIN connections=${manager.connections.size}`
-);
+        `[IRIS] JOIN connections=${manager.connections.size}`
+    );
 
     for (const connection of manager.connections) {
         if (

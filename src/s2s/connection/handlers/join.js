@@ -79,11 +79,15 @@ module.exports = function handleJoin(
             client
         );
 
-        console.log(
-            `[IRIS] CHANNEL STATE ` +
-            `${join.channel} ` +
-            `clients=${channel.clients.size}`
-        );
+console.log(
+    `[IRIS] CHANNEL MEMBERS ` +
+    `${join.channel}: ` +
+    [...channel.clients]
+        .map(client =>
+            `${client.nick}@${client.serverId}`
+        )
+        .join(', ')
+);
 
         console.log(
             `[IRIS] ← JOIN ` +

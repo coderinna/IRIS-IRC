@@ -96,15 +96,16 @@ case 'PRIVMSG':
     );
     break;
 
-            case 'NOTICE':
-                handler(
-                    client,
-                    params[0],
-                    trailing,
-                    getClientByNick,
-                    getChannel
-                );
-                break;
+case 'NOTICE':
+    handler(
+        client,
+        params[0],
+        trailing,
+        getClientByNick,
+        getChannel,
+        getRemoteClientByNick
+    );
+    break;
 
 case 'QUIT':
     handler(

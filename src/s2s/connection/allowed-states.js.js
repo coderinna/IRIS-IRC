@@ -1,3 +1,5 @@
+// src/s2s/connections/allowed-states.js
+
 const {
     STATES
 } = require('./states.js');
@@ -49,6 +51,11 @@ const ALLOWED_STATES = {
     ],
 
     [TYPES.MESSAGE]: [
+        STATES.CONNECTED
+    ],
+
+
+    [TYPES.NOTICE]: [
         STATES.CONNECTED
     ],
 

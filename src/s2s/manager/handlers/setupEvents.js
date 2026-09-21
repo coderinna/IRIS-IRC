@@ -8,6 +8,8 @@ const handleJoin = require('./join');
 const handlePart = require('./part');
 const handleQuit = require('./quit');
 const handleMessage = require('./message');
+const handleNotice =
+    require('./notice');
 
 module.exports = function setupEvents(connection) {
 
@@ -69,15 +71,26 @@ module.exports = function setupEvents(connection) {
 
 events.on(
     'message:sent',
-    ({ client, target, message }) => {
+    ({ client, target, message, type }) => {
         console.log(
             '[IRIS DEBUG] setupEvents received message:sent'
         );
 
         console.log(
-            '[IRIS DEBUG] client:',
-            client
+            '[IRIS DEBUG] type:',
+            type
         );
+
+        if (type === 'notice') {
+            handleNotice(
+                connection,
+                client,
+                target,
+                message
+            );
+
+            return;
+        }
 
         handleMessage(
             connection,

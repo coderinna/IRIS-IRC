@@ -1,9 +1,14 @@
+// src/commands/notice.js
+
+const events = require('../events');
+
 function handleNotice(
     client,
     target,
     message,
     getClientByNick,
-    getChannel
+    getChannel,
+    getRemoteClientByNick
 ) {
     if (!target || !message) {
         return;
@@ -25,17 +30,49 @@ function handleNotice(
             client
         );
 
+        events.emit('message:sent', {
+            client,
+            target,
+            message,
+            type: 'notice'
+        });
+
         return;
     }
 
-    // Direct user message
-    const targetClient = getClientByNick(target);
+    // Remote user
+    const remoteClient =
+        getRemoteClientByNick
+            ? getRemoteClientByNick(target)
+            : null;
+
+    if (remoteClient) {
+        events.emit('message:sent', {
+            client,
+            target: remoteClient.nick,
+            message,
+            type: 'notice'
+        });
+
+        return;
+    }
+
+    // Local user
+    const targetClient =
+        getClientByNick(target);
 
     if (!targetClient) {
         return;
     }
 
     targetClient.send(fullMessage);
+
+    events.emit('message:sent', {
+        client,
+        target: targetClient,
+        message,
+        type: 'notice'
+    });
 }
 
 module.exports = handleNotice;
