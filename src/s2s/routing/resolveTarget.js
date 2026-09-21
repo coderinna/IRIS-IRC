@@ -75,10 +75,25 @@ console.log(
     /*
      * Remote client
      */
-    const remoteClient =
-        remoteClients
-            ? remoteClients.getByNick(target)
-            : null;
+const remoteClient =
+    remoteClients
+        ? remoteClients.getByNick(target)
+        : null;
+
+console.log(
+    `[ROUTE] REMOTE LOOKUP target=${target} ` +
+    `found=${!!remoteClient}`
+);
+
+if (remoteClient) {
+    console.log(
+        `[ROUTE] REMOTE CLIENT ` +
+        `nick=${remoteClient.nick} ` +
+        `clientId=${remoteClient.clientId} ` +
+        `serverId=${remoteClient.serverId} ` +
+        `hasConnection=${!!remoteClient.connection}`
+    );
+}
 
     if (!remoteClient) {
         return null;

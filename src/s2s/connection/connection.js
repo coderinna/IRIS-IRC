@@ -279,6 +279,10 @@ handleFrame(frame) {
     const handler =
         this.handlers[frame.type];
 
+        console.log(
+    `[IRIS] DISPATCH FRAME type=0x${frame.type.toString(16)}`
+);
+
     if (!handler) {
         console.log(
             `[IRIS] Unknown frame type: ` +
