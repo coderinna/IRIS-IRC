@@ -44,6 +44,15 @@ class S2SConnection {
     constructor(socket, options = {}) {
         this.socket = socket;
 
+                this.manager =
+            options.manager || null;
+
+        this.networkManager =
+            options.networkManager ||
+            this.manager?.networkManager ||
+            null;
+
+
         this.serverId =
             options.serverId || 'iris-01';
 
