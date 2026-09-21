@@ -51,6 +51,22 @@ register(client) {
         return null;
     }
 
+    update(clientId, updates) {
+    const client =
+        this.clients.get(clientId);
+
+    if (!client) {
+        return null;
+    }
+
+    Object.assign(
+        client,
+        updates
+    );
+
+    return client;
+}
+
     has(clientId) {
         return this.clients.has(
             clientId

@@ -14,9 +14,9 @@ module.exports = function handleMessage(
     target,
     message
 ) {
-    if (!client || !client.id) {
-        return;
-    }
+if (!client || !client.id) {
+    return;
+}
 
     if (!target || !message) {
         return;
@@ -48,12 +48,12 @@ module.exports = function handleMessage(
             const sequence =
                 connection.nextSendSequence();
 
-            const frame = encodeMessage({
-                clientId: client.id,
-                target: targetName,
-                message,
-                serverId: manager.serverId
-            }, messageId, sequence);
+const frame = encodeMessage({
+    clientId: client.id,
+    target: targetName,
+    message,
+    serverId: manager.serverId
+}, messageId, sequence);
 
             connection.sendTrackedFrame(
                 frame,

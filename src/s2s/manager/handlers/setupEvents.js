@@ -67,15 +67,24 @@ module.exports = function setupEvents(connection) {
         }
     );
 
-    events.on(
-        'message:sent',
-        ({ client, target, message }) => {
-            handleMessage(
-                connection,
-                client,
-                target,
-                message
-            );
-        }
-    );
+events.on(
+    'message:sent',
+    ({ client, target, message }) => {
+        console.log(
+            '[IRIS DEBUG] setupEvents received message:sent'
+        );
+
+        console.log(
+            '[IRIS DEBUG] client:',
+            client
+        );
+
+        handleMessage(
+            connection,
+            client,
+            target,
+            message
+        );
+    }
+);
 };

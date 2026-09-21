@@ -67,6 +67,20 @@ module.exports = function handleNick(
             }
         );
 
+const updatedRemoteClient =
+    connection.manager.remoteClients.update(
+        nick.clientId,
+        {
+            nick: nick.newNick
+        }
+    );
+
+if (!updatedRemoteClient) {
+    throw new Error(
+        `Unknown remote client in registry: ${nick.clientId}`
+    );
+}
+
         console.log(
             `[IRIS] ← NICK ` +
             `${nick.clientId} ` +
