@@ -1,199 +1,29 @@
+
+    const validateVersion =
+    require('./validation/validateVersion.js');
+
+    const validateFrameType =
+    require('./validation/validateFrameType.js');
+
+    const validateFlags =
+    require('./validation/validateFlags.js');
+
+    const validatePayload =
+    require('./validation/validatePayload.js');
+
+    const validateMessageId =
+    require('./validation/validateMessageId.js');
+
+    const validateSequence =
+    require('./validation/validateSequence.js');
+
+    const validateState =
+    require('./validation/validateState.js');
+
 const {
-    TYPES,
     HEADER_SIZE,
-    MAX_PAYLOAD_SIZE,
     decodeHeader
 } = require('../../protocol/frame/frame.js');
-const {
-  ALLOWED_STATES
-} = require('../allowed-states.js.js');
-
-const CURRENT_PROTOCOL_VERSION = 1;
-
-const MAX_SEQUENCE =
-    0xffffffffffffffffn;
-
-
-function validateVersion(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        !Number.isInteger(frame.version) ||
-        frame.version !== CURRENT_PROTOCOL_VERSION
-    ) {
-        console.warn(
-            '[IRIS] Unsupported outgoing protocol version'
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-function validateFrameType(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        !Number.isInteger(frame.type) ||
-        frame.type < 0 ||
-        frame.type > 0xff
-    ) {
-        console.warn(
-            '[IRIS] Invalid outgoing frame type'
-        );
-
-        return false;
-    }
-
-    if (
-        !Object.values(TYPES).includes(
-            frame.type
-        )
-    ) {
-        console.warn(
-            `[IRIS] Unknown outgoing frame type: ` +
-            `0x${frame.type.toString(16)}`
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-function validateFlags(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        !Number.isInteger(frame.flags) ||
-        frame.flags < 0 ||
-        frame.flags > 0xffff
-    ) {
-        console.warn(
-            '[IRIS] Invalid outgoing frame flags'
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-function validatePayload(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        !Buffer.isBuffer(frame.payload)
-    ) {
-        console.warn(
-            '[IRIS] Invalid outgoing frame payload'
-        );
-
-        return false;
-    }
-
-    if (
-        frame.payload.length >
-        MAX_PAYLOAD_SIZE
-    ) {
-        console.warn(
-            '[IRIS] Outgoing frame payload ' +
-            'exceeds maximum size'
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-function validateMessageId(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        !Buffer.isBuffer(frame.messageId) ||
-        frame.messageId.length !== 16
-    ) {
-        console.warn(
-            '[IRIS] Invalid outgoing message ID'
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-function validateSequence(
-    connection,
-    frame
-) {
-    if (
-        !frame ||
-        typeof frame.sequence !== 'bigint' ||
-        frame.sequence < 0n ||
-        frame.sequence > MAX_SEQUENCE
-    ) {
-        console.warn(
-            '[IRIS] Invalid outgoing sequence'
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-function validateState(
-    connection,
-    frame
-) {
-
-    const states =
-        ALLOWED_STATES[frame.type];
-
-    if (!states) {
-        console.warn(
-            '[IRIS] No outbound state policy for frame'
-        );
-
-        return false;
-    }
-
-    if (
-        !states.includes(
-            connection.state
-        )
-    ) {
-        console.warn(
-            `[IRIS] Blocked outbound frame ` +
-            `0x${frame.type.toString(16)} ` +
-            `in state ${connection.state}`
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
 
 function validateOutgoingFrame(
     connection,
@@ -310,6 +140,7 @@ function validateOutgoingFrame(
 
     return true;
 }
+
 
 module.exports = {
     validateVersion,

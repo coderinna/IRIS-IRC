@@ -7,7 +7,7 @@ const trackPendingAck =
     require('./ack/trackPendingAck.js');
 
 
-const trackPendingAck =
+const sendTrackedFrame =
     require('./ack/sendTrackedFrame.js');
 
 
