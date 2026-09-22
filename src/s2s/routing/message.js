@@ -2,7 +2,7 @@ const resolveTarget =
     require('./resolveTarget');
 
 const forwardMessage =
-    require('./forward');
+    require('./forward/forward');
 
 module.exports = function routeMessage(
     connection,
