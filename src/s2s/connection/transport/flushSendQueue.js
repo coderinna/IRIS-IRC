@@ -1,4 +1,6 @@
 
+const {   STATES } = require('../states.js');
+
 function flushSendQueue(connection) {
     if (
         connection.sending ||

@@ -1,8 +1,6 @@
-// src/s2s/protocol/tlv/encode-field.js
+// src/s2s/protocol/tlv/encoding/encode-field.js
 
-const {
-    HEADER_SIZE
-} = require('../../frame/constants');
+const HEADER_SIZE = 3;
 
 function encodeField(type, value) {
     if (
@@ -29,6 +27,7 @@ function encodeField(type, value) {
         Buffer.alloc(HEADER_SIZE);
 
     header.writeUInt8(type, 0);
+
     header.writeUInt16BE(
         value.length,
         1

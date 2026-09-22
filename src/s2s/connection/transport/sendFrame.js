@@ -1,4 +1,6 @@
 
+    const flushSendQueue =
+    require('./flushSendQueue.js');
 const {   STATES } = require('../states.js');
 
 function sendFrame(connection, frame) {

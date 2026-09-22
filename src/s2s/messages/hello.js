@@ -58,7 +58,19 @@ function encodeHello({
         });
     }
 
+
     const payload = encodeFields(fields);
+
+console.log(
+    '[IRIS] HELLO ENCODE PAYLOAD LENGTH:',
+    payload.length
+);
+
+console.log(
+    '[IRIS] HELLO ENCODE PAYLOAD HEX:',
+    payload.toString('hex')
+);
+
 return encodeFrame({
     type: TYPES.HELLO,
     sequence,
@@ -68,6 +80,17 @@ return encodeFrame({
 }
 
 function decodeHello(payload) {
+
+    console.log(
+        '[IRIS] HELLO PAYLOAD LENGTH:',
+        payload.length
+    );
+
+    console.log(
+        '[IRIS] HELLO PAYLOAD HEX:',
+        payload.toString('hex')
+    );
+
     const fields = decodeFields(payload);
 
     const hello = {
