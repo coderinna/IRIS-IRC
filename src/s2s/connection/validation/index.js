@@ -1,107 +1,47 @@
-const validateSequence = (
-    connection,
-    frame
-) => {
-    if (
-        frame.sequence !==
-        connection.receiveSequence
+
+// src/s2s/connection/validation/validate-incoming-frame.js
+
+const validateSequence =
+    require('./validate-sequence.js');
+
+const validateMessageId =
+    require('./validate-message-id.js');
+
+const validateRateLimit =
+    require('./validate-rate-limit.js');
+
+module.exports =
+    function validateIncomingFrame(
+        connection,
+        frame
     ) {
-        console.error(
-            `[IRIS] Invalid S2S sequence: ` +
-            `expected ${connection.receiveSequence}, ` +
-            `received ${frame.sequence}`
-        );
+        if (
+            !validateSequence(
+                connection,
+                frame
+            )
+        ) {
+            return false;
+        }
 
-        connection.socket.destroy();
+        if (
+            !validateMessageId(
+                connection,
+                frame
+            )
+        ) {
+            return false;
+        }
 
-        return false;
-    }
+        connection.receiveSequence++;
 
-    return true;
-};
+        if (
+            !validateRateLimit(
+                connection
+            )
+        ) {
+            return false;
+        }
 
-const validateMessageId = (
-    connection,
-    frame
-) => {
-    if (
-        !frame.messageId ||
-        frame.messageId.length !== 16
-    ) {
-        console.error(
-            '[IRIS] Invalid S2S messageId'
-        );
-
-        connection.socket.destroy();
-
-        return false;
-    }
-
-    return true;
-};
-
-const validateRateLimit = connection => {
-    const now = Date.now();
-
-    if (
-        now - connection.rateLimit.startedAt >=
-        connection.rateLimit.windowMs
-    ) {
-        connection.rateLimit.startedAt = now;
-        connection.rateLimit.frames = 0;
-    }
-
-    connection.rateLimit.frames++;
-
-    if (
-        connection.rateLimit.frames >
-        connection.rateLimit.maxFrames
-    ) {
-        console.error(
-            '[IRIS] S2S frame rate limit exceeded'
-        );
-
-        connection.socket.destroy();
-
-        return false;
-    }
-
-    return true;
-};
-
-const validateIncomingFrame = (
-    connection,
-    frame
-) => {
-    if (
-        !validateSequence(
-            connection,
-            frame
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateMessageId(
-            connection,
-            frame
-        )
-    ) {
-        return false;
-    }
-
-    connection.receiveSequence++;
-
-    if (
-        !validateRateLimit(connection)
-    ) {
-        return false;
-    }
-
-    return true;
-};
-
-module.exports = {
-    validateIncomingFrame
-};
+        return true;
+    };
