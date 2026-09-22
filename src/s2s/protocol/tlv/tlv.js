@@ -1,93 +1,14 @@
-const HEADER_SIZE = 3;
-
-const MAX_FIELDS = 256;
-const MAX_BUFFER_SIZE = 1024 * 1024;
-
-function encodeField(type, value) {
-    if (!Number.isInteger(type) || type < 0 || type > 0xff) {
-        throw new TypeError('TLV type must be a uint8');
-    }
-
-    if (!Buffer.isBuffer(value)) {
-        value = Buffer.from(value, 'utf8');
-    }
-
-    if (value.length > 0xffff) {
-        throw new RangeError('TLV value is too large');
-    }
-
-    const header = Buffer.alloc(HEADER_SIZE);
-
-    header.writeUInt8(type, 0);
-    header.writeUInt16BE(value.length, 1);
-
-    return Buffer.concat([
-        header,
-        value
-    ]);
-}
-
-function encodeFields(fields) {
-    return Buffer.concat(
-        fields.map(field =>
-            encodeField(field.type, field.value)
-        )
-    );
-}
-
-function decodeFields(buffer) {
-    if (!Buffer.isBuffer(buffer)) {
-        throw new TypeError('TLV input must be a Buffer');
-    }
-
-        if (buffer.length > MAX_BUFFER_SIZE) {
-        throw new RangeError(
-            'TLV input is too large'
-        );
-    }
 
 
-    const fields = [];
-    let offset = 0;
+const encodeField =
+    require('./encoding/encode-field');
 
-    while (offset < buffer.length) {
-        if (buffer.length - offset < HEADER_SIZE) {
-            throw new Error('Incomplete TLV header');
-        }
+const encodeFields =
+    require('./encoding/encode-fields');
 
-        const type = buffer.readUInt8(offset);
-        const length = buffer.readUInt16BE(offset + 1);
+const decodeFields =
+    require('./decoding/decode-fields.js');
 
-        offset += HEADER_SIZE;
-
-        if (buffer.length - offset < length) {
-            throw new Error('Incomplete TLV value');
-        }
-
-        const value = Buffer.from(
-            buffer.subarray(
-                offset,
-                offset + length
-            )
-        );
-
-        if (fields.length >= MAX_FIELDS) {
-    throw new RangeError(
-        'Too many TLV fields'
-    );
-}
-
-        fields.push({
-            type,
-            length,
-            value
-        });
-
-        offset += length;
-    }
-
-    return fields;
-}
 
 module.exports = {
     encodeField,
