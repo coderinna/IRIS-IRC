@@ -2,7 +2,7 @@
 
 const {
     HEADER_SIZE
-} = require('../frame/constants');
+} = require('../../frame/constants');
 
 function encodeField(type, value) {
     if (
