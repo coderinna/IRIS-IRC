@@ -36,6 +36,6 @@ function validateFrameType(
 }
 
 
-module.exports = {
+module.exports = 
 validateFrameType
-};
+;

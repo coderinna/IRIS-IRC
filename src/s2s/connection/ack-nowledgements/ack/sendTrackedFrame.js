@@ -42,6 +42,6 @@ const sendTrackedFrame = (
     }
 };
 
-module.exports = {
+module.exports = 
   sendTrackedFrame
-};
+;

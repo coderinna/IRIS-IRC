@@ -7,6 +7,6 @@ function destroy(connection) {
 }
 
 
-module.exports = {
+module.exports = 
   destroy
-};
+;

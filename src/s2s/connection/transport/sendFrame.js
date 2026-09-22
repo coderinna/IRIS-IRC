@@ -49,6 +49,6 @@ function sendFrame(connection, frame) {
     return true;
 }
 
-module.exports = {
+module.exports = 
  sendFrame
-};
+;

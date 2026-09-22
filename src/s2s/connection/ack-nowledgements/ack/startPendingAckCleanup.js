@@ -27,6 +27,6 @@ const startPendingAckCleanup = connection => {
 };
 
 
-module.exports = {
+module.exports = 
     startPendingAckCleanup
-};
+;

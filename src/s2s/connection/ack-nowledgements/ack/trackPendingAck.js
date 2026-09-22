@@ -62,6 +62,6 @@ const trackPendingAck = (
 
 
 
-module.exports = {
+module.exports = 
    trackPendingAck
-};
+;

@@ -25,6 +25,6 @@ function validateSequence(
 }
 
 
-module.exports = {
+module.exports = 
 validateSequence
-};
+;

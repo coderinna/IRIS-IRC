@@ -14,6 +14,6 @@ function startHandshakeTimeout(connection) {
     }, 10_000);
 }
 
-module.exports = {
+module.exports = 
    startHandshakeTimeout
-};
+;

@@ -44,6 +44,6 @@ function flushSendQueue(connection) {
 }
 
 
-module.exports = {
+module.exports = 
 flushSendQueue
-};
+;

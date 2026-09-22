@@ -20,6 +20,6 @@ function validateVersion(
 }
 
 
-module.exports = {
+module.exports = 
 validateVersion
-};
+;

@@ -10,6 +10,6 @@ function start(connection) {
     connection.sendHello();
 }
 
-module.exports = {
+module.exports = 
     start
-};
+;

@@ -18,6 +18,5 @@ function validateMessageId(
     return true;
 }
 
-module.exports = {
-validateMessageId
-};
+module.exports = 
+validateMessageId;

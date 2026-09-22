@@ -35,6 +35,6 @@ function handleData(connection, chunk) {
 }
 
 
-module.exports = {
+module.exports = 
 handleData
-};
+;

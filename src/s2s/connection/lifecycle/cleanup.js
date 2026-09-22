@@ -39,6 +39,6 @@ function cleanup(connection) {
     connection.state = STATES.CLOSED;
 }
 
-module.exports = {
+module.exports = 
    cleanup
-};
+;

@@ -33,6 +33,6 @@ function validatePayload(
 }
 
 
-module.exports = {
+module.exports = 
 validatePayload
-};
+;

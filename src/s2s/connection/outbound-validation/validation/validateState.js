@@ -36,6 +36,6 @@ function validateState(
     return true;
 }
 
-module.exports = {
+module.exports = 
 validateState
-};
+;

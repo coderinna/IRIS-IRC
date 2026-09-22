@@ -14,7 +14,7 @@ const {
 
 const NetworkState = require('../network/state.js');
 const EventRegistry = require('../events/registry.js');
-const RouteResolver = require('../network/routing/route-resolver.js');
+const RouteResolver = require('../network/routing/index.js');
 const acceptEvent = require('./acceptEvent.js');
 
 class S2SManager {
