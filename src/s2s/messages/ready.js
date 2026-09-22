@@ -1,12 +1,12 @@
 const {
     TYPES,
     encodeFrame
-} = require('../protocol/frame');
+} = require('../protocol/frame/frame');
 
 const {
     encodeFields,
     decodeFields
-} = require('../protocol/tlv');
+} = require('../protocol/tlv/tlv');
 
 const FIELDS = {
     STATUS: 0x01,

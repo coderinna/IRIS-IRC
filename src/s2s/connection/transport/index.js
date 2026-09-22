@@ -1,4 +1,4 @@
-const { TYPES } =  require('../../protocol/frame');
+
 const {   STATES } = require('../states.js');
 
 function setupSocket(connection) {

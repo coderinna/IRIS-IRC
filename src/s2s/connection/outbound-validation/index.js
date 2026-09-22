@@ -3,7 +3,7 @@ const {
     HEADER_SIZE,
     MAX_PAYLOAD_SIZE,
     decodeHeader
-} = require('../../protocol/frame');
+} = require('../../protocol/frame/frame.js');
 const {
   ALLOWED_STATES
 } = require('../allowed-states.js.js');

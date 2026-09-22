@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 
-const FrameParser = require('../protocol/parser');
+const FrameParser = require('../protocol/parser/parser.js');
 
 const lifecycle = require('./lifecycle/index.js');
 const transport = require('./transport/index.js');
@@ -20,7 +20,7 @@ const {   STATES } = require('./states.js');
 const {
     TYPES,
     encodeFrame
-} = require('../protocol/frame');
+} = require('../protocol/frame/frame.js');
 
 const MAX_SEQUENCE =
     0xffffffffffffffffn;

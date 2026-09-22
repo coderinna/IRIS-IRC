@@ -6,7 +6,7 @@ const {
 
 const {
     TYPES
-} = require('../protocol/frame.js');
+} = require('../protocol/frame/frame.js');
 
 const ALLOWED_STATES = {
     [TYPES.HELLO]: [

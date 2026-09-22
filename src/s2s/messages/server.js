@@ -3,12 +3,12 @@
 const {
     TYPES,
     encodeFrame
-} = require('../protocol/frame');
+} = require('../protocol/frame/frame.js');
 
 const {
     encodeFields,
     decodeFields
-} = require('../protocol/tlv');
+} = require('../protocol/tlv/tlv.js');
 
 const {
     validateServerId,

@@ -1,9 +1,5 @@
 // src/s2s/routing/forward.js
 
-const {
-    sendMessage
-} = require('../../connection/messages');
-
 const handleLocalClient =
     require('./handlers/local-client');
 
@@ -11,7 +7,7 @@ const handleLocalClient =
     require('./handlers/remote-client');
 
     const handleChannel =
-    require('./forward/handlers/channel');
+    require('./handlers/channel.js');
 
 module.exports = function forwardMessage(
     connection,

@@ -1,7 +1,7 @@
 const {
     HEADER_SIZE,
     decodeHeader
-} = require('./frame');
+} = require('../frame/frame.js');
 
 class FrameParser {
     constructor(options = {}) {

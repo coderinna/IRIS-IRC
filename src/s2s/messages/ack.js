@@ -1,7 +1,7 @@
 const {
     TYPES,
     encodeFrame
-} = require('../protocol/frame.js');
+} = require('../protocol/frame/frame.js');
 
 const ACK_MESSAGE_ID_SIZE = 16;
 

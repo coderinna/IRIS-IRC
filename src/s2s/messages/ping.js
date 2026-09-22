@@ -1,7 +1,7 @@
 const {
     TYPES,
     encodeFrame
-} = require('../protocol/frame.js');
+} = require('../protocol/frame/frame.js');
 
 function encodePing(messageId, sequence) {
     return encodeFrame({

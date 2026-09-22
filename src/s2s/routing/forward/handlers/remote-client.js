@@ -3,7 +3,7 @@
 
 const {
     sendMessage
-} = require('../../messages/message');
+} = require('../../../messages/message');
 
 module.exports = function handleRemoteClient(
     connection,
