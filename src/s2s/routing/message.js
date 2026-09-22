@@ -1,5 +1,5 @@
 const resolveTarget =
-    require('./resolveTarget');
+    require('./resolveTarget/resolveTarget');
 
 const forwardMessage =
     require('./forward/forward');
