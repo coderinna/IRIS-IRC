@@ -1,4 +1,7 @@
 
+const trackPendingAck =
+    require('./trackPendingAck.js');
+
 const sendTrackedFrame = (
     connection,
     frame,

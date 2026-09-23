@@ -1,4 +1,3 @@
-
 // src/s2s/routing/handlers/channel.js
 
 const {
@@ -18,6 +17,16 @@ module.exports = function handleChannel(
     const routeConnections =
         new Set();
 
+    console.log(
+        '[ROUTE DEBUG] CHANNEL CLIENTS:',
+        target.clients.map(client => ({
+            nick: client.nick,
+            clientId: client.clientId,
+            serverId: client.serverId,
+            connection: !!client.connection
+        }))
+    );
+
     for (
         const client
         of target.clients
@@ -29,15 +38,34 @@ module.exports = function handleChannel(
         /*
          * Local client.
          */
-        if (!client.serverId) {
+        if (
+            client.serverId ===
+            connection.manager.serverId
+        ) {
+            const localClient =
+                connection.manager.getLocalClientById
+                    ? connection.manager.getLocalClientById(
+                        client.clientId
+                    )
+                    : null;
+
+            if (!localClient) {
+                console.error(
+                    `[IRIS] Local client not found: ` +
+                    `${client.clientId}`
+                );
+
+                continue;
+            }
+
             if (
-                client ===
+                localClient ===
                 sourceClient
             ) {
                 continue;
             }
 
-            client.send(
+            localClient.send(
                 `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
                 `PRIVMSG ${target.channel.name} :${message.message}`
             );

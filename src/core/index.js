@@ -95,6 +95,16 @@ class Core {
         this.clients.delete(client);
     }
 
+    getClientById(id) {
+    if (!id) {
+        return null;
+    }
+
+    return [...this.clients].find(
+        client => client.id === id
+    ) || null;
+}
+
     getClientByNick(nick) {
         if (!nick) {
             return null;

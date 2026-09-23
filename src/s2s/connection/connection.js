@@ -155,13 +155,14 @@ destroy() {
     lifecycle.destroy(this);
 }
 
+
 nextSendSequence() {
     if (
         this.sendSequence >
         MAX_SEQUENCE
     ) {
         throw new Error(
-            'IRISH outbound sequence exhausted'
+            'IRIS outbound sequence exhausted'
         );
     }
 
@@ -169,6 +170,10 @@ nextSendSequence() {
         this.sendSequence;
 
     this.sendSequence++;
+
+    console.log(
+        `[IRIS] → NEXT SEQUENCE ${sequence} remote=${this.remote.serverId || 'unknown'}`
+    );
 
     return sequence;
 }
@@ -228,6 +233,10 @@ sendAck(acknowledgedMessageId) {
 }
 
 sendFrame(frame) {
+    console.log(
+        `[IRIS] → SEND FRAME type=0x${frame.readUInt8(1).toString(16)} sequence=${frame.readBigUInt64BE(8)}`
+    );
+
     if (
         !outboundValidation.validateOutgoingFrame(
             this,

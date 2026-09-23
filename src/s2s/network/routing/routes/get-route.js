@@ -1,13 +1,15 @@
-
-// src/s2s/network-manager/routes/get-route.js
+// src/s2s/network/routing/routes/get-route.js
 
 module.exports = function getRoute(
-    manager,
+    resolver,
     serverId
 ) {
     if (!serverId) {
         return null;
     }
+
+    const manager =
+        resolver.manager;
 
     if (
         serverId ===

@@ -22,7 +22,8 @@ class S2SManager {
         serverId,
         serverName,
         networkManager,
-        getLocalClientByNick
+        getLocalClientByNick,
+    getLocalClientById
     }) {
         this.serverId = serverId;
         this.serverName = serverName;
@@ -33,6 +34,7 @@ class S2SManager {
         this.routeResolver = new RouteResolver(this);
         this.remoteClients = new RemoteClientRegistry();
         this.getLocalClientByNick = getLocalClientByNick;
+        this.getLocalClientById = getLocalClientById;
 
         setupEvents(this);
     }
