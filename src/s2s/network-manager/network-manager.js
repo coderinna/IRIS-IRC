@@ -167,7 +167,9 @@ updateTopology(
         );
     }
 
-    updateChannelState(channelName) {
+updateChannelState(
+    channelName
+) {
     return updateState(
         this,
         channelName

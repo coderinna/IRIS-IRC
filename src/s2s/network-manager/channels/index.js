@@ -18,11 +18,15 @@ const addClient =
 const removeClient =
     require('./remove-client.js');
 
+const updateState =
+    require('./update-state.js');
+
 module.exports = {
     addChannel,
     removeChannel,
     getChannel,
     getChannels,
     addClient,
-    removeClient
+    removeClient,
+    updateState
 };

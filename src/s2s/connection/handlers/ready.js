@@ -36,10 +36,13 @@ module.exports = function handleReady(
 
         connection.state = STATES.CONNECTED;
 
-        if (connection.manager) {
-            connection.manager.registerRemoteServer(
-                connection
-            );
+if (connection.manager) {
+    connection.manager.registerRemoteServer(
+        connection
+    );
+connection.syncClients();
+
+    connection.syncChannels();
 
                 console.log(
         '[IRIS] Network State:',

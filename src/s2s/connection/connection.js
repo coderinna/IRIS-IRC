@@ -18,6 +18,11 @@ const {
     encodeChannelState
 } = require('../messages/channel-state');
 
+const {
+    encodeClient
+} = require('../messages/client');
+
+
 const {   STATES } = require('./states.js');
 
 const {
@@ -165,6 +170,65 @@ destroy() {
     lifecycle.destroy(this);
 }
 
+syncClients() {
+    if (!this.manager?.networkManager) {
+        throw new Error(
+            'Network manager is not available'
+        );
+    }
+
+    const clients =
+        this.manager.networkManager.getClients();
+
+    console.log(
+        `[IRIS] → CLIENT STATE SYNC ` +
+        `remote=${this.remote.serverId || 'unknown'} ` +
+        `clients=${clients.length}`
+    );
+
+    for (const client of clients) {
+        const messageId =
+            crypto.randomBytes(16);
+
+        const sequence =
+            this.nextSendSequence();
+
+        const frame =
+            encodeClient(
+                {
+                    clientId:
+                        client.clientId,
+
+                    nick:
+                        client.nick,
+
+                    user:
+                        client.user || '',
+
+                    host:
+                        client.host || '',
+
+                    serverId:
+                        client.serverId
+                },
+                messageId,
+                sequence
+            );
+
+        this.sendTrackedFrame(
+            frame,
+            messageId
+        );
+
+        console.log(
+            `[IRIS] → CLIENT STATE ` +
+            `${client.serverId}:${client.clientId} ` +
+            `${client.nick} ` +
+            `remote=${this.remote.serverId || 'unknown'}`
+        );
+    }
+}
+
 syncChannels() {
     if (!this.manager?.getLocalChannels) {
         throw new Error(
@@ -174,6 +238,13 @@ syncChannels() {
 
     const channels =
         this.manager.getLocalChannels();
+
+
+console.log(
+    `[IRIS] → CHANNEL STATE SYNC ` +
+    `remote=${this.remote.serverId || 'unknown'} ` +
+    `channels=${channels.length}`
+);
 
     for (const channel of channels) {
         const members =
