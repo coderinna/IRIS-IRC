@@ -17,13 +17,28 @@ module.exports = function removeClient(
     const removed =
         channel.clients.delete(client);
 
-    if (
-        channel.clients.size === 0
-    ) {
-        networkManager.channels.delete(
-            channelName
-        );
+    if (!removed) {
+        return false;
     }
 
-    return removed;
+    if (client.serverId) {
+        const hasServerMembers =
+            [...channel.clients].some(
+                remoteClient =>
+                    remoteClient.serverId ===
+                    client.serverId
+            );
+
+        if (!hasServerMembers) {
+            channel.servers.delete(
+                client.serverId
+            );
+        }
+    }
+
+    networkManager.updateChannelState(
+        channelName
+    );
+
+    return true;
 };

@@ -40,5 +40,18 @@ module.exports = function addClient(
 
     channel.clients.add(client);
 
+    if (client.serverId) {
+        channel.servers.add(
+            client.serverId
+        );
+
+        if (!channel.ownerServerId) {
+            channel.ownerServerId =
+                client.serverId;
+        }
+    }
+
+    channel.state = 'active';
+
     return true;
 };

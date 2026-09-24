@@ -79,6 +79,7 @@ module.exports = function handleJoin(
             client
         );
 
+
 console.log(
     `[IRIS] CHANNEL MEMBERS ` +
     `${join.channel}: ` +
