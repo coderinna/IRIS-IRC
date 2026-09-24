@@ -1,10 +1,15 @@
 // src/channel/index.js
 
 class Channel {
-    constructor(name) {
+    constructor(name, ownerServerId = null) {
         this.name = name;
         this.topic = null;
+
         this.clients = new Set();
+        this.servers = new Set();
+
+        this.ownerServerId = ownerServerId;
+        this.state = 'active';
     }
 
     addClient(client) {
@@ -46,6 +51,58 @@ class Channel {
     isEmpty() {
         return this.clients.size === 0;
     }
+
+    addServer(serverId) {
+        if (!serverId || this.servers.has(serverId)) {
+            return false;
+        }
+
+        this.servers.add(serverId);
+
+        return true;
+    }
+
+    removeServer(serverId) {
+        return this.servers.delete(serverId);
+    }
+
+    hasServer(serverId) {
+        return this.servers.has(serverId);
+    }
+
+    getServers() {
+        return [...this.servers];
+    }
+
+    getOwnerServerId() {
+        return this.ownerServerId;
+    }
+
+    setOwnerServer(serverId) {
+        this.ownerServerId = serverId || null;
+    }
+
+    getState() {
+        return this.state;
+    }
+
+    setState(state) {
+        this.state = state;
+    }
+
+    isActive() {
+        return this.state === 'active';
+    }
+
+    isRemoved() {
+        return this.state === 'removed';
+    }
+
+hasServerMembers(serverId) {
+    return [...this.clients].some(
+        client => client.serverId === serverId
+    );
+}
 
     broadcast(message, except = null) {
         for (const client of this.clients) {

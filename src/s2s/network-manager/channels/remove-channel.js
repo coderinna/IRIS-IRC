@@ -4,7 +4,24 @@ module.exports = function removeChannel(
     networkManager,
     name
 ) {
-    return networkManager.channels.delete(
+    const channel =
+        networkManager.channels.get(
+            name
+        );
+
+    if (!channel) {
+        return false;
+    }
+
+    if (channel.clients.size > 0) {
+        return false;
+    }
+
+    channel.state = 'removed';
+
+    networkManager.channels.delete(
         name
     );
+
+    return true;
 };

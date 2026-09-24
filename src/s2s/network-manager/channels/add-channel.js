@@ -23,7 +23,11 @@ module.exports = function addChannel(
     const remoteChannel = {
         name: channel.name,
         topic: channel.topic || null,
-        clients: new Set()
+        clients: new Set(),
+        servers: new Set(),
+        ownerServerId:
+            channel.ownerServerId || null,
+        state: 'active'
     };
 
     networkManager.channels.set(

@@ -26,7 +26,8 @@ const {
     getChannel,
     getChannels,
     addClient: addClientToChannel,
-    removeClient: removeClientFromChannel
+    removeClient: removeClientFromChannel,
+    updateState
 } = require('./channels');
 
 class NetworkManager {
@@ -165,6 +166,13 @@ updateTopology(
             connection
         );
     }
+
+    updateChannelState(channelName) {
+    return updateState(
+        this,
+        channelName
+    );
+}
 
     /*
      * Remote channels
