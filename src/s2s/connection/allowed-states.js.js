@@ -69,7 +69,11 @@ const ALLOWED_STATES = {
 
     [TYPES.ACK]: [
         STATES.CONNECTED
-    ]
+    ],
+
+    [TYPES.CHANNEL_STATE]: [
+    STATES.CONNECTED
+],
 };
 
 module.exports = {

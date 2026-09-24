@@ -18,6 +18,5 @@ const VALID_TYPES =
 
 module.exports = {
     HEADER_SIZE,
-    MAX_PAYLOAD_SIZE,
-    VALID_TYPES
+    MAX_PAYLOAD_SIZE
 };

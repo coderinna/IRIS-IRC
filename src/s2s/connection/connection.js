@@ -14,6 +14,9 @@ const stateValidation =  require('./state-validation/index.js');
 const messages =
     require('./messages/index.js');
 const outboundValidation =  require('./outbound-validation/index.js');
+const {
+    encodeChannelState
+} = require('../messages/channel-state');
 
 const {   STATES } = require('./states.js');
 
@@ -39,6 +42,8 @@ const handleHello = require('./handlers/hello.js');
 const handleAuth = require('./handlers/auth.js');
 const handleServer = require('./handlers/server.js');
 const handleReady = require('./handlers/ready.js');
+const handleChannelState =
+    require('./handlers/channel-state.js');
 
 class S2SConnection {
     constructor(socket, options = {}) {
@@ -138,6 +143,11 @@ this.receiveSequence = 0n;
 [TYPES.ACK]: frame => handleAck(this, frame),
 [TYPES.AUTH]: frame => handleAuth(this, frame),
 [TYPES.SERVER]: frame => handleServer(this, frame),
+[TYPES.CHANNEL_STATE]:
+    frame => handleChannelState(
+        this,
+        frame
+    ),
 };
 
         this.setupSocket();
@@ -155,6 +165,62 @@ destroy() {
     lifecycle.destroy(this);
 }
 
+syncChannels() {
+    if (!this.manager?.getLocalChannels) {
+        throw new Error(
+            'Local channel provider is not available'
+        );
+    }
+
+    const channels =
+        this.manager.getLocalChannels();
+
+    for (const channel of channels) {
+        const members =
+            channel.getMembers().map(client => ({
+                clientId: client.id,
+                nick: client.nick,
+                serverId: client.serverId
+            }));
+
+        const servers =
+            [...channel.getServers()];
+
+        const messageId =
+            crypto.randomBytes(16);
+
+        const sequence =
+            this.nextSendSequence();
+
+        const frame =
+            encodeChannelState(
+                {
+                    channel: channel.name,
+                    topic: channel.getTopic(),
+                    state: channel.getState(),
+                    ownerServerId:
+                        channel.getOwnerServerId(),
+                    servers,
+                    members
+                },
+                messageId,
+                sequence
+            );
+
+        this.sendTrackedFrame(
+            frame,
+            messageId
+        );
+
+        console.log(
+            `[IRIS] → CHANNEL_STATE ` +
+            `${channel.name} ` +
+            `members=${members.length} ` +
+            `servers=${servers.length} ` +
+            `remote=${this.remote.serverId || 'unknown'}`
+        );
+    }
+}
 
 nextSendSequence() {
     if (

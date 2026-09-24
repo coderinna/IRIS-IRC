@@ -43,7 +43,9 @@ const s2sManager = new S2SManager({
     getLocalClientByNick:
         core.getClientByNick.bind(core),
     getLocalClientById:
-        core.getClientById.bind(core)
+        core.getClientById.bind(core),
+        getLocalChannels:
+    core.getChannels.bind(core)
 });
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,

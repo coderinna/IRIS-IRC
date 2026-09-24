@@ -23,6 +23,10 @@ class Core {
         return this.channels.get(name) || null;
     }
 
+    getChannels() {
+        return [...this.channels.values()];
+    }
+
     deleteChannel(name) {
         return this.channels.delete(name);
     }
@@ -40,8 +44,8 @@ class Core {
             return false;
         }
 
-    this.addClient(client);
-    
+        this.addClient(client);
+
         client.send(
             `:${this.serverName} 001 ${client.nick} :Welcome to Iris IRC`
         );
@@ -96,14 +100,14 @@ class Core {
     }
 
     getClientById(id) {
-    if (!id) {
-        return null;
-    }
+        if (!id) {
+            return null;
+        }
 
-    return [...this.clients].find(
-        client => client.id === id
-    ) || null;
-}
+        return [...this.clients].find(
+            client => client.id === id
+        ) || null;
+    }
 
     getClientByNick(nick) {
         if (!nick) {

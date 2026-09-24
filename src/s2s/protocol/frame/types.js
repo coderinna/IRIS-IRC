@@ -17,7 +17,9 @@ const TYPES = {
 
     PING: 0x20,
     PONG: 0x21,
-    ACK: 0x22
+    ACK: 0x22,
+
+    CHANNEL_STATE: 0x17,
 };
 
 module.exports = {

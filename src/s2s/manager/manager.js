@@ -18,13 +18,14 @@ const RouteResolver = require('../network/routing/index.js');
 const acceptEvent = require('./acceptEvent.js');
 
 class S2SManager {
-    constructor({
-        serverId,
-        serverName,
-        networkManager,
-        getLocalClientByNick,
-    getLocalClientById
-    }) {
+constructor({
+    serverId,
+    serverName,
+    networkManager,
+    getLocalClientByNick,
+    getLocalClientById,
+    getLocalChannels
+}) {
         this.serverId = serverId;
         this.serverName = serverName;
         this.networkManager = networkManager;
@@ -33,7 +34,9 @@ class S2SManager {
         this.networkState = new NetworkState(serverId);
         this.routeResolver = new RouteResolver(this);
         this.remoteClients = new RemoteClientRegistry();
-        this.getLocalClientByNick = getLocalClientByNick;
+     this.getLocalClientByNick = getLocalClientByNick;
+this.getLocalClientById = getLocalClientById;
+this.getLocalChannels = getLocalChannels;
         this.getLocalClientById = getLocalClientById;
 
         setupEvents(this);
