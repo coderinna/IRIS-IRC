@@ -219,12 +219,28 @@ Channel State Sync = miten IRC-kanavien tila pidetään yhdenmukaisena koko IRIS
 Channel State = kanavan perustila ja sen hallinta.
 
 Tavoitteena:
-- Channel name
-- Channel members
-- Channel server state
-- Channel ownership
-- Channel lifecycle
-- Channel synchronization
+- Channel name       ✅
+- Channel members    ✅ nykyinen
+- Channel servers    🟡 rakenne nyt olemassa
+- Channel ownership  🟡 rakenne nyt olemassa
+- Channel lifecycle  🟡 state nyt olemassa
+- Synchronization    🟡 nykyinen JOIN propagation
+
+channel exists
+     │
+     ├── clients > 0
+     │       ↓
+     │    ACTIVE
+     │
+     └── clients = 0
+             ↓
+           EMPTY
+             │
+             │ explicit removeChannel()
+             ↓
+          REMOVED
+             ↓
+      channels.delete()
 
 ### CHANNEL MEMBERSHIP
 
@@ -298,6 +314,26 @@ message routing
 
 Näin channel state ei ole vain paikallinen IRC-kanava, vaan osa koko IRIS-verkon yhteistä tilaa.
 
+              IRIS NETWORK
+
+       ┌───────────────┐
+       │ Channel State │
+       └───────┬───────┘
+               │
+       ┌───────┴───────┐
+       ↓               ↓
+ Membership         Lifecycle
+       │               │
+       ↓               ↓
+    Modes            Topic
+       │               │
+       └───────┬───────┘
+               ↓
+        Routing State
+               │
+               ↓
+          S2S MESSAGE
+
 ## S2S HARDENING
 
 ████████████░░░░░░░░
@@ -317,3 +353,117 @@ Näin channel state ei ole vain paikallinen IRC-kanava, vaan osa koko IRIS-verko
 - testaus
 - mahdolliset IRC-yhteensopivuusjutut
 - viimeiset käyttökokemuksen ongelmat
+
+## Oman IRIS-serverin pystystys
+
+                 IRIS Network
+                     🌸
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+     iris-01       iris-02       iris-03
+        │             │             │
+      users         users         users
+                                     
+                      ↑
+                uusi IRIS server
+                   iris-04
+                      │
+                  uusi käyttäjä
+
+Hänen pitäisi käytännössä pystyä:
+npm install iris-ircd
+
+konfiguroida esimerkiksi:
+serverId: iris-04
+serverName: my.iris.server
+parent: iris-03
+
+ja käynnistää:
+npm start
+
+Sen jälkeen:
+iris-04
+   │
+   │ S2S
+   ↓
+iris-03
+   │
+   ├── iris-02
+   │
+   └── iris-01
+
+Ja iris-04:n käyttäjät näkyvät koko IRIS-verkossa, aivan kuten nykyiset clientit.
+Tämä vaatii vielä käytännössä
+Channel Syncin lisäksi erityisesti:
+- Server onboarding / join procedure
+- S2S authentication credentials
+- Server configuration
+- Server identity
+- Network discovery / topology
+- Reitityksen automaattinen toiminta
+- Konfliktien käsittely
+- Dokumentoidut asennusohjeet
+- Package/install workflow
+
+**Nykyinen arkkitehtuuri on jo rakennettu tätä ajatusta varten**. serverId, serverName, topology, parent/next-hop, remote state ja S2S lifecycle eivät ole vain kolmen kiinteän serverin varten.
+
+
+Future: Anyone can run an IRIS server and join the IRIS Network. 🌸
+
+
+Kyllä — jos päätätte, että IRIS Network on teidän ylläpitämä verkko, silloin malli voisi olla juuri tämä:
+                    🌸 IRIS NETWORK
+                    ───────────────
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+       iris-01        iris-02        iris-03
+       official       official       official
+          │              │              │
+          └──────────────┼──────────────┘
+                         │
+                  external servers
+                         │
+                      iris-04
+                    community
+                      server
+
+Meidän ylläpitämä
+- IRIS Networkin viralliset serverit
+- network topologyä
+- serverien välistä luottamusta
+- S2S authenticationia
+- network policyä
+- protokollaversiota
+- verkon palvelimia ja infrastruktuuria
+- dokumentaatiota
+
+Muut voivat liittyä
+Myöhemmin voisi olla mahdollista, että joku asentaa oman IRIS-palvelimen:
+my-irc.example
+       │
+       │ S2S
+       ↓
+  IRIS Network
+
+ja liittyy verkkoon sovittujen ehtojen mukaisesti.
+Tämä tekee eron IRIS IRCd:n ja IRIS Networkin välillä:
+IRIS IRCd = ohjelmisto, jolla serveriä ajetaan.
+IRIS Network = verkko, jota serverit muodostavat ja jota te ylläpidätte.
+
+Lopullinen konsepti:
+IRIS IRCd → avoin serveriohjelmisto
+IRIS Protocol → serverien yhteinen protokolla
+IRIS Network → varsinainen verkko 🌸
+Silloin joku voi teoriassa ajaa omaa IRIS-serveriään itsenäisesti, mutta IRIS Networkiin liittyminen on erikseen hallittu asia.
+
+
+## Future: IRISin security layer
+
+- Miten serverit todentavat toisensa
+- miten avainten vaihto tehdään
+- miten replay-hyökkäykset estetään
+- miten viestien eheys varmistetaan 
+- ja miten compromised server käyttäytyy.
+
