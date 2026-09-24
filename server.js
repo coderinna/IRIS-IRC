@@ -1,4 +1,5 @@
 // node server.js  - nodemon server.js
+// ihan mini muutos6
 const net = require('net');
 const config = require('./config/config');
 const Core = require('./src/core');
@@ -61,7 +62,8 @@ const routeCommand = createCommandRouter({
             s2sManager.remoteClients
         ),
     removeClient: core.removeClient.bind(core),
-    events
+    events,
+    registerClient: core.registerClient.bind(core),
 });
 
 const s2sListener = new S2SListener({

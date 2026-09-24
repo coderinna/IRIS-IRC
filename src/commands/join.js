@@ -2,7 +2,13 @@
 
 const events = require('../events');
 
-function handleJoin(client, names, getOrCreateChannel) {
+function handleJoin(
+    client,
+    names,
+    getOrCreateChannel,
+    serverName,
+    networkManager
+) {
     if (!client.registered) {
         return;
     }
@@ -37,11 +43,31 @@ function handleJoin(client, names, getOrCreateChannel) {
             `:${client.mask} JOIN ${channel.name}`
         );
 
-        client.send(
-            `:irc.iris.local 353 ${client.nick} = ${channel.name} :${channel
-                .getNicknames()
-                .join(' ')}`
-        );
+const remoteChannel =
+    networkManager?.getChannel(
+        channel.name
+    );
+
+const networkNicknames =
+    remoteChannel
+        ? [...remoteChannel.clients]
+            .map(member => member.nick)
+            .filter(Boolean)
+        : [];
+
+const localNicknames =
+    channel.getNicknames();
+
+const nicknames = [
+    ...new Set([
+        ...localNicknames,
+        ...networkNicknames
+    ])
+];
+
+client.send(
+    `:${serverName} 353 ${client.nick} = ${channel.name} :${nicknames.join(' ')}`
+);
 
         client.send(
             `:irc.iris.local 366 ${client.nick} ${channel.name} :End of /NAMES list`

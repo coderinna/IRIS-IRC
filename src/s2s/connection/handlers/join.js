@@ -1,3 +1,4 @@
+
 // src/s2s/connection/handlers/join.js
 
 const crypto = require('crypto');
@@ -49,10 +50,10 @@ module.exports = function handleJoin(
         }
 
         console.log(
-    `[IRIS] JOIN ROUTE client=${client.clientId} ` +
-    `server=${client.serverId} ` +
-    `connection=${client.connection?.remote?.serverId || 'local'}`
-);
+            `[IRIS] JOIN ROUTE client=${client.clientId} ` +
+            `server=${client.serverId} ` +
+            `connection=${client.connection?.remote?.serverId || 'local'}`
+        );
 
         if (
             client.connection !== connection
@@ -79,16 +80,47 @@ module.exports = function handleJoin(
             client
         );
 
+        console.log(
+            `[IRIS] CHANNEL MEMBERS ` +
+            `${join.channel}: ` +
+            [...channel.clients]
+                .map(client =>
+                    `${client.nick}@${client.serverId}`
+                )
+                .join(', ')
+        );
 
-console.log(
-    `[IRIS] CHANNEL MEMBERS ` +
-    `${join.channel}: ` +
-    [...channel.clients]
-        .map(client =>
-            `${client.nick}@${client.serverId}`
-        )
-        .join(', ')
-);
+        const localChannel =
+            connection.manager
+                .getLocalChannels()
+                .find(
+                    localChannel =>
+                        localChannel.name ===
+                        join.channel
+                );
+
+        if (localChannel) {
+            const nick =
+    client.nick || '*';
+
+const user =
+    client.user || '*';
+
+const host =
+    client.host || 'localhost';
+
+         const joinMessage =
+    `:${nick}!${user}@${host} JOIN ${join.channel}`;
+
+            for (
+                const localClient
+                of localChannel.getMembers()
+            ) {
+                localClient.send(
+                    joinMessage
+                );
+            }
+        }
 
         console.log(
             `[IRIS] ← JOIN ` +

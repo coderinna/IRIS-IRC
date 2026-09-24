@@ -221,118 +221,83 @@ Channel State = kanavan perustila ja sen hallinta.
 Tavoitteena:
 - Channel name       ✅
 - Channel members    ✅ nykyinen
-- Channel servers    🟡 rakenne nyt olemassa
-- Channel ownership  🟡 rakenne nyt olemassa
-- Channel lifecycle  🟡 state nyt olemassa
-- Synchronization    🟡 nykyinen JOIN propagation
+Channel servers 🟡 — rakenne on olemassa, mutta servers-setin täyttyminen / ylläpito pitää vielä korjata
+Channel ownership 🟡 — rakenne on olemassa, mutta ownerin muodostuminen pitää vielä varmistaa
+Channel lifecycle 🟡 — active / empty / removed on olemassa, mutta verkon yli tapahtuva lifecycle pitää vielä testata
+Synchronization ✅ initial CHANNEL_STATE sync toimii
+Reconnect sync ✅
+CLIENT state sync ✅
 
-channel exists
-     │
-     ├── clients > 0
-     │       ↓
-     │    ACTIVE
-     │
-     └── clients = 0
-             ↓
-           EMPTY
-             │
-             │ explicit removeChannel()
-             ↓
-          REMOVED
-             ↓
-      channels.delete()
 
 ### CHANNEL MEMBERSHIP
 
 Channel Membership = miten käyttäjien jäsenyydet välitetään palvelimien välillä.
 
 Tavoitteena:
-- JOIN state
-- PART state
-- Remote membership
-- Membership propagation
-- Member removal
-- Tyhjän channelin cleanup
+- JOIN state ✅
+- PART state ✅
+- Remote membership 🟡 initial sync toimii, jatkuva tila vielä testattava
+- Membership propagation ✅
+- Member removal 🟡 testattava reconnectin jälkeen
+- Tyhjän channelin cleanup 🟡 olemassa, testattava verkon yli
 
-Esimerkiksi:
+Channel synchronization on jo valmis tältä osin.
 
-```text
-iris-01                    iris-02
-
-#test                      #test
- ├── Alice   ←── S2S ──→    ├── Alice
- └── Bob                    └── Bob
-```
 
 ### CHANNEL LIFECYCLE
 
 Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
 
 Tavoitteena:
-- Channel create
-- Channel discovery
-- Channel synchronization
-- Channel remove
-- Empty channel cleanup
+- Channel create🟡 — kanava syntyy kyllä paikallisesti ja NetworkManageriin, mutta verkon yli tapahtuva luonti kannattaa vielä varmistaa/testata.
+- Channel discovery🟡 — remote channel löytyy NetworkManagerista, mutta tämä kannattaa vielä testata reconnect/snapshot-tilanteessa.
+- Channel synchronization ✅ nyt toimii initial snapshotilla
+- Channel remove🟡 — rakenne on olemassa, mutta verkon yli tapahtuva poistuminen pitää vielä testata.
+- Empty channel cleanup🟡 — cleanup-logiikka on olemassa, mutta pitää varmistaa erityisesti tilanteessa, jossa viimeinen käyttäjä poistuu toiselta palvelimelta.
 
 ### CHANNEL MODES
 
-Channel Modes = kanavan asetusten synkronointi palvelimien välillä.
+MODE kertoo, millaiset asetukset kanavalla on.
++m       moderated
++n       ulkopuoliset eivät voi lähettää kanavalle
++t       topicin vaihtaminen rajoitettu
++i       invite-only
++k       kanavalla on salasana
++l       käyttäjämäärälle limit
 
 Tavoitteena:
-- MODE propagation
-- Channel mode state
-- Mode changes
-- Remote mode synchronization
+- MODE propagation 🔴
+- Channel mode state 🔴
+- Mode changes 🔴
+- Remote mode synchronization 🔴
 
-### CHANNEL TOPIC
+### CHANNEL TOPIC 🔴
 
-Channel Topic = kanavan topicin synkronointi verkon yli.
+TOPIC on kanavan näkyvä aihe/kuvaus.
 
 Tavoitteena:
-- Topic state
-- TOPIC propagation
-- Topic changes
-- Remote topic synchronization
+- Topic state  🔴
+- TOPIC propagation 🔴
+- Topic changes 🔴
+- Remote topic synchronization 🔴
+
+Rakenne on jo olemassa:
+
+topic
+
+ja CHANNEL_STATE pystyy jo kuljettamaan topicin, mutta TOPIC propagation/synkronointi ei ole vielä valmis.
 
 ### CHANNEL ROUTING STATE
 
+IRIS tietää, missä palvelimissa tiettyä kanavaa ja sen jäseniä on, jotta viesti voidaan lähettää oikeaan suuntaan.
+
 Channel Routing State = tieto siitä, mille palvelimille kanavan liikennettä pitää reitittää.
 
-Tavoitteena:
-```text
-JOIN
-  ↓
-channel state
-  ↓
-S2S propagation
-  ↓
-remote channel state
-  ↓
-message routing
-```
-
-Näin channel state ei ole vain paikallinen IRC-kanava, vaan osa koko IRIS-verkon yhteistä tilaa.
-
-              IRIS NETWORK
-
-       ┌───────────────┐
-       │ Channel State │
-       └───────┬───────┘
-               │
-       ┌───────┴───────┐
-       ↓               ↓
- Membership         Lifecycle
-       │               │
-       ↓               ↓
-    Modes            Topic
-       │               │
-       └───────┬───────┘
-               ↓
-        Routing State
-               │
-               ↓
-          S2S MESSAGE
+Channel state       ✅
+Remote membership   ✅
+Server information  🟡
+Message routing     ✅
+S2S MESSAGE         ✅
 
 ## S2S HARDENING
 
@@ -349,7 +314,11 @@ Näin channel state ei ole vain paikallinen IRC-kanava, vaan osa koko IRIS-verko
 ## CLIENT POLISH
 
 ████████████░░░░░░░░
-
+   ├── NICK
+   ├── QUIT
+   ├── JOIN presentation
+   ├── HELP
+   └── muut IRC-clientin viimeistelyt
 - testaus
 - mahdolliset IRC-yhteensopivuusjutut
 - viimeiset käyttökokemuksen ongelmat

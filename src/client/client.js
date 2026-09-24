@@ -76,10 +76,14 @@ send(message) {
         return true;
     }
 
-    destroy() {
-        this.channels.clear();
-        this.socket.destroy();
-    }
+destroy() {
+    console.log(
+        `[CLIENT DESTROY] nick=${this.nick} id=${this.id}`
+    );
+
+    this.channels.clear();
+    this.socket.destroy();
+}
 }
 
 module.exports = Client;

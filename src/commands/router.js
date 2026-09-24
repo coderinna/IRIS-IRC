@@ -8,10 +8,11 @@ function createCommandRouter({
     status,
     registerClient,
     getOrCreateChannel,
+    networkManager,
     getChannel,
     deleteChannel,
     getClientByNick,
-getRemoteClientByNick,
+    getRemoteClientByNick,
     removeClient
 }) {
     return function routeCommand(client, parsed) {
@@ -66,14 +67,15 @@ getRemoteClientByNick,
                 );
                 break;
 
-            case 'JOIN':
-                handler(
-                    client,
-                    params[0] || trailing,
-                    getOrCreateChannel,
-                    serverName
-                );
-                break;
+case 'JOIN':
+    handler(
+        client,
+        params[0] || trailing,
+        getOrCreateChannel,
+        serverName,
+        networkManager
+    );
+    break;
 
             case 'PART':
                 handler(

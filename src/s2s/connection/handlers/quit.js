@@ -1,3 +1,6 @@
+
+// src/s2s/connection/handlers/quit.js
+
 const {
     decodeQuit
 } = require('../../messages/quit');
@@ -57,6 +60,47 @@ module.exports = function handleQuit(
         ) {
             throw new Error(
                 'Remote client does not belong to this connection'
+            );
+        }
+
+        const localClients = new Set();
+
+        for (
+            const channel
+            of networkManager.getChannels()
+        ) {
+            if (!channel.clients.has(client)) {
+                continue;
+            }
+
+            const localChannel =
+                connection.manager
+                    .getLocalChannels()
+                    .find(
+                        localChannel =>
+                            localChannel.name === channel.name
+                    );
+
+            if (!localChannel) {
+                continue;
+            }
+
+            for (
+                const localClient
+                of localChannel.getMembers()
+            ) {
+                localClients.add(
+                    localClient
+                );
+            }
+        }
+
+        const quitMessage =
+            `:${client.nick || '*'}!${client.user || '*'}@${client.host || 'localhost'} QUIT :${quit.reason || ''}`;
+
+        for (const localClient of localClients) {
+            localClient.send(
+                quitMessage
             );
         }
 
