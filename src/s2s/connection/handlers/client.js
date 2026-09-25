@@ -46,6 +46,14 @@ module.exports = function handleClient(
                 connection
             });
 
+            console.log(
+    `⚠️ [IRIS DEBUG] CLIENT SOURCE ` +
+    `remote=${connection.remote?.serverId} ` +
+    `client=${client.serverId}:${client.clientId} ` +
+    `nick=${client.nick}`
+);
+
+
         connection.manager.networkManager.addClient(
             remoteClient
         );

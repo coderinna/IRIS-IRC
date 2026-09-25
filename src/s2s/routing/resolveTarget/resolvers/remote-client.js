@@ -1,5 +1,5 @@
 
-// src/s2s/routing/resolvers/remote-client.js
+// src/s2s/routing/resolveTarget/resolvers/remote-client.js
 
 module.exports = function resolveRemoteClient(
     target,
@@ -27,6 +27,11 @@ module.exports = function resolveRemoteClient(
     }
 
     if (!remoteClient) {
+        console.log(
+            `[ROUTE] REMOTE CLIENT NOT FOUND ` +
+            `target=${target}`
+        );
+
         return null;
     }
 
@@ -35,9 +40,21 @@ module.exports = function resolveRemoteClient(
             remoteClient.serverId
         );
 
+    console.log(
+        `[ROUTE] REMOTE SERVER ` +
+        `serverId=${remoteClient.serverId} ` +
+        `found=${!!server}`
+    );
+
     if (!server) {
         return null;
     }
+
+    console.log(
+        `[ROUTE] REMOTE ROUTE ` +
+        `serverId=${remoteClient.serverId} ` +
+        `connectionState=${remoteClient.connection?.state}`
+    );
 
     return {
         type: 'remote-client',

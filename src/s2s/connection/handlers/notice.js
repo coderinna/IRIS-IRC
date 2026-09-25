@@ -4,6 +4,9 @@ const {
     decodeNotice
 } = require('../../messages/notice');
 
+const routeNotice =
+    require('../../routing/notice');
+
 module.exports = function handleNotice(
     connection,
     frame
@@ -55,10 +58,11 @@ module.exports = function handleNotice(
             );
         }
 
-const client =
-    connection.manager.remoteClients.get(
-        message.clientId
-    );
+        const client =
+            connection.manager.remoteClients.get(
+                notice.serverId,
+                notice.clientId
+            );
 
         if (!client) {
             throw new Error(
@@ -87,78 +91,18 @@ const client =
             );
         }
 
-        const target =
-            notice.target;
-
-        if (
-            target.startsWith('#')
-        ) {
-            const channel =
-                connection.manager.networkManager
-                    ?.getChannel(target);
-
-            if (!channel) {
-                throw new Error(
-                    `Unable to route NOTICE to ${target}`
-                );
-            }
-
-            for (
-                const targetClient
-                of channel.clients
-            ) {
-                if (!targetClient) {
-                    continue;
-                }
-
-                if (
-                    targetClient === client
-                ) {
-                    continue;
-                }
-
-                if (
-                    targetClient.serverId ===
-                    connection.manager.serverId
-                ) {
-                    targetClient.send(
-                        `:${client.nick}!${client.user}@${client.host} ` +
-                        `NOTICE ${target} :${notice.message}`
-                    );
-                }
-            }
-
-            console.log(
-                `[IRIS] ← NOTICE ` +
-                `${client.nick} → ${target} (channel)`
+        const routed =
+            routeNotice(
+                connection,
+                notice,
+                client
             );
 
-            return true;
-        }
-
-        const localClient =
-            connection.manager.getLocalClientByNick
-                ? connection.manager.getLocalClientByNick(
-                    target
-                )
-                : null;
-
-        if (!localClient) {
+        if (!routed) {
             throw new Error(
-                `Unable to route NOTICE to ${target}`
+                `Unable to route NOTICE to ${notice.target}`
             );
         }
-
-        localClient.send(
-            `:${client.nick}!${client.user}@${client.host} ` +
-            `NOTICE ${localClient.nick} :${notice.message}`
-        );
-
-        console.log(
-            `[IRIS] ← NOTICE ` +
-            `${client.nick} → ` +
-            `${localClient.nick} (local)`
-        );
 
         return true;
 

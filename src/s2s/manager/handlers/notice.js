@@ -33,6 +33,12 @@ module.exports = function handleNotice(
         return;
     }
 
+    if (
+    typeof target !== 'string'
+) {
+    return;
+}
+
     console.log(
         `[IRIS] Broadcasting NOTICE: ` +
         `${client.nick} → ${targetName}`

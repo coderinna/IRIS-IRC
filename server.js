@@ -117,7 +117,7 @@ const lines = data.toString().split(/\r?\n/);
 });
 
     socket.on('error', error => {
-        console.error('[IRC] Socket error:', error.message);
+        console.error('[IRC] Socket ehhjror:', error.message);
     });
 
     
