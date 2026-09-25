@@ -42,14 +42,15 @@ function createCommandRouter({
                 );
                 break;
 
-            case 'NICK':
-                handler(
-                    client,
-                    params[0],
-                    registerClient,
-                    getClientByNick
-                );
-                break;
+case 'NICK':
+    handler(
+        client,
+        params[0],
+        registerClient,
+        getClientByNick,
+        networkManager
+    );
+    break;
 
             case 'USER':
                 handler(

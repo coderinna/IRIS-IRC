@@ -323,6 +323,23 @@ S2S MESSAGE         ✅
 - mahdolliset IRC-yhteensopivuusjutut
 - viimeiset käyttökokemuksen ongelmat
 
+IRIS voi hallita yhteyden katkeamisen ilmoitusta, mutta IRIS-palvelin ei voi itse tehdä 1/5 → 5/5 reconnect-yrityksiä sen jälkeen kun nodemon on tappanut Node-prosessin. Prosessi on silloin kokonaan pois.
+┌──────────────────────────┐
+│       IRIS IRCd          │
+├──────────────────────────┤
+│ Client connects          │
+│        ↓                 │
+│ socket close/error       │
+│        ↓                 │
+│ Connection lost          │
+│        ↓                 │
+│ reconnect state          │
+│        ↓                 │
+│ 1/5 → 2/5 → ... → 5/5   │
+│        ↓                 │
+│ reconnect limit          │
+└──────────────────────────┘
+
 ## Oman IRIS-serverin pystystys
 
                  IRIS Network

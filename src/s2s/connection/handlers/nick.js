@@ -39,8 +39,11 @@ module.exports = function handleNick(
             );
         }
 
+        const networkManager =
+            connection.manager.networkManager;
+
         const client =
-            connection.manager.networkManager.getClient(
+            networkManager.getClient(
                 nick.serverId,
                 nick.clientId
             );
@@ -59,7 +62,7 @@ module.exports = function handleNick(
             );
         }
 
-        connection.manager.networkManager.updateClient(
+        networkManager.updateClient(
             nick.serverId,
             nick.clientId,
             {
@@ -67,19 +70,63 @@ module.exports = function handleNick(
             }
         );
 
-const updatedRemoteClient =
-    connection.manager.remoteClients.update(
-        nick.clientId,
-        {
-            nick: nick.newNick
-        }
-    );
+        const updatedRemoteClient =
+            connection.manager.remoteClients.update(
+                nick.clientId,
+                {
+                    nick: nick.newNick
+                }
+            );
 
-if (!updatedRemoteClient) {
-    throw new Error(
-        `Unknown remote client in registry: ${nick.clientId}`
-    );
-}
+        if (!updatedRemoteClient) {
+            throw new Error(
+                `Unknown remote client in registry: ${nick.clientId}`
+            );
+        }
+
+        const localClients =
+            new Set();
+
+        for (
+            const localChannel
+            of connection.manager.getLocalChannels()
+        ) {
+            const networkChannel =
+                networkManager.getChannel(
+                    localChannel.name
+                );
+
+            if (!networkChannel) {
+                continue;
+            }
+
+            if (
+                !networkChannel.clients.has(client)
+            ) {
+                continue;
+            }
+
+            for (
+                const localClient
+                of localChannel.getMembers()
+            ) {
+                localClients.add(
+                    localClient
+                );
+            }
+        }
+
+        const nickMessage =
+            `:${nick.oldNick}!${client.user || '*'}@${client.host || 'localhost'} NICK :${nick.newNick}`;
+
+        for (
+            const localClient
+            of localClients
+        ) {
+            localClient.send(
+                nickMessage
+            );
+        }
 
         console.log(
             `[IRIS] ← NICK ` +

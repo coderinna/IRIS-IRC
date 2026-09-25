@@ -16,7 +16,8 @@ function handleNick(
     client,
     nick,
     registerClient,
-    getClientByNick
+    getClientByNick,
+    networkManager
 ) {
     if (!nick) {
         client.send(
@@ -32,14 +33,27 @@ function handleNick(
         return;
     }
 
-    const existing = getClientByNick(nick);
+const existing =
+    getClientByNick(nick);
 
-    if (existing && existing !== client) {
-        client.send(
-            `:irc.iris.local 433 ${client.nick || '*'} ${nick} :Nickname is already in use`
+const networkExisting =
+    networkManager?.getClients()
+        .find(
+            networkClient =>
+                networkClient.nick &&
+                networkClient.nick.toLowerCase() ===
+                nick.toLowerCase()
         );
-        return;
-    }
+
+if (
+    (existing && existing !== client) ||
+    networkExisting
+) {
+    client.send(
+        `:irc.iris.local 433 ${client.nick || '*'} ${nick} :Nickname is already in use`
+    );
+    return;
+}
 
     // Ensimmäinen nick
     if (!client.nick) {
