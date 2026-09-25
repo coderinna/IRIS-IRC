@@ -1,0 +1,448 @@
+[1mdiff --git a/src/s2s/connection/handlers/message.js b/src/s2s/connection/handlers/message.js[m
+[1mindex d4c9758..3e12889 100644[m
+[1m--- a/src/s2s/connection/handlers/message.js[m
+[1m+++ b/src/s2s/connection/handlers/message.js[m
+[36m@@ -56,16 +56,9 @@[m [mmodule.exports = function handleMessage([m
+             );[m
+         }[m
+ [m
+[31m-      /*  if ([m
+[31m-            message.serverId !==[m
+[31m-            connection.remote.serverId[m
+[31m-        ) {[m
+[31m-            throw new Error([m
+[31m-                'MESSAGE server ID does not match remote server'[m
+[31m-            );[m
+[31m-        }*/[m
+ const client =[m
+     connection.manager.remoteClients.get([m
+[32m+[m[32m        message.serverId,[m
+         message.clientId[m
+     );[m
+ [m
+[1mdiff --git a/src/s2s/connection/handlers/nick.js b/src/s2s/connection/handlers/nick.js[m
+[1mindex 774f324..3c535bf 100644[m
+[1m--- a/src/s2s/connection/handlers/nick.js[m
+[1m+++ b/src/s2s/connection/handlers/nick.js[m
+[36m@@ -39,8 +39,11 @@[m [mmodule.exports = function handleNick([m
+             );[m
+         }[m
+ [m
+[32m+[m[32m        const networkManager =[m
+[32m+[m[32m            connection.manager.networkManager;[m
+[32m+[m
+         const client =[m
+[31m-            connection.manager.networkManager.getClient([m
+[32m+[m[32m            networkManager.getClient([m
+                 nick.serverId,[m
+                 nick.clientId[m
+             );[m
+[36m@@ -59,27 +62,71 @@[m [mmodule.exports = function handleNick([m
+             );[m
+         }[m
+ [m
+[31m-        connection.manager.networkManager.updateClient([m
+[32m+[m[32m        networkManager.updateClient([m
+             nick.serverId,[m
+             nick.clientId,[m
+             {[m
+                 nick: nick.newNick[m
+             }[m
+         );[m
+[31m-[m
+ const updatedRemoteClient =[m
+     connection.manager.remoteClients.update([m
+[32m+[m[32m        nick.serverId,[m
+         nick.clientId,[m
+         {[m
+             nick: nick.newNick[m
+         }[m
+     );[m
+ [m
+[31m-if (!updatedRemoteClient) {[m
+[31m-    throw new Error([m
+[31m-        `Unknown remote client in registry: ${nick.clientId}`[m
+[31m-    );[m
+[31m-}[m
+[32m+[m[32m        if (!updatedRemoteClient) {[m
+[32m+[m[32m            throw new Error([m
+[32m+[m[32m                `Unknown remote client in registry: ${nick.clientId}`[m
+[32m+[m[32m            );[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        const localClients =[m
+[32m+[m[32m            new Set();[m
+[32m+[m
+[32m+[m[32m        for ([m
+[32m+[m[32m            const localChannel[m
+[32m+[m[32m            of connection.manager.getLocalChannels()[m
+[32m+[m[32m        ) {[m
+[32m+[m[32m            const networkChannel =[m
+[32m+[m[32m                networkManager.getChannel([m
+[32m+[m[32m                    localChannel.name[m
+[32m+[m[32m                );[m
+[32m+[m
+[32m+[m[32m            if (!networkChannel) {[m
+[32m+[m[32m                continue;[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            if ([m
+[32m+[m[32m                !networkChannel.clients.has(client)[m
+[32m+[m[32m            ) {[m
+[32m+[m[32m                continue;[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            for ([m
+[32m+[m[32m                const localClient[m
+[32m+[m[32m                of localChannel.getMembers()[m
+[32m+[m[32m            ) {[m
+[32m+[m[32m                localClients.add([m
+[32m+[m[32m                    localClient[m
+[32m+[m[32m                );[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        const nickMessage =[m
+[32m+[m[32m            `:${nick.oldNick}!${client.user || '*'}@${client.host || 'localhost'} NICK :${nick.newNick}`;[m
+[32m+[m
+[32m+[m[32m        for ([m
+[32m+[m[32m            const localClient[m
+[32m+[m[32m            of localClients[m
+[32m+[m[32m        ) {[m
+[32m+[m[32m            localClient.send([m
+[32m+[m[32m                nickMessage[m
+[32m+[m[32m            );[m
+[32m+[m[32m        }[m
+ [m
+         console.log([m
+             `[IRIS] ← NICK ` +[m
+[1mdiff --git a/src/s2s/connection/handlers/notice.js b/src/s2s/connection/handlers/notice.js[m
+[1mindex 2d9f080..cd3577e 100644[m
+[1m--- a/src/s2s/connection/handlers/notice.js[m
+[1m+++ b/src/s2s/connection/handlers/notice.js[m
+[36m@@ -55,10 +55,10 @@[m [mmodule.exports = function handleNotice([m
+             );[m
+         }[m
+ [m
+[31m-        const client =[m
+[31m-            connection.manager.remoteClients.get([m
+[31m-                notice.clientId[m
+[31m-            );[m
+[32m+[m[32mconst client =[m
+[32m+[m[32m    connection.manager.remoteClients.get([m
+[32m+[m[32m        message.clientId[m
+[32m+[m[32m    );[m
+ [m
+         if (!client) {[m
+             throw new Error([m
+[1mdiff --git a/src/s2s/manager/manager.js b/src/s2s/manager/manager.js[m
+[1mindex 4c78a50..5aac860 100644[m
+[1m--- a/src/s2s/manager/manager.js[m
+[1m+++ b/src/s2s/manager/manager.js[m
+[36m@@ -37,45 +37,55 @@[m [mconstructor({[m
+      this.getLocalClientByNick = getLocalClientByNick;[m
+ this.getLocalClientById = getLocalClientById;[m
+ this.getLocalChannels = getLocalChannels;[m
+[31m-        this.getLocalClientById = getLocalClientById;[m
+ [m
+         setupEvents(this);[m
+     }[m
+ [m
+[31m-    sendRemoteMessage(clientId, message) {[m
+[31m-        return sendRemoteMessage([m
+[31m-            this,[m
+[31m-            clientId,[m
+[31m-            message[m
+[31m-        );[m
+[31m-    }[m
+[31m-[m
+[31m-    getClientRoute(clientId) {[m
+[31m-        const serverId =[m
+[31m-            this.remoteClients.getServerId([m
+[31m-                clientId[m
+[31m-            );[m
+[32m+[m[32msendRemoteMessage([m
+[32m+[m[32m    serverId,[m
+[32m+[m[32m    clientId,[m
+[32m+[m[32m    message[m
+[32m+[m[32m) {[m
+[32m+[m[32m    return sendRemoteMessage([m
+[32m+[m[32m        this,[m
+[32m+[m[32m        serverId,[m
+[32m+[m[32m        clientId,[m
+[32m+[m[32m        message[m
+[32m+[m[32m    );[m
+[32m+[m[32m}[m
+ [m
+[31m-        if (!serverId) {[m
+[31m-            return null;[m
+[31m-        }[m
+[32m+[m[32mgetClientRoute(serverId, clientId) {[m
+[32m+[m[32m    const client =[m
+[32m+[m[32m        this.remoteClients.get([m
+[32m+[m[32m            serverId,[m
+[32m+[m[32m            clientId[m
+[32m+[m[32m        );[m
+ [m
+[31m-        return this.getRoute(serverId);[m
+[32m+[m[32m    if (!client) {[m
+[32m+[m[32m        return null;[m
+     }[m
+ [m
+[31m-    getClientNextHop(clientId) {[m
+[31m-        const serverId =[m
+[31m-            this.remoteClients.getServerId([m
+[31m-                clientId[m
+[31m-            );[m
+[32m+[m[32m    return this.getRoute([m
+[32m+[m[32m        client.serverId[m
+[32m+[m[32m    );[m
+[32m+[m[32m}[m
+ [m
+[31m-        if (!serverId) {[m
+[31m-            return null;[m
+[31m-        }[m
+[32m+[m[32mgetClientNextHop(serverId, clientId) {[m
+[32m+[m[32m    const client =[m
+[32m+[m[32m        this.remoteClients.get([m
+[32m+[m[32m            serverId,[m
+[32m+[m[32m            clientId[m
+[32m+[m[32m        );[m
+ [m
+[31m-        return this.getNextHop(serverId);[m
+[32m+[m[32m    if (!client) {[m
+[32m+[m[32m        return null;[m
+     }[m
+ [m
+[32m+[m[32m    return this.getNextHop([m
+[32m+[m[32m        client.serverId[m
+[32m+[m[32m    );[m
+[32m+[m[32m}[m
+[32m+[m
+     getRoute(serverId) {[m
+         return this.routeResolver.getRoute([m
+             serverId[m
+[1mdiff --git a/src/s2s/manager/remote-clients/remote-clients.js b/src/s2s/manager/remote-clients/remote-clients.js[m
+[1mindex 90af9e9..4d924aa 100644[m
+[1m--- a/src/s2s/manager/remote-clients/remote-clients.js[m
+[1m+++ b/src/s2s/manager/remote-clients/remote-clients.js[m
+[36m@@ -1,12 +1,17 @@[m
+[31m-// src/s2s/manager/remote-clients/remote-clients.js[m
+[32m+[m[32m// src/s2s/manager/remote-clients/remote-clients.js //[m
+ [m
+ class RemoteClientRegistry {[m
+     constructor() {[m
+         this.clients = new Map();[m
+     }[m
+[31m-register(client) {[m
+[31m-    return this.add(client);[m
+[31m-}[m
+[32m+[m
+[32m+[m[32m    getKey(serverId, clientId) {[m
+[32m+[m[32m        return `${serverId}:${clientId}`;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    register(client) {[m
+[32m+[m[32m        return this.add(client);[m
+[32m+[m[32m    }[m
+ [m
+     add(client) {[m
+         if (!client?.clientId || !client?.serverId) {[m
+[36m@@ -15,25 +20,40 @@[m [mregister(client) {[m
+             );[m
+         }[m
+ [m
+[32m+[m[32m        const key =[m
+[32m+[m[32m            this.getKey([m
+[32m+[m[32m                client.serverId,[m
+[32m+[m[32m                client.clientId[m
+[32m+[m[32m            );[m
+[32m+[m[32mconsole.log([m
+[32m+[m[32m    `[REMOTE CLIENT] ADD key=${key} ` +[m
+[32m+[m[32m    `serverId=${client.serverId} ` +[m
+[32m+[m[32m    `clientId=${client.clientId} ` +[m
+[32m+[m[32m    `nick=${client.nick}`[m
+[32m+[m[32m);[m
+         this.clients.set([m
+[31m-            client.clientId,[m
+[32m+[m[32m            key,[m
+             { ...client }[m
+         );[m
+ [m
+[31m-        return this.clients.get([m
+[31m-            client.clientId[m
+[31m-        );[m
+[32m+[m[32m        return this.clients.get(key);[m
+     }[m
+ [m
+[31m-    remove(clientId) {[m
+[32m+[m[32m    remove(serverId, clientId) {[m
+         return this.clients.delete([m
+[31m-            clientId[m
+[32m+[m[32m            this.getKey([m
+[32m+[m[32m                serverId,[m
+[32m+[m[32m                clientId[m
+[32m+[m[32m            )[m
+         );[m
+     }[m
+ [m
+[31m-    get(clientId) {[m
+[32m+[m[32m    get(serverId, clientId) {[m
+         return this.clients.get([m
+[31m-            clientId[m
+[32m+[m[32m            this.getKey([m
+[32m+[m[32m                serverId,[m
+[32m+[m[32m                clientId[m
+[32m+[m[32m            )[m
+         ) || null;[m
+     }[m
+ [m
+[36m@@ -43,7 +63,11 @@[m [mregister(client) {[m
+         }[m
+ [m
+         for (const client of this.clients.values()) {[m
+[31m-            if (client.nick === nick) {[m
+[32m+[m[32m            if ([m
+[32m+[m[32m                client.nick &&[m
+[32m+[m[32m                client.nick.toLowerCase() ===[m
+[32m+[m[32m                nick.toLowerCase()[m
+[32m+[m[32m            ) {[m
+                 return client;[m
+             }[m
+         }[m
+[36m@@ -51,25 +75,31 @@[m [mregister(client) {[m
+         return null;[m
+     }[m
+ [m
+[31m-    update(clientId, updates) {[m
+[31m-    const client =[m
+[31m-        this.clients.get(clientId);[m
+[32m+[m[32m    update(serverId, clientId, updates) {[m
+[32m+[m[32m        const client =[m
+[32m+[m[32m            this.get([m
+[32m+[m[32m                serverId,[m
+[32m+[m[32m                clientId[m
+[32m+[m[32m            );[m
+ [m
+[31m-    if (!client) {[m
+[31m-        return null;[m
+[31m-    }[m
+[32m+[m[32m        if (!client) {[m
+[32m+[m[32m            return null;[m
+[32m+[m[32m        }[m
+ [m
+[31m-    Object.assign([m
+[31m-        client,[m
+[31m-        updates[m
+[31m-    );[m
+[32m+[m[32m        Object.assign([m
+[32m+[m[32m            client,[m
+[32m+[m[32m            updates[m
+[32m+[m[32m        );[m
+ [m
+[31m-    return client;[m
+[31m-}[m
+[32m+[m[32m        return client;[m
+[32m+[m[32m    }[m
+ [m
+[31m-    has(clientId) {[m
+[32m+[m[32m    has(serverId, clientId) {[m
+         return this.clients.has([m
+[31m-            clientId[m
+[32m+[m[32m            this.getKey([m
+[32m+[m[32m                serverId,[m
+[32m+[m[32m                clientId[m
+[32m+[m[32m            )[m
+         );[m
+     }[m
+ [m
+[36m@@ -81,9 +111,12 @@[m [mregister(client) {[m
+         return this.clients.size;[m
+     }[m
+ [m
+[31m-    getServerId(clientId) {[m
+[32m+[m[32m    getServerId(serverId, clientId) {[m
+         const client =[m
+[31m-            this.get(clientId);[m
+[32m+[m[32m            this.get([m
+[32m+[m[32m                serverId,[m
+[32m+[m[32m                clientId[m
+[32m+[m[32m            );[m
+ [m
+         return client?.serverId || null;[m
+     }[m
+[1mdiff --git a/src/s2s/manager/routing/sendRemoteMessage.js b/src/s2s/manager/routing/sendRemoteMessage.js[m
+[1mindex b6fcd4c..4f0d182 100644[m
+[1m--- a/src/s2s/manager/routing/sendRemoteMessage.js[m
+[1m+++ b/src/s2s/manager/routing/sendRemoteMessage.js[m
+[36m@@ -4,10 +4,11 @@[m [mconst crypto = require('node:crypto');[m
+ [m
+ module.exports = function sendRemoteMessage([m
+     manager,[m
+[32m+[m[32m    serverId,[m
+     clientId,[m
+     message[m
+ ) {[m
+[31m-    if (!clientId) {[m
+[32m+[m[32m    if (!serverId || !clientId) {[m
+         return false;[m
+     }[m
+ [m
+[36m@@ -17,12 +18,14 @@[m [mmodule.exports = function sendRemoteMessage([m
+ [m
+     const connection =[m
+         manager.getClientRoute([m
+[32m+[m[32m            serverId,[m
+             clientId[m
+         );[m
+ [m
+     if (!connection) {[m
+         console.warn([m
+[31m-            `[IRIS] No route to remote client ${clientId}`[m
+[32m+[m[32m            `[IRIS] No route to remote client ` +[m
+[32m+[m[32m            `${serverId}:${clientId}`[m
+         );[m
+ [m
+         return false;[m
+[36m@@ -38,7 +41,7 @@[m [mmodule.exports = function sendRemoteMessage([m
+ [m
+     console.log([m
+         `[IRIS] → ROUTE MESSAGE ` +[m
+[31m-        `${clientId} via ` +[m
+[32m+[m[32m        `${serverId}:${clientId} via ` +[m
+         `${connection.remote?.serverId}`[m
+     );[m
+ [m
+[1mdiff --git a/src/s2s/network-manager/clients/removeClientsByConnection.js b/src/s2s/network-manager/clients/removeClientsByConnection.js[m
+[1mindex 160fcd0..ad69939 100644[m
+[1m--- a/src/s2s/network-manager/clients/removeClientsByConnection.js[m
+[1m+++ b/src/s2s/network-manager/clients/removeClientsByConnection.js[m
+[36m@@ -1,10 +1,25 @@[m
+[32m+[m[32m// src/s2s/network-manager/clients/removeClientsByConnection.js[m
+[32m+[m
+ module.exports = function removeClientsByConnection([m
+     manager,[m
+     connection[m
+ ) {[m
+     for (const [key, client] of manager.clients) {[m
+[31m-        if (client.connection === connection) {[m
+[31m-            manager.clients.delete(key);[m
+[32m+[m[32m        if (client.connection !== connection) {[m
+[32m+[m[32m            continue;[m
+         }[m
+[32m+[m
+[32m+[m[32m        for (const channel of manager.channels.values()) {[m
+[32m+[m[32m            if (!channel.clients.has(client)) {[m
+[32m+[m[32m                continue;[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            manager.removeClientFromChannel([m
+[32m+[m[32m                channel.name,[m
+[32m+[m[32m                client[m
+[32m+[m[32m            );[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        manager.clients.delete(key);[m
+     }[m
+ };[m
+\ No newline at end of file[m

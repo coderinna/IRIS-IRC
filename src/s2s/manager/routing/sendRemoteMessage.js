@@ -4,10 +4,11 @@ const crypto = require('node:crypto');
 
 module.exports = function sendRemoteMessage(
     manager,
+    serverId,
     clientId,
     message
 ) {
-    if (!clientId) {
+    if (!serverId || !clientId) {
         return false;
     }
 
@@ -17,12 +18,14 @@ module.exports = function sendRemoteMessage(
 
     const connection =
         manager.getClientRoute(
+            serverId,
             clientId
         );
 
     if (!connection) {
         console.warn(
-            `[IRIS] No route to remote client ${clientId}`
+            `[IRIS] No route to remote client ` +
+            `${serverId}:${clientId}`
         );
 
         return false;
@@ -38,7 +41,7 @@ module.exports = function sendRemoteMessage(
 
     console.log(
         `[IRIS] → ROUTE MESSAGE ` +
-        `${clientId} via ` +
+        `${serverId}:${clientId} via ` +
         `${connection.remote?.serverId}`
     );
 

@@ -56,16 +56,9 @@ module.exports = function handleMessage(
             );
         }
 
-      /*  if (
-            message.serverId !==
-            connection.remote.serverId
-        ) {
-            throw new Error(
-                'MESSAGE server ID does not match remote server'
-            );
-        }*/
 const client =
     connection.manager.remoteClients.get(
+        message.serverId,
         message.clientId
     );
 

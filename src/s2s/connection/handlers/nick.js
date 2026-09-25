@@ -69,14 +69,14 @@ module.exports = function handleNick(
                 nick: nick.newNick
             }
         );
-
-        const updatedRemoteClient =
-            connection.manager.remoteClients.update(
-                nick.clientId,
-                {
-                    nick: nick.newNick
-                }
-            );
+const updatedRemoteClient =
+    connection.manager.remoteClients.update(
+        nick.serverId,
+        nick.clientId,
+        {
+            nick: nick.newNick
+        }
+    );
 
         if (!updatedRemoteClient) {
             throw new Error(

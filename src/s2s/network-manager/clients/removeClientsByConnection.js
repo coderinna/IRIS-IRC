@@ -5,6 +5,18 @@ module.exports = function removeClientsByConnection(
     connection
 ) {
     for (const [key, client] of manager.clients) {
+        if (client.connection === connection) {
+            manager.clients.delete(key);
+        }
+    }
+};
+
+/*
+module.exports = function removeClientsByConnection(
+    manager,
+    connection
+) {
+    for (const [key, client] of manager.clients) {
         if (client.connection !== connection) {
             continue;
         }
@@ -22,4 +34,4 @@ module.exports = function removeClientsByConnection(
 
         manager.clients.delete(key);
     }
-};
+};*/

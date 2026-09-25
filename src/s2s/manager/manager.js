@@ -37,44 +37,54 @@ constructor({
      this.getLocalClientByNick = getLocalClientByNick;
 this.getLocalClientById = getLocalClientById;
 this.getLocalChannels = getLocalChannels;
-        this.getLocalClientById = getLocalClientById;
 
         setupEvents(this);
     }
 
-    sendRemoteMessage(clientId, message) {
-        return sendRemoteMessage(
-            this,
-            clientId,
-            message
+sendRemoteMessage(
+    serverId,
+    clientId,
+    message
+) {
+    return sendRemoteMessage(
+        this,
+        serverId,
+        clientId,
+        message
+    );
+}
+
+getClientRoute(serverId, clientId) {
+    const client =
+        this.remoteClients.get(
+            serverId,
+            clientId
         );
+
+    if (!client) {
+        return null;
     }
 
-    getClientRoute(clientId) {
-        const serverId =
-            this.remoteClients.getServerId(
-                clientId
-            );
+    return this.getRoute(
+        client.serverId
+    );
+}
 
-        if (!serverId) {
-            return null;
-        }
+getClientNextHop(serverId, clientId) {
+    const client =
+        this.remoteClients.get(
+            serverId,
+            clientId
+        );
 
-        return this.getRoute(serverId);
+    if (!client) {
+        return null;
     }
 
-    getClientNextHop(clientId) {
-        const serverId =
-            this.remoteClients.getServerId(
-                clientId
-            );
-
-        if (!serverId) {
-            return null;
-        }
-
-        return this.getNextHop(serverId);
-    }
+    return this.getNextHop(
+        client.serverId
+    );
+}
 
     getRoute(serverId) {
         return this.routeResolver.getRoute(

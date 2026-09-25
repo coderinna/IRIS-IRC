@@ -1,12 +1,17 @@
-// src/s2s/manager/remote-clients/remote-clients.js
+// src/s2s/manager/remote-clients/remote-clients.js //
 
 class RemoteClientRegistry {
     constructor() {
         this.clients = new Map();
     }
-register(client) {
-    return this.add(client);
-}
+
+    getKey(serverId, clientId) {
+        return `${serverId}:${clientId}`;
+    }
+
+    register(client) {
+        return this.add(client);
+    }
 
     add(client) {
         if (!client?.clientId || !client?.serverId) {
@@ -15,25 +20,40 @@ register(client) {
             );
         }
 
+        const key =
+            this.getKey(
+                client.serverId,
+                client.clientId
+            );
+console.log(
+    `[REMOTE CLIENT] ADD key=${key} ` +
+    `serverId=${client.serverId} ` +
+    `clientId=${client.clientId} ` +
+    `nick=${client.nick}`
+);
         this.clients.set(
-            client.clientId,
+            key,
             { ...client }
         );
 
-        return this.clients.get(
-            client.clientId
-        );
+        return this.clients.get(key);
     }
 
-    remove(clientId) {
+    remove(serverId, clientId) {
         return this.clients.delete(
-            clientId
+            this.getKey(
+                serverId,
+                clientId
+            )
         );
     }
 
-    get(clientId) {
+    get(serverId, clientId) {
         return this.clients.get(
-            clientId
+            this.getKey(
+                serverId,
+                clientId
+            )
         ) || null;
     }
 
@@ -43,7 +63,11 @@ register(client) {
         }
 
         for (const client of this.clients.values()) {
-            if (client.nick === nick) {
+            if (
+                client.nick &&
+                client.nick.toLowerCase() ===
+                nick.toLowerCase()
+            ) {
                 return client;
             }
         }
@@ -51,25 +75,31 @@ register(client) {
         return null;
     }
 
-    update(clientId, updates) {
-    const client =
-        this.clients.get(clientId);
+    update(serverId, clientId, updates) {
+        const client =
+            this.get(
+                serverId,
+                clientId
+            );
 
-    if (!client) {
-        return null;
+        if (!client) {
+            return null;
+        }
+
+        Object.assign(
+            client,
+            updates
+        );
+
+        return client;
     }
 
-    Object.assign(
-        client,
-        updates
-    );
-
-    return client;
-}
-
-    has(clientId) {
+    has(serverId, clientId) {
         return this.clients.has(
-            clientId
+            this.getKey(
+                serverId,
+                clientId
+            )
         );
     }
 
@@ -81,9 +111,12 @@ register(client) {
         return this.clients.size;
     }
 
-    getServerId(clientId) {
+    getServerId(serverId, clientId) {
         const client =
-            this.get(clientId);
+            this.get(
+                serverId,
+                clientId
+            );
 
         return client?.serverId || null;
     }

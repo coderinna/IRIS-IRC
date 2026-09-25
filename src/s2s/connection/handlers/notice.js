@@ -55,10 +55,10 @@ module.exports = function handleNotice(
             );
         }
 
-        const client =
-            connection.manager.remoteClients.get(
-                notice.clientId
-            );
+const client =
+    connection.manager.remoteClients.get(
+        message.clientId
+    );
 
         if (!client) {
             throw new Error(
