@@ -209,6 +209,15 @@ function decodeChannelState(payload) {
         members: []
     };
 
+
+console.log(
+    `[IRIS DEBUG] CHANNEL_STATE FIELDS ` +
+    fields.map(field =>
+        `${field.type}:${field.value.toString('utf8')}`
+    ).join(' | ')
+);
+
+
     for (const field of fields) {
         switch (field.type) {
             case FIELDS.CHANNEL:

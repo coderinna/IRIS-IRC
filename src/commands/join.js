@@ -48,6 +48,11 @@ const remoteChannel =
         channel.name
     );
 
+    console.log(
+    `[IRIS DEBUG] NAMES channel=${channel.name} ` +
+    `networkMembers=${remoteChannel ? [...remoteChannel.clients].map(member => `${member.nick}@${member.serverId}`).join(', ') : 'NONE'}`
+);
+
 const networkNicknames =
     remoteChannel
         ? [...remoteChannel.clients]

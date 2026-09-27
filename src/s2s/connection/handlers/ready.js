@@ -1,3 +1,4 @@
+// src/s2s/connection/handlers/ready.jgs
 
 const {
     decodeReady
@@ -36,18 +37,19 @@ module.exports = function handleReady(
 
         connection.state = STATES.CONNECTED;
 
-if (connection.manager) {
-    connection.manager.registerRemoteServer(
-        connection
-    );
-connection.syncClients();
+        if (connection.manager) {
+            connection.manager.registerRemoteServer(
+                connection
+            );
 
-    connection.syncChannels();
+            connection.syncClients();
 
-                console.log(
-        '[IRIS] Network State:',
-        [...connection.manager.getNetworkState().values()]
-    );
+            connection.syncChannels();
+
+            console.log(
+                '[IRIS] Network State:',
+                [...connection.manager.getNetworkState().values()]
+            );
         }
 
         connection.startHeartbeat();

@@ -89,7 +89,7 @@ const server = net.createServer(socket => {
 
 socket.on('data', data => {
     console.log(
-        '[IRC] RAW:',
+        '🔥 [IRC] RAW:',
         JSON.stringify(data.toString())
     );
 
