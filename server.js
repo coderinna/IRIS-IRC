@@ -48,6 +48,7 @@ const s2sManager = new S2SManager({
         getLocalChannels:
     core.getChannels.bind(core)
 });
+
 const routeCommand = createCommandRouter({
     serverName: SERVER_NAME,
     core,
@@ -62,6 +63,7 @@ const routeCommand = createCommandRouter({
             s2sManager.remoteClients
         ),
     removeClient: core.removeClient.bind(core),
+    networkManager,
     events,
     registerClient: core.registerClient.bind(core),
 });
