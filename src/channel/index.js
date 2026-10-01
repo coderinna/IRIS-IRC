@@ -12,7 +12,32 @@ class Channel {
         this.state = 'active';
     }
 
+// src/channel/index.js
+
 addClient(client) {
+    if (!client || !client.id || !client.serverId) {
+        return false;
+    }
+
+    const existingClient = [...this.clients].find(
+        member =>
+            member.id === client.id &&
+            member.serverId === client.serverId
+    );
+
+    if (existingClient) {
+        return false;
+    }
+
+    this.clients.add(client);
+    client.channels.add(this);
+
+    this.servers.add(client.serverId);
+
+    return true;
+}
+
+/*addClient(client) {
     if (this.clients.has(client)) {
         return false;
     }
@@ -26,17 +51,7 @@ addClient(client) {
 
     return true;
 }
-
-/*    addClient(client) {
-        if (this.clients.has(client)) {
-            return false;
-        }
-
-        this.clients.add(client);
-        client.channels.add(this);
-
-        return true;
-    }*/
+*/
 
 removeClient(client) {
     if (!this.clients.has(client)) {
