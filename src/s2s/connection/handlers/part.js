@@ -1,6 +1,5 @@
 // src/s2s/connection/handlers/part.js
 
-
 const {
     decodePart
 } = require('../../messages/part');
@@ -78,6 +77,39 @@ module.exports = function handlePart(
             throw new Error(
                 `Remote client is not in channel: ${part.channel}`
             );
+        }
+
+        const localChannel =
+            connection.manager
+                .getLocalChannels()
+                .find(
+                    localChannel =>
+                        localChannel.name ===
+                        part.channel
+                );
+
+        if (localChannel) {
+            const nick =
+                client.nick || '*';
+
+            const user =
+                client.user || '*';
+
+            const host =
+                client.host || 'localhost';
+
+            const partMessage =
+                `:${nick}!${user}@${host} PART ${part.channel}` +
+                (part.reason ? ` :${part.reason}` : '');
+
+            for (
+                const localClient
+                of localChannel.getMembers()
+            ) {
+                localClient.send(
+                    partMessage
+                );
+            }
         }
 
         networkManager.removeClientFromChannel(
