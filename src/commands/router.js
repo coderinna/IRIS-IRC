@@ -42,6 +42,16 @@ function createCommandRouter({
                 );
                 break;
 
+                case 'NAMES':
+    handler(
+        client,
+        params[0],
+        getChannel,
+        networkManager,
+        serverName
+    );
+    break;
+
 case 'NICK':
     handler(
         client,

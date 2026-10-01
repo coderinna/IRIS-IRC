@@ -60,6 +60,7 @@ module.exports = function handleChannelState(
             channelState.ownerServerId;
 
         channel.servers.clear();
+        channel.clients.clear();
 
         for (
             const serverId
