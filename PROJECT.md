@@ -210,8 +210,6 @@ Toteutettu:
 
 ## Channel State Sync 🔄
 
-████████░░░░░░░░░░░░  seuraava
-
 Channel State Sync = miten IRC-kanavien tila pidetään yhdenmukaisena koko IRIS-verkon välillä.
 
 ### CHANNEL STATE
@@ -220,10 +218,11 @@ Channel State = kanavan perustila ja sen hallinta.
 
 Tavoitteena:
 - Channel name       ✅
-- Channel members    ✅ nykyinen
-Channel servers 🟡 — rakenne on olemassa, mutta servers-setin täyttyminen / ylläpito pitää vielä korjata
-Channel ownership 🟡 — rakenne on olemassa, mutta ownerin muodostuminen pitää vielä varmistaa
-Channel lifecycle 🟡 — active / empty / removed on olemassa, mutta verkon yli tapahtuva lifecycle pitää vielä testata
+- Channel members    ✅ jäsenet välittyvät ja /NAMES näkee remote-jäsenen.
+Channel servers 🟡 — servers-rakenne ja CHANNEL_STATE-kuljetus toimivat,
+ mutta emme ole vielä varmistaneet kaikkia tilanteita, joissa serverijoukkoa ylläpidetään jäsenmuutosten yhteydessä.
+Channel ownership 🟡 — ownerServerId kulkee CHANNEL_STATE:ssa, mutta ownerin muodostumista ja muuttumista ei ole erikseen testattu.
+Channel lifecycle 🟡 —active/empty/removed on toteutettu, mutta verkon yli tapahtuva create/remove/empty-cycle on vielä testaamatta.
 Synchronization ✅ initial CHANNEL_STATE sync toimii
 Reconnect sync ✅
 CLIENT state sync ✅
@@ -236,24 +235,27 @@ Channel Membership = miten käyttäjien jäsenyydet välitetään palvelimien v�
 Tavoitteena:
 - JOIN state ✅
 - PART state ✅
-- Remote membership 🟡 initial sync toimii, jatkuva tila vielä testattava
+- Remote membership ✅
 - Membership propagation ✅
-- Member removal 🟡 testattava reconnectin jälkeen
-- Tyhjän channelin cleanup 🟡 olemassa, testattava verkon yli
+- Member removal 🟡 PART toimii ja poistuminen propagoi, mutta reconnectin jälkeen tapahtuva member removal ei ole vielä erikseen testattu.
+- Tyhjän channelin cleanup 🟡 remove-client.js / channelin cleanup-rakenne on olemassa, 
+mutta tilannetta, jossa viimeinen remote-käyttäjä poistuu ja kanava tyhjenee verkon yli, ei ole vielä testattu.
 
 Channel synchronization on jo valmis tältä osin.
-
 
 ### CHANNEL LIFECYCLE
 
 Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
 
 Tavoitteena:
-- Channel create🟡 — kanava syntyy kyllä paikallisesti ja NetworkManageriin, mutta verkon yli tapahtuva luonti kannattaa vielä varmistaa/testata.
-- Channel discovery🟡 — remote channel löytyy NetworkManagerista, mutta tämä kannattaa vielä testata reconnect/snapshot-tilanteessa.
-- Channel synchronization ✅ nyt toimii initial snapshotilla
-- Channel remove🟡 — rakenne on olemassa, mutta verkon yli tapahtuva poistuminen pitää vielä testata.
-- Empty channel cleanup🟡 — cleanup-logiikka on olemassa, mutta pitää varmistaa erityisesti tilanteessa, jossa viimeinen käyttäjä poistuu toiselta palvelimelta.
+- Channel create🟡 —paikallinen kanavan luonti toimii ja remote-kanava voidaan luoda NetworkManageriin CHANNEL_STATE:n vastaanotossa. 
+Mutta erillistä testiä, jossa kanava syntyy ensimmäistä kertaa verkon yli, ei ole tehty. → 🟡
+- Channel discovery🟡 — tämä on käytännössä jo todistettu CHANNEL_STATE recoveryllä: 
+iris-02 sai #test:in takaisin NetworkManageriin reconnectin yhteydessä. Tämän voisi siis merkitä ✅.
+- Channel synchronization ✅ — initial CHANNEL_STATE toimii ja reconnect sync toimii. → ✅
+- Channel remove🟡 — removeChannel() on olemassa, mutta verkon yli tapahtuvaa kanavan poistamista ei ole testattu. → 🟡
+- Empty channel cleanup🟡 — paikallinen cleanup-rakenne on olemassa, mutta viimeisen remote-jäsenen
+ poistumista ja sen jälkeistä kanavan poistumista verkon yli ei ole testattu. → 🟡
 
 ### CHANNEL MODES
 
@@ -282,15 +284,12 @@ Tavoitteena:
 - Remote topic synchronization 🔴
 
 Rakenne on jo olemassa:
-
 topic
-
 ja CHANNEL_STATE pystyy jo kuljettamaan topicin, mutta TOPIC propagation/synkronointi ei ole vielä valmis.
 
 ### CHANNEL ROUTING STATE
 
 IRIS tietää, missä palvelimissa tiettyä kanavaa ja sen jäseniä on, jotta viesti voidaan lähettää oikeaan suuntaan.
-
 Channel Routing State = tieto siitä, mille palvelimille kanavan liikennettä pitää reitittää.
 
 Channel state       ✅
@@ -303,12 +302,12 @@ S2S MESSAGE         ✅
 
 ████████████░░░░░░░░
 
-- validointi
-- dedup
-- ACK:t
-- sequence handling
-- state validation
-- edge cases
+- validointi 🟡
+- dedup ✅
+- ACK:t ✅
+- sequence handling 🟡
+- state validation ✅
+- edge cases 🟡
 
 
 ## CLIENT POLISH

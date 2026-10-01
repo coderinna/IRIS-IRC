@@ -37,6 +37,11 @@ require('./src/services/metrics');
 
 const networkManager = new NetworkManager();
 
+/*setTimeout(() => {
+    console.log('[TEST] Removing #test from iris-02 network state');
+    networkManager.channels.delete('#test');
+}, 10000);*/
+
 const s2sManager = new S2SManager({
     serverId: S2S_SERVER_ID,
     serverName: S2S_SERVER_NAME,
