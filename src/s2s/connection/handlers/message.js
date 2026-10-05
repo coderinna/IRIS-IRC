@@ -1,3 +1,9 @@
+// src/s2s/handlers/message.js
+
+const {
+    TYPES
+} = require('../../protocol/frame/frame.js');
+
 const {
     decodeMessage
 } = require('../../messages/message');
@@ -10,6 +16,24 @@ module.exports = function handleMessage(
     frame
 ) {
     try {
+        if (!frame) {
+            throw new Error(
+                'MESSAGE frame is missing'
+            );
+        }
+
+        if (frame.type !== TYPES.MESSAGE) {
+            throw new Error(
+                'Invalid MESSAGE frame type'
+            );
+        }
+
+        if (!Buffer.isBuffer(frame.payload)) {
+            throw new Error(
+                'MESSAGE payload is invalid'
+            );
+        }
+
         if (!connection.manager) {
             throw new Error(
                 'S2S manager is not available'
@@ -56,11 +80,11 @@ module.exports = function handleMessage(
             );
         }
 
-const client =
-    connection.manager.remoteClients.get(
-        message.serverId,
-        message.clientId
-    );
+        const client =
+            connection.manager.remoteClients.get(
+                message.serverId,
+                message.clientId
+            );
 
         if (!client) {
             throw new Error(
