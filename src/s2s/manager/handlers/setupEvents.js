@@ -9,6 +9,7 @@ const handleJoin = require('./join');
 const handlePart = require('./part');
 const handleQuit = require('./quit');
 const handleMessage = require('./message');
+const handleTopic = require('./topic');
 const handleNotice =
     require('./notice');
 
@@ -114,4 +115,16 @@ events.on(
             );
         }
     );
+
+    events.on(
+    'channel:topic',
+    ({ client, channel, topic }) => {
+        handleTopic(
+            connection,
+            client,
+            channel,
+            topic
+        );
+    }
+);
 };

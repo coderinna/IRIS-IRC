@@ -273,6 +273,26 @@ Tavoitteena:
 - Mode changes 🔴
 - Remote mode synchronization 🔴
 
+2. Kanavamoodien laajentaminen
+
+Seuraavat olisivat järkeviä:
+- +t – vain operaattorit voivat vaihtaa topicia.
+- +m – moderoitu kanava.
+- +n – ulkopuoliset eivät voi lähettää kanavalle.
+- +k – kanavan salasana.
+- +l – käyttäjämäärän rajoitus.
+3. MODE-tilan synkronointi
+
+Varmistetaan, että kaikki palvelimet saavat samat kanavamoodit myös reconnectin ja channel state -synkronoinnin yhteydessä.
+
+4. MODE-oikeuksien reunatapaukset
+
+Esimerkiksi:
+- Operaattori poistaa omat oikeutensa.
+- Operaattori yrittää antaa oikeudet käyttäjälle, joka ei ole kanavalla.
+- Tavallinen käyttäjä yrittää muuttaa moodia.
+- Tuntematon moodikirjain.
+
 ### CHANNEL TOPIC 🔴
 
 TOPIC on kanavan näkyvä aihe/kuvaus.

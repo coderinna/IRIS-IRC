@@ -4,6 +4,7 @@ const crypto = require('crypto');
 
 const FrameParser = require('../protocol/parser/parser.js');
 
+const handleTopic = require('./handlers/topic');
 const handleMode = require('./handlers/mode');
 const lifecycle = require('./lifecycle/index.js');
 const transport = require('./transport/index.js');
@@ -150,6 +151,7 @@ this.receiveSequence = 0n;
 [TYPES.AUTH]: frame => handleAuth(this, frame),
 [TYPES.MODE]: frame => handleMode(this, frame),
 [TYPES.SERVER]: frame => handleServer(this, frame),
+[TYPES.TOPIC]: frame => handleTopic(this, frame),
 [TYPES.CHANNEL_STATE]:
     frame => handleChannelState(
         this,
@@ -463,7 +465,8 @@ handleFrame(frame) {
     TYPES.PART,
     TYPES.QUIT,
     TYPES.MESSAGE,
-    TYPES.MODE
+    TYPES.MODE,
+    TYPES.TOPIC
         ].includes(frame.type)
     ) {
         this.sendAck(

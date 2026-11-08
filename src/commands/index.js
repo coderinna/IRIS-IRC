@@ -13,6 +13,7 @@ const handleQuit = require('./quit');
 const handleMode = require('./mode');
 const handleWho = require('./who');
 const handleNames = require('./names');
+const handleTopic = require('./topic');
 
 const commands = {
     STATS: handleStats,
@@ -29,6 +30,7 @@ const commands = {
     WHO: handleWho,
     NOTICE: handleNotice,
     NAMES: handleNames,
+    TOPIC: handleTopic,
 };
 
 function getCommand(command) {

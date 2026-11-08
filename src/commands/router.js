@@ -137,6 +137,16 @@ case 'MODE':
     );
     break;
 
+case 'TOPIC':
+    handler(
+        client,
+        params[0],
+        trailing,
+        getChannel,
+        serverName
+    );
+    break;
+
 case 'WHO':
     handler(
         client,

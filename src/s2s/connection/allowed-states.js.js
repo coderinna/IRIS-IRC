@@ -42,7 +42,11 @@ const ALLOWED_STATES = {
         STATES.CONNECTED
     ],
 
-    [TYPES.MODE]: [
+[TYPES.MODE]: [
+    STATES.CONNECTED
+],
+
+[TYPES.TOPIC]: [
     STATES.CONNECTED
 ],
 

@@ -41,7 +41,12 @@ addClient(client) {
 }
 
 addOperator(client) {
-    return this.operators.add(client), true;
+    if (!client || this.operators.has(client)) {
+        return false;
+    }
+
+    this.operators.add(client);
+    return true;
 }
 
 removeOperator(client) {
