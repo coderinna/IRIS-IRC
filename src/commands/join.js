@@ -6,6 +6,7 @@ function handleJoin(
     client,
     names,
     getOrCreateChannel,
+    getChannel,
     serverName,
     networkManager
 ) {
@@ -26,13 +27,20 @@ function handleJoin(
             continue;
         }
 
-        const channel = getOrCreateChannel(channelName);
+const existingChannel = getChannel(channelName);
+const channel = existingChannel || getOrCreateChannel(channelName);
+
+const isNewChannel = !existingChannel;
 
         if (client.isInChannel(channel)) {
             continue;
         }
 
         channel.addClient(client);
+
+        if (isNewChannel) {
+    channel.addOperator(client);
+}
 
         events.emit('channel:joined', {
     client,

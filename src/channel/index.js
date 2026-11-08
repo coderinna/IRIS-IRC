@@ -11,6 +11,8 @@ class Channel {
 
         this.ownerServerId = ownerServerId;
         this.state = 'active';
+
+        this.operators = new Set();
     }
 
 // src/channel/index.js
@@ -38,21 +40,21 @@ addClient(client) {
     return true;
 }
 
-/*addClient(client) {
-    if (this.clients.has(client)) {
-        return false;
-    }
-
-    this.clients.add(client);
-    client.channels.add(this);
-
-    if (client.serverId) {
-        this.servers.add(client.serverId);
-    }
-
-    return true;
+addOperator(client) {
+    return this.operators.add(client), true;
 }
-*/
+
+removeOperator(client) {
+    return this.operators.delete(client);
+}
+
+isOperator(client) {
+    return this.operators.has(client);
+}
+
+getOperators() {
+    return [...this.operators];
+}
 
 removeClient(client) {
     if (!this.clients.has(client)) {
