@@ -9,12 +9,19 @@ function handleMode(
     }
 
     const target = params[0];
+    const mode = params[1] || '';
 
     // User mode
     if (target === client.nick) {
-        const mode = params[1] || '';
+        // MODE nick
+        if (!mode) {
+            client.send(
+                `:${serverName} 221 ${client.nick} +i`
+            );
+            return;
+        }
 
-        // +i = invisible
+        // +i
         if (mode === '+i') {
             client.send(
                 `:${serverName} 221 ${client.nick} +i`
@@ -22,15 +29,18 @@ function handleMode(
             return;
         }
 
-        // Ignore unsupported user modes for now
-        client.send(
-            `:${serverName} 221 ${client.nick} +i`
-        );
+        // -i
+        if (mode === '-i') {
+            client.send(
+                `:${serverName} 221 ${client.nick} -i`
+            );
+            return;
+        }
 
         return;
     }
 
-    // Channel modes
+    // Channel mode
     if (target.startsWith('#')) {
         const channel = getChannel(target);
 
@@ -38,6 +48,39 @@ function handleMode(
             client.send(
                 `:${serverName} 403 ${client.nick} ${target} :No such channel`
             );
+            return;
+        }
+
+        // MODE #channel
+        if (!mode) {
+            const modes = channel.getModes().join('');
+
+            client.send(
+                `:${serverName} 324 ${client.nick} ${target} +${modes}`
+            );
+
+            return;
+        }
+
+        // +i
+        if (mode === '+i') {
+            channel.addMode('i');
+
+            channel.broadcast(
+                `:${client.nick}!${client.user}@${client.host} MODE ${target} +i`
+            );
+
+            return;
+        }
+
+        // -i
+        if (mode === '-i') {
+            channel.removeMode('i');
+
+            channel.broadcast(
+                `:${client.nick}!${client.user}@${client.host} MODE ${target} -i`
+            );
+
             return;
         }
 

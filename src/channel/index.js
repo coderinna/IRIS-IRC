@@ -7,6 +7,7 @@ class Channel {
 
         this.clients = new Set();
         this.servers = new Set();
+        this.modes = new Set();
 
         this.ownerServerId = ownerServerId;
         this.state = 'active';
@@ -165,6 +166,27 @@ hasServerMembers(serverId) {
     hasTopic() {
         return Boolean(this.topic);
     }
+
+    hasMode(mode) {
+    return this.modes.has(mode);
+}
+
+addMode(mode) {
+    if (!mode || this.modes.has(mode)) {
+        return false;
+    }
+
+    this.modes.add(mode);
+    return true;
+}
+
+removeMode(mode) {
+    return this.modes.delete(mode);
+}
+
+getModes() {
+    return [...this.modes];
+}
 }
 
 module.exports = Channel;
