@@ -15,6 +15,8 @@ const TYPES = {
     MESSAGE: 0x15,
     NOTICE: 0x16,
 
+    MODE: 0x18,
+
     PING: 0x20,
     PONG: 0x21,
     ACK: 0x22,

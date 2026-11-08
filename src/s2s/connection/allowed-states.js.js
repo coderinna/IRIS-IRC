@@ -1,4 +1,4 @@
-// src/s2s/connections/allowed-states.js
+// src/s2s/connection/allowed-states.js
 
 const {
     STATES
@@ -41,6 +41,10 @@ const ALLOWED_STATES = {
     [TYPES.JOIN]: [
         STATES.CONNECTED
     ],
+
+    [TYPES.MODE]: [
+    STATES.CONNECTED
+],
 
     [TYPES.PART]: [
         STATES.CONNECTED

@@ -427,6 +427,7 @@ Meidän ylläpitämä
 
 Muut voivat liittyä
 Myöhemmin voisi olla mahdollista, että joku asentaa oman IRIS-palvelimen:
+
 my-irc.example
        │
        │ S2S
@@ -444,7 +445,6 @@ IRIS Protocol → serverien yhteinen protokolla
 IRIS Network → varsinainen verkko 🌸
 Silloin joku voi teoriassa ajaa omaa IRIS-serveriään itsenäisesti, mutta IRIS Networkiin liittyminen on erikseen hallittu asia.
 
-
 ## Future: IRISin security layer
 
 - Miten serverit todentavat toisensa
@@ -453,68 +453,23 @@ Silloin joku voi teoriassa ajaa omaa IRIS-serveriään itsenäisesti, mutta IRIS
 - miten viestien eheys varmistetaan 
 - ja miten compromised server käyttäytyy.
 
-
-
 Kuvittele, mihin IRIS voisi kasvaa
-
-
-
-
-
-
-
-
 
 IRIS Network Intelligence
 
 Verkko tunnistaa NetSplitit, analysoi palautumisen, havaitsee ristiriitaiset tilat ja tuottaa automaattisia diagnooseja.
 
-
-
-
-
-
-
-
-
-
-
-
 IRIS Admin Platform
 
 Kaikki palvelimet, käyttäjät, kanavat, yhteydet, tapahtumat ja diagnostiikka yhdessä hallintapaneelissa.
-
-
-
-
-
-
-
-
-
-
-
 
 IRIS Lab
 
 Testiverkko, joka luo NetSplit-tilanteita, katkaisee yhteyksiä, simuloi virheitä ja toistaa bugit automaattisesti.
 
-
-
-
-
-
-
-
-
-
-
-
 IRIS Protocol Extensions
 
 Omia IRC-komentoja, diagnostiikkarajapintoja, tapahtumia ja mahdollisesti tulevaisuudessa ulkopuolisten kehittäjien laajennuksia.
-
-
 
 Ja kaikkein tärkein juttu?
 Näitä ei tarvitse tehdä erillisiksi projekteiksi, jotka eivät keskustele keskenään.

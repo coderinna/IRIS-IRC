@@ -2,6 +2,7 @@
 
 const events = require('../../../events');
 
+const handleMode = require('./mode');
 const handleClient = require('./client');
 const handleNick = require('./nick');
 const handleJoin = require('./join');
@@ -100,4 +101,17 @@ events.on(
         );
     }
 );
+
+    events.on(
+        'channel:mode',
+        ({ client, channel, mode, targetNick }) => {
+            handleMode(
+                connection,
+                client,
+                channel,
+                mode,
+                targetNick
+            );
+        }
+    );
 };
