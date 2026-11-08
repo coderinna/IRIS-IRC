@@ -1,3 +1,4 @@
+
 // src/s2s/connection/handlers/channel-state.js
 
 const {
@@ -53,11 +54,19 @@ module.exports = function handleChannelState(
         channel.topic =
             channelState.topic;
 
-        channel.state =
-            channelState.state;
-
         channel.ownerServerId =
             channelState.ownerServerId;
+
+        const state = channelState.state;
+
+        if (
+            typeof state === 'object' &&
+            state !== null
+        ) {
+            channel.state = state.state;
+        } else {
+            channel.state = state;
+        }
 
         channel.servers.clear();
         channel.clients.clear();
@@ -96,6 +105,38 @@ module.exports = function handleChannelState(
                 channelState.channel,
                 remoteClient
             );
+        }
+
+        // Restore channel modes
+        if (
+            typeof state === 'object' &&
+            state !== null
+        ) {
+            channel.modes.clear();
+
+            for (const mode of state.modes || []) {
+                channel.addMode(mode);
+            }
+
+            // Restore channel operators
+            channel.operators.clear();
+
+            for (const operator of state.operators || []) {
+                const operatorClient =
+                    networkManager.getClient(
+                        operator.serverId,
+                        operator.clientId
+                    );
+
+                if (
+                    operatorClient &&
+                    channel.clients.has(operatorClient)
+                ) {
+                    channel.addOperator(
+                        operatorClient
+                    );
+                }
+            }
         }
 
         networkManager.updateChannelState(

@@ -127,9 +127,16 @@ removeClient(client) {
         this.ownerServerId = serverId || null;
     }
 
-    getState() {
-        return this.state;
-    }
+getState() {
+    return {
+        state: this.state,
+        modes: this.getModes(),
+        operators: this.getOperators().map(client => ({
+            clientId: client.id,
+            serverId: client.serverId
+        }))
+    };
+}
 
     setState(state) {
         this.state = state;

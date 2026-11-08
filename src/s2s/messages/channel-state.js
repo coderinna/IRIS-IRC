@@ -1,4 +1,3 @@
-// src/s2s/messages/channel-state.js
 
 const {
     TYPES,
@@ -35,21 +34,9 @@ function encodeMember({
     nick,
     serverId
 }) {
-    if (!clientId) {
+    if (!clientId || !nick || !serverId) {
         throw new Error(
-            'IRIS CHANNEL_STATE member requires clientId'
-        );
-    }
-
-    if (!nick) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member requires nick'
-        );
-    }
-
-    if (!serverId) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member requires serverId'
+            'IRIS CHANNEL_STATE member requires clientId, nick and serverId'
         );
     }
 
@@ -70,8 +57,7 @@ function encodeMember({
 }
 
 function decodeMember(payload) {
-    const fields =
-        decodeFields(payload);
+    const fields = decodeFields(payload);
 
     const member = {
         clientId: null,
@@ -82,18 +68,15 @@ function decodeMember(payload) {
     for (const field of fields) {
         switch (field.type) {
             case MEMBER_FIELDS.CLIENT_ID:
-                member.clientId =
-                    field.value.toString('utf8');
+                member.clientId = field.value.toString('utf8');
                 break;
 
             case MEMBER_FIELDS.NICK:
-                member.nick =
-                    field.value.toString('utf8');
+                member.nick = field.value.toString('utf8');
                 break;
 
             case MEMBER_FIELDS.SERVER_ID:
-                member.serverId =
-                    field.value.toString('utf8');
+                member.serverId = field.value.toString('utf8');
                 break;
 
             default:
@@ -101,21 +84,9 @@ function decodeMember(payload) {
         }
     }
 
-    if (!member.clientId) {
+    if (!member.clientId || !member.nick || !member.serverId) {
         throw new Error(
-            'IRIS CHANNEL_STATE member missing client ID'
-        );
-    }
-
-    if (!member.nick) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member missing nick'
-        );
-    }
-
-    if (!member.serverId) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member missing server ID'
+            'IRIS CHANNEL_STATE member has missing fields'
         );
     }
 
@@ -149,7 +120,9 @@ function encodeChannelState({
         },
         {
             type: FIELDS.STATE,
-            value: state
+            value: typeof state === 'object' && state !== null
+                ? JSON.stringify(state)
+                : state
         }
     ];
 
@@ -168,14 +141,12 @@ function encodeChannelState({
     }
 
     for (const serverId of servers) {
-        if (!serverId) {
-            continue;
+        if (serverId) {
+            fields.push({
+                type: FIELDS.SERVER_ID,
+                value: serverId
+            });
         }
-
-        fields.push({
-            type: FIELDS.SERVER_ID,
-            value: serverId
-        });
     }
 
     for (const member of members) {
@@ -185,8 +156,38 @@ function encodeChannelState({
         });
     }
 
-    const payload =
-        encodeFields(fields);
+    console.log('[IRIS DEBUG] CHANNEL_STATE fields:');
+
+    for (const field of fields) {
+        console.log({
+            type: field.type,
+            valueType: typeof field.value,
+            isBuffer: Buffer.isBuffer(field.value),
+            value: field.value
+        });
+    }
+
+    console.log('[IRIS DEBUG] CHANNEL_STATE fields:');
+
+for (const field of fields) {
+    console.log({
+        type: field.type,
+        valueType: typeof field.value,
+        isBuffer: Buffer.isBuffer(field.value),
+        value: field.value
+    });
+}
+
+    const payload = encodeFields(fields);
+
+    console.log('[IRIS DEBUG] Before encodeFrame:', {
+        type: TYPES.CHANNEL_STATE,
+        sequence,
+        messageIdIsBuffer: Buffer.isBuffer(messageId),
+        messageIdLength: messageId?.length,
+        payloadIsBuffer: Buffer.isBuffer(payload),
+        payloadLength: payload.length
+    });
 
     return encodeFrame({
         type: TYPES.CHANNEL_STATE,
@@ -197,8 +198,7 @@ function encodeChannelState({
 }
 
 function decodeChannelState(payload) {
-    const fields =
-        decodeFields(payload);
+    const fields = decodeFields(payload);
 
     const channelState = {
         channel: null,
@@ -209,47 +209,38 @@ function decodeChannelState(payload) {
         members: []
     };
 
-
-console.log(
-    `[IRIS DEBUG] CHANNEL_STATE FIELDS ` +
-    fields.map(field =>
-        `${field.type}:${field.value.toString('utf8')}`
-    ).join(' | ')
-);
-
-
     for (const field of fields) {
         switch (field.type) {
             case FIELDS.CHANNEL:
-                channelState.channel =
-                    field.value.toString('utf8');
+                channelState.channel = field.value.toString('utf8');
                 break;
 
             case FIELDS.TOPIC:
-                channelState.topic =
-                    field.value.toString('utf8');
+                channelState.topic = field.value.toString('utf8');
                 break;
 
-            case FIELDS.STATE:
-                channelState.state =
-                    field.value.toString('utf8');
+            case FIELDS.STATE: {
+                const value = field.value.toString('utf8');
+
+                try {
+                    channelState.state = JSON.parse(value);
+                } catch {
+                    channelState.state = value;
+                }
+
                 break;
+            }
 
             case FIELDS.OWNER_SERVER_ID:
-                channelState.ownerServerId =
-                    field.value.toString('utf8');
+                channelState.ownerServerId = field.value.toString('utf8');
                 break;
 
             case FIELDS.SERVER_ID:
-                channelState.servers.push(
-                    field.value.toString('utf8')
-                );
+                channelState.servers.push(field.value.toString('utf8'));
                 break;
 
             case FIELDS.MEMBER:
-                channelState.members.push(
-                    decodeMember(field.value)
-                );
+                channelState.members.push(decodeMember(field.value));
                 break;
 
             default:
@@ -263,7 +254,7 @@ console.log(
         );
     }
 
-    if (!channelState.state) {
+    if (channelState.state === null) {
         throw new Error(
             'IRIS CHANNEL_STATE missing state'
         );
