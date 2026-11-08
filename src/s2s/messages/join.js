@@ -11,13 +11,15 @@ const {
 const FIELDS = {
     CLIENT_ID: 0x01,
     CHANNEL: 0x02,
-    SERVER_ID: 0x03
+    SERVER_ID: 0x03,
+    IS_OPERATOR: 0x04
 };
 
 function encodeJoin({
     clientId,
     channel,
-    serverId
+    serverId,
+    isOperator = false
 }, messageId, sequence = 0n) {
     if (!clientId) {
         throw new Error('IRISH JOIN requires clientId');
@@ -49,7 +51,11 @@ function encodeJoin({
         {
             type: FIELDS.SERVER_ID,
             value: serverId
-        }
+        },
+        {
+    type: FIELDS.IS_OPERATOR,
+    value: isOperator ? '1' : '0'
+}
     ]);
 
     return encodeFrame({
@@ -66,7 +72,8 @@ function decodeJoin(payload) {
     const join = {
         clientId: null,
         channel: null,
-        serverId: null
+        serverId: null,
+        isOperator: false
     };
 
     for (const field of fields) {
@@ -82,6 +89,11 @@ function decodeJoin(payload) {
             case FIELDS.SERVER_ID:
                 join.serverId = field.value.toString('utf8');
                 break;
+
+ case FIELDS.IS_OPERATOR:
+    join.isOperator =
+        field.value.toString('utf8') === '1';
+    break;
 
             default:
                 break;

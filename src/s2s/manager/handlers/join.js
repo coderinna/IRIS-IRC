@@ -70,16 +70,17 @@ console.log(
             const sequence =
                 connection.nextSendSequence();
 
-            const frame =
-                encodeJoin(
-                    {
-                        clientId: client.id,
-                        channel: channel.name,
-                        serverId: manager.serverId
-                    },
-                    messageId,
-                    sequence
-                );
+const frame =
+    encodeJoin(
+        {
+            clientId: client.id,
+            channel: channel.name,
+            serverId: manager.serverId,
+            isOperator: channel.isOperator(client),
+        },
+        messageId,
+        sequence
+    );
 
             connection.sendTrackedFrame(
                 frame,

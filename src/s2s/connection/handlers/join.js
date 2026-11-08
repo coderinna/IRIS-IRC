@@ -80,6 +80,10 @@ module.exports = function handleJoin(
             client
         );
 
+        if (join.isOperator) {
+    channel.addOperator(client);
+}
+
         console.log(
             `[IRIS] CHANNEL MEMBERS ` +
             `${join.channel}: ` +
@@ -163,7 +167,8 @@ const host =
                         {
                             clientId: join.clientId,
                             channel: join.channel,
-                            serverId: join.serverId
+                            serverId: join.serverId,
+            isOperator: join.isOperator
                         },
                         messageId,
                         sequence
