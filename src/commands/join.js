@@ -69,7 +69,11 @@ const networkNicknames =
         : [];
 
 const localNicknames =
-    channel.getNicknames();
+    channel.getMembers().map(member =>
+        channel.isOperator(member)
+            ? `@${member.nick}`
+            : member.nick
+    ).filter(Boolean);
 
 const nicknames = [
     ...new Set([
