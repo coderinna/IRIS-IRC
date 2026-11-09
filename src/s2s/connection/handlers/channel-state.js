@@ -57,17 +57,18 @@ module.exports = function handleChannelState(
         channel.ownerServerId =
             channelState.ownerServerId;
 
-        const state = channelState.state;
+const state = channelState.state;
 
-        if (
-            typeof state === 'object' &&
-            state !== null
-        ) {
-            channel.state = state.state;
-        } else {
-            channel.state = state;
-        }
-
+if (
+    typeof state === 'object' &&
+    state !== null
+) {
+    channel.setState(state);
+} else {
+    channel.setState({
+        state
+    });
+}
         channel.servers.clear();
         channel.clients.clear();
 
@@ -108,36 +109,30 @@ module.exports = function handleChannelState(
         }
 
         // Restore channel modes
+// Restore channel operators
+if (
+    typeof state === 'object' &&
+    state !== null
+) {
+    channel.operators.clear();
+
+    for (const operator of state.operators || []) {
+        const operatorClient =
+            networkManager.getClient(
+                operator.serverId,
+                operator.clientId
+            );
+
         if (
-            typeof state === 'object' &&
-            state !== null
+            operatorClient &&
+            channel.clients.has(operatorClient)
         ) {
-            channel.modes.clear();
-
-            for (const mode of state.modes || []) {
-                channel.addMode(mode);
-            }
-
-            // Restore channel operators
-            channel.operators.clear();
-
-            for (const operator of state.operators || []) {
-                const operatorClient =
-                    networkManager.getClient(
-                        operator.serverId,
-                        operator.clientId
-                    );
-
-                if (
-                    operatorClient &&
-                    channel.clients.has(operatorClient)
-                ) {
-                    channel.addOperator(
-                        operatorClient
-                    );
-                }
-            }
+            channel.addOperator(
+                operatorClient
+            );
         }
+    }
+}
 
         networkManager.updateChannelState(
             channelState.channel
