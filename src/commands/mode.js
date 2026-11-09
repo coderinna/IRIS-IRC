@@ -1,8 +1,9 @@
+
 // src/commands/mode.js
 
 const events = require('../events');
 
-function handleMode(client, params, server) {
+function handleMode(client, params, getChannel, serverName) {
     const target = params[0];
 
     if (!target) {
@@ -12,24 +13,26 @@ function handleMode(client, params, server) {
     // User MODE
     if (!target.startsWith('#')) {
         if (target.toLowerCase() !== client.nick.toLowerCase()) {
-            server.sendNumeric(client, 502, ':Cannot change mode for other users');
+            client.send(
+                `:${serverName} 502 ${client.nick} :Cannot change mode for other users`
+            );
             return;
         }
 
-        server.sendNumeric(
-            client,
-            221,
-            `+${client.modes ? [...client.modes].join('') : ''}`
+        client.send(
+            `:${serverName} 221 ${client.nick} +${client.modes ? [...client.modes].join('') : ''}`
         );
 
         return;
     }
 
     // Channel lookup
-    const channel = server.channels.get(target);
+    const channel = getChannel(target);
 
     if (!channel) {
-        server.sendNumeric(client, 403, `${target} :No such channel`);
+        client.send(
+            `:${serverName} 403 ${client.nick} ${target} :No such channel`
+        );
         return;
     }
 
@@ -37,18 +40,17 @@ function handleMode(client, params, server) {
 
     // Channel MODE query
     if (!modeString) {
-        server.sendNumeric(
-            client,
-            324,
-            `${channel.name} +${channel.getModes().join('')}`
+        client.send(
+            `:${serverName} 324 ${client.nick} ${channel.name} +${channel.getModes().join('')}`
         );
-
         return;
     }
 
     // Channel modes require operator privileges
     if (!channel.isOperator(client)) {
-        server.sendNumeric(client, 482, `${channel.name} :You're not channel operator`);
+        client.send(
+            `:${serverName} 482 ${client.nick} ${channel.name} :You're not channel operator`
+        );
         return;
     }
 
@@ -60,31 +62,59 @@ function handleMode(client, params, server) {
         return;
     }
 
-    // +i / -i: Invite-only channel mode
+    let modeParam = '';
+
+    // +i / -i: Invite-only
     if (mode === 'i') {
         if (adding) {
             channel.addMode('i');
         } else {
             channel.removeMode('i');
         }
-
-        server.broadcastToChannel(
-            channel,
-            `:${client.nick} MODE ${channel.name} ${modeString}`
-        );
-
-        events.emit('channel:mode', {
-            client,
-            channel,
-            mode: modeString,
-            targetNick: ''
-        });
-
-        return;
     }
 
-    // +o / -o: Channel operator privileges
-    if (mode === 'o') {
+    // +k / -k: Channel key
+    else if (mode === 'k') {
+        modeParam = params[2] || '';
+
+        if (adding) {
+            if (!modeParam) {
+                client.send(
+                    `:${serverName} 461 ${client.nick} MODE :Not enough parameters`
+                );
+                return;
+            }
+
+            channel.setKey(modeParam);
+            channel.addMode('k');
+        } else {
+            channel.setKey(null);
+            channel.removeMode('k');
+            modeParam = '';
+        }
+    }
+
+    // +l / -l: Channel user limit
+    else if (mode === 'l') {
+        if (adding) {
+            modeParam = params[2] || '';
+
+            if (!channel.setLimit(modeParam)) {
+                client.send(
+                    `:${serverName} 461 ${client.nick} MODE :Invalid or missing channel limit`
+                );
+                return;
+            }
+
+            channel.addMode('l');
+        } else {
+            channel.removeLimit();
+            channel.removeMode('l');
+        }
+    }
+
+    // +o / -o: Channel operator
+    else if (mode === 'o') {
         const targetNick = params[2];
 
         if (!targetNick) {
@@ -96,7 +126,9 @@ function handleMode(client, params, server) {
         );
 
         if (!targetClient) {
-            server.sendNumeric(client, 401, `${targetNick} :No such nick`);
+            client.send(
+                `:${serverName} 401 ${client.nick} ${targetNick} :No such nick`
+            );
             return;
         }
 
@@ -106,20 +138,32 @@ function handleMode(client, params, server) {
             channel.removeOperator(targetClient);
         }
 
-        server.broadcastToChannel(
-            channel,
-            `:${client.nick} MODE ${channel.name} ${modeString} ${targetClient.nick}`
+        modeParam = targetClient.nick;
+    }
+
+    // Unsupported channel mode
+    else {
+        client.send(
+            `:${serverName} 472 ${client.nick} ${mode} :is unknown mode char to me`
         );
-
-        events.emit('channel:mode', {
-            client,
-            channel,
-            mode: modeString,
-            targetNick: targetClient.nick
-        });
-
         return;
     }
+
+    // Broadcast MODE change
+    const modeMessage = modeParam
+        ? `:${client.nick} MODE ${channel.name} ${modeString} ${modeParam}`
+        : `:${client.nick} MODE ${channel.name} ${modeString}`;
+
+    channel.broadcast(modeMessage);
+
+    // Propagate mode change to the IRIS network
+    events.emit('channel:mode', {
+        client,
+        channel,
+        mode: modeString,
+        targetNick: mode === 'o' ? modeParam : '',
+        modeParam
+    });
 }
 
 module.exports = handleMode;

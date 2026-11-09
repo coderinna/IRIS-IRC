@@ -59,6 +59,18 @@ if (channel.hasMode('k') && suppliedKey !== channel.getKey()) {
     continue;
 }
 
+// +l: Channel user limit
+if (
+    channel.hasMode('l') &&
+    channel.hasLimit() &&
+    channel.clients.size >= channel.getLimit()
+) {
+    client.send(
+        `:${serverName} 471 ${client.nick} ${channel.name} :Cannot join channel (+l)`
+    );
+    continue;
+}
+
         channel.addClient(client);
 
         if (isNewChannel) {

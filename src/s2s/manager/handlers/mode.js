@@ -1,3 +1,4 @@
+
 // src/s2s/manager/handlers/mode.js
 
 const crypto = require('crypto');
@@ -11,7 +12,8 @@ module.exports = function handleMode(
     client,
     channel,
     mode,
-    targetNick
+    targetNick,
+    modeParam
 ) {
     if (
         !client ||
@@ -24,7 +26,7 @@ module.exports = function handleMode(
 
     console.log(
         `[IRIS] Broadcasting MODE: ` +
-        `${client.nick} → ${channel.name} ${mode}`
+        `${client.nick} → ${channel.name} ${mode} ${modeParam || ''}`
     );
 
     for (const connection of manager.connections) {
@@ -44,7 +46,8 @@ module.exports = function handleMode(
                     channel: channel.name,
                     mode,
                     targetNick: targetNick || '',
-                    serverId: manager.serverId
+                    serverId: manager.serverId,
+                    modeParam: modeParam || ''
                 },
                 messageId,
                 sequence
@@ -58,7 +61,7 @@ module.exports = function handleMode(
             console.log(
                 `[IRIS] → MODE ` +
                 `${channel.name} ${mode} ` +
-                `${targetNick || ''} ` +
+                `${targetNick || modeParam || ''} ` +
                 `via ${connection.remote.serverId}`
             );
 

@@ -1,3 +1,6 @@
+
+// src/s2s/messages/mode.js
+
 const {
     TYPES,
     encodeFrame
@@ -13,7 +16,8 @@ const FIELDS = {
     CHANNEL: 0x02,
     MODE: 0x03,
     TARGET_NICK: 0x04,
-    SERVER_ID: 0x05
+    SERVER_ID: 0x05,
+    MODE_PARAM: 0x06
 };
 
 function encodeMode({
@@ -21,7 +25,8 @@ function encodeMode({
     channel,
     mode,
     targetNick = '',
-    serverId
+    serverId,
+    modeParam = ''
 }, messageId, sequence = 0n) {
 
     if (!clientId || !channel || !mode || !serverId) {
@@ -37,7 +42,8 @@ function encodeMode({
         { type: FIELDS.CHANNEL, value: channel },
         { type: FIELDS.MODE, value: mode },
         { type: FIELDS.TARGET_NICK, value: targetNick },
-        { type: FIELDS.SERVER_ID, value: serverId }
+        { type: FIELDS.SERVER_ID, value: serverId },
+        { type: FIELDS.MODE_PARAM, value: modeParam }
     ];
 
     const payload = encodeFields(fields);
@@ -58,7 +64,8 @@ function decodeMode(payload) {
         channel: null,
         mode: null,
         targetNick: '',
-        serverId: null
+        serverId: null,
+        modeParam: ''
     };
 
     for (const field of fields) {
@@ -77,6 +84,9 @@ function decodeMode(payload) {
                 break;
             case FIELDS.SERVER_ID:
                 mode.serverId = field.value.toString('utf8');
+                break;
+            case FIELDS.MODE_PARAM:
+                mode.modeParam = field.value.toString('utf8');
                 break;
         }
     }
