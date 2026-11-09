@@ -103,18 +103,19 @@ events.on(
     }
 );
 
-    events.on(
-        'channel:mode',
-        ({ client, channel, mode, targetNick }) => {
-            handleMode(
-                connection,
-                client,
-                channel,
-                mode,
-                targetNick
-            );
-        }
-    );
+events.on(
+    'channel:mode',
+    ({ client, channel, mode, targetNick, modeParam }) => {
+        handleMode(
+            connection,
+            client,
+            channel,
+            mode,
+            targetNick,
+            modeParam
+        );
+    }
+);
 
     events.on(
     'channel:topic',
