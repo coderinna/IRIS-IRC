@@ -1,4 +1,3 @@
-// src/s2s/connection/handlers/mode.js
 
 const crypto = require('crypto');
 
@@ -22,7 +21,6 @@ module.exports = function handleMode(connection, frame) {
             mode.serverId,
             mode.clientId
         );
-        
 
         if (!client) {
             throw new Error(
@@ -31,8 +29,8 @@ module.exports = function handleMode(connection, frame) {
         }
 
         if (client.serverId !== mode.serverId) {
-    throw new Error('MODE client server identity mismatch');
-}
+            throw new Error('MODE client server identity mismatch');
+        }
 
         if (client.connection !== connection) {
             throw new Error(
@@ -49,14 +47,15 @@ module.exports = function handleMode(connection, frame) {
         }
 
         if (!channel.isOperator(client)) {
-    throw new Error(
-        `Client ${client.nick} is not a channel operator: ${mode.channel}`
-    );
-}
+            throw new Error(
+                `Client ${client.nick} is not a channel operator: ${mode.channel}`
+            );
+        }
 
         const adding = mode.mode.startsWith('+');
         const removing = mode.mode.startsWith('-');
         const modeLetter = mode.mode.slice(1);
+        const modeParam = mode.modeParam || '';
 
         if (!adding && !removing) {
             throw new Error(`Invalid MODE: ${mode.mode}`);
@@ -68,11 +67,37 @@ module.exports = function handleMode(connection, frame) {
             } else {
                 channel.removeMode('i');
             }
+
+        } else if (modeLetter === 'k') {
+            if (adding) {
+                if (!modeParam) {
+                    throw new Error('Missing channel key');
+                }
+
+                channel.setKey(modeParam);
+                channel.addMode('k');
+            } else {
+                channel.setKey(null);
+                channel.removeMode('k');
+            }
+
+        } else if (modeLetter === 'l') {
+            if (adding) {
+                if (!modeParam || !channel.setLimit(modeParam)) {
+                    throw new Error('Invalid channel limit');
+                }
+
+                channel.addMode('l');
+            } else {
+                channel.removeLimit();
+                channel.removeMode('l');
+            }
+
         } else if (modeLetter === 'o') {
             const targetClient = [...channel.clients].find(
                 member =>
                     member.nick.toLowerCase() ===
-                    mode.targetNick.toLowerCase()
+                    (mode.targetNick || '').toLowerCase()
             );
 
             if (!targetClient) {
@@ -86,6 +111,7 @@ module.exports = function handleMode(connection, frame) {
             } else {
                 channel.removeOperator(targetClient);
             }
+
         } else {
             throw new Error(`Unsupported MODE: ${mode.mode}`);
         }
@@ -96,9 +122,16 @@ module.exports = function handleMode(connection, frame) {
             .find(channel => channel.name === mode.channel);
 
         if (localChannel) {
-            const target = modeLetter === 'o'
-                ? ` ${mode.targetNick}`
-                : '';
+            let target = '';
+
+            if (modeLetter === 'o') {
+                target = ` ${mode.targetNick}`;
+            } else if (
+                adding &&
+                (modeLetter === 'k' || modeLetter === 'l')
+            ) {
+                target = ` ${modeParam}`;
+            }
 
             const message =
                 `:${client.nick}!${client.user || '*'}@${client.host || 'localhost'} MODE ${mode.channel} ${mode.mode}${target}`;
@@ -110,7 +143,7 @@ module.exports = function handleMode(connection, frame) {
 
         console.log(
             `[IRIS] ← MODE ${mode.channel} ${mode.mode} ` +
-            `${mode.targetNick || ''}`
+            `${mode.targetNick || modeParam || ''}`
         );
 
         // Forward MODE to other connected servers
