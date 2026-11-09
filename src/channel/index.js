@@ -161,12 +161,19 @@ getState() {
         modes: this.getModes(),
         key: this.key,
         limit: this.limit,
+
         operators: this.getOperators().map(client => ({
+            clientId: client.id,
+            serverId: client.serverId
+        })),
+
+        voiced: [...this.voiced].map(client => ({
             clientId: client.id,
             serverId: client.serverId
         }))
     };
 }
+
 
 setState(state) {
     if (!state) {
@@ -185,6 +192,30 @@ setState(state) {
         Number.isInteger(state.limit) && state.limit > 0
             ? state.limit
             : null;
+
+    // Restore operator privileges
+    this.operators = new Set(
+        (Array.isArray(state.operators) ? state.operators : [])
+            .map(entry =>
+                [...this.clients].find(client =>
+                    client.id === entry.clientId &&
+                    client.serverId === entry.serverId
+                )
+            )
+            .filter(Boolean)
+    );
+
+    // Restore voice privileges
+    this.voiced = new Set(
+        (Array.isArray(state.voiced) ? state.voiced : [])
+            .map(entry =>
+                [...this.clients].find(client =>
+                    client.id === entry.clientId &&
+                    client.serverId === entry.serverId
+                )
+            )
+            .filter(Boolean)
+    );
 }
 
     isActive() {

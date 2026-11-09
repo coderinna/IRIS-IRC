@@ -27,7 +27,6 @@ module.exports = function handleChannelState(
         const networkManager =
             connection.manager.networkManager;
 
-        // Tarkistetaan kaikki jäsenet ennen kanavatilan muuttamista.
         const resolvedMembers = channelState.members.map(member => {
             const remoteClient = networkManager.getClient(
                 member.serverId,
@@ -43,14 +42,18 @@ module.exports = function handleChannelState(
             return remoteClient;
         });
 
-        // Tarkistetaan operaattorit ennen kanavatilan muuttamista.
-        const resolvedOperators = [];
         const state = channelState.state;
+
+        const resolvedOperators = [];
+        const resolvedVoiced = [];
 
         if (
             typeof state === 'object' &&
             state !== null
         ) {
+            const memberSet = new Set(resolvedMembers);
+
+            // Validate operators
             if (
                 state.operators !== undefined &&
                 !Array.isArray(state.operators)
@@ -59,8 +62,6 @@ module.exports = function handleChannelState(
                     'CHANNEL_STATE operators must be an array'
                 );
             }
-
-            const memberSet = new Set(resolvedMembers);
 
             for (const operator of state.operators || []) {
                 if (
@@ -91,6 +92,47 @@ module.exports = function handleChannelState(
                 }
 
                 resolvedOperators.push(operatorClient);
+            }
+
+            // Validate voiced clients
+            if (
+                state.voiced !== undefined &&
+                !Array.isArray(state.voiced)
+            ) {
+                throw new Error(
+                    'CHANNEL_STATE voiced must be an array'
+                );
+            }
+
+            for (const voiced of state.voiced || []) {
+                if (
+                    !voiced ||
+                    typeof voiced.serverId !== 'string' ||
+                    !voiced.serverId ||
+                    typeof voiced.clientId !== 'string' ||
+                    !voiced.clientId
+                ) {
+                    throw new Error(
+                        'CHANNEL_STATE invalid voiced entry'
+                    );
+                }
+
+                const voicedClient =
+                    networkManager.getClient(
+                        voiced.serverId,
+                        voiced.clientId
+                    );
+
+                if (
+                    !voicedClient ||
+                    !memberSet.has(voicedClient)
+                ) {
+                    throw new Error(
+                        `CHANNEL_STATE voiced client is not a channel member: ${voiced.clientId}`
+                    );
+                }
+
+                resolvedVoiced.push(voicedClient);
             }
         }
 
@@ -137,12 +179,15 @@ module.exports = function handleChannelState(
 
         channel.servers.clear();
         channel.clients.clear();
+
         channel.operators = new Set();
+        channel.voiced = new Set();
 
         for (const serverId of channelState.servers) {
             channel.servers.add(serverId);
         }
 
+        // Restore channel members first
         for (const remoteClient of resolvedMembers) {
             networkManager.addClientToChannel(
                 channelState.channel,
@@ -150,8 +195,14 @@ module.exports = function handleChannelState(
             );
         }
 
+        // Restore operator privileges
         for (const operatorClient of resolvedOperators) {
             channel.operators.add(operatorClient);
+        }
+
+        // Restore voice privileges
+        for (const voicedClient of resolvedVoiced) {
+            channel.voiced.add(voicedClient);
         }
 
         networkManager.updateChannelState(
@@ -162,7 +213,9 @@ module.exports = function handleChannelState(
             `[IRIS] ← CHANNEL_STATE ` +
             `${channelState.channel} ` +
             `members=${channelState.members.length} ` +
-            `servers=${channelState.servers.length}`
+            `servers=${channelState.servers.length} ` +
+            `operators=${resolvedOperators.length} ` +
+            `voiced=${resolvedVoiced.length}`
         );
 
         return true;

@@ -243,12 +243,11 @@ syncChannels() {
     const channels =
         this.manager.getLocalChannels();
 
-
-console.log(
-    `[IRIS] → CHANNEL STATE SYNC ` +
-    `remote=${this.remote.serverId || 'unknown'} ` +
-    `channels=${channels.length}`
-);
+    console.log(
+        `[IRIS] → CHANNEL STATE SYNC ` +
+        `remote=${this.remote.serverId || 'unknown'} ` +
+        `channels=${channels.length}`
+    );
 
     for (const channel of channels) {
         const members =
@@ -261,6 +260,9 @@ console.log(
         const servers =
             [...channel.getServers()];
 
+        const channelState =
+            channel.getState();
+
         const messageId =
             crypto.randomBytes(16);
 
@@ -272,7 +274,17 @@ console.log(
                 {
                     channel: channel.name,
                     topic: channel.getTopic(),
-                    state: channel.getState(),
+                    state: {
+                        ...channelState,
+                        operators: [...channel.operators].map(client => ({
+                            clientId: client.id,
+                            serverId: client.serverId
+                        })),
+                        voiced: [...channel.voiced].map(client => ({
+                            clientId: client.id,
+                            serverId: client.serverId
+                        }))
+                    },
                     ownerServerId:
                         channel.getOwnerServerId(),
                     servers,
@@ -292,6 +304,8 @@ console.log(
             `${channel.name} ` +
             `members=${members.length} ` +
             `servers=${servers.length} ` +
+            `operators=${channel.operators.size} ` +
+            `voiced=${channel.voiced.size} ` +
             `remote=${this.remote.serverId || 'unknown'}`
         );
     }

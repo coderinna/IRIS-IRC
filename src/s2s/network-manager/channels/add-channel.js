@@ -10,24 +10,31 @@ module.exports = function addChannel(
         );
     }
 
-    if (
-        networkManager.channels.has(
-            channel.name
-        )
-    ) {
-        return networkManager.channels.get(
-            channel.name
-        );
+    if (networkManager.channels.has(channel.name)) {
+        return networkManager.channels.get(channel.name);
     }
 
     const remoteChannel = {
         name: channel.name,
         topic: channel.topic || null,
+
         clients: new Set(),
         servers: new Set(),
-        ownerServerId:
-            channel.ownerServerId || null,
-        state: 'active'
+
+        modes: new Set(
+            Array.isArray(channel.modes)
+                ? channel.modes
+                : []
+        ),
+
+        key: channel.key || null,
+        limit: channel.limit || null,
+
+        operators: new Set(),
+        voiced: new Set(),
+
+        ownerServerId: channel.ownerServerId || null,
+        state: channel.state || 'active'
     };
 
     networkManager.channels.set(

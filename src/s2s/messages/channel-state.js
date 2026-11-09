@@ -105,6 +105,82 @@ function decodeMember(payload) {
     return member;
 }
 
+function validatePrivilegeList(value, name) {
+    if (value === undefined) {
+        return;
+    }
+
+    if (!Array.isArray(value)) {
+        throw new Error(
+            `IRIS CHANNEL_STATE ${name} must be an array`
+        );
+    }
+
+    const seen = new Set();
+
+    for (const entry of value) {
+        if (
+            !entry ||
+            typeof entry.serverId !== 'string' ||
+            !entry.serverId ||
+            typeof entry.clientId !== 'string' ||
+            !entry.clientId
+        ) {
+            throw new Error(
+                `IRIS CHANNEL_STATE invalid ${name} entry`
+            );
+        }
+
+        const key = `${entry.serverId}:${entry.clientId}`;
+
+        if (seen.has(key)) {
+            throw new Error(
+                `IRIS CHANNEL_STATE duplicate ${name} entry: ${key}`
+            );
+        }
+
+        seen.add(key);
+    }
+}
+
+function validateState(state) {
+    if (typeof state !== 'object' || state === null) {
+        return;
+    }
+
+    validatePrivilegeList(state.operators, 'operators');
+    validatePrivilegeList(state.voiced, 'voiced');
+
+    if (
+        state.modes !== undefined &&
+        !Array.isArray(state.modes)
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE modes must be an array'
+        );
+    }
+
+    if (
+        state.limit !== undefined &&
+        state.limit !== null &&
+        (!Number.isInteger(state.limit) || state.limit < 1)
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE invalid channel limit'
+        );
+    }
+
+    if (
+        state.key !== undefined &&
+        state.key !== null &&
+        typeof state.key !== 'string'
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE invalid channel key'
+        );
+    }
+}
+
 function encodeChannelState({
     channel,
     topic = null,
@@ -124,6 +200,8 @@ function encodeChannelState({
             'IRIS CHANNEL_STATE messageId must be a 16-byte Buffer'
         );
     }
+
+    validateState(state);
 
     const fields = [
         {
@@ -265,7 +343,8 @@ function decodeChannelState(payload) {
         );
     }
 
-    // Palvelin-ID:t eivät saa olla tyhjiä tai duplikaatteja.
+    validateState(channelState.state);
+
     const serverSet = new Set();
 
     for (const serverId of channelState.servers) {
@@ -284,7 +363,6 @@ function decodeChannelState(payload) {
         serverSet.add(serverId);
     }
 
-    // Jokaisen jäsenen palvelimen pitää löytyä palvelinlistasta.
     for (const member of channelState.members) {
         if (!serverSet.has(member.serverId)) {
             throw new Error(
@@ -295,7 +373,6 @@ function decodeChannelState(payload) {
 
     return channelState;
 }
-
 
 module.exports = {
     FIELDS,
