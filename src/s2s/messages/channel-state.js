@@ -156,38 +156,7 @@ function encodeChannelState({
         });
     }
 
-    console.log('[IRIS DEBUG] CHANNEL_STATE fields:');
-
-    for (const field of fields) {
-        console.log({
-            type: field.type,
-            valueType: typeof field.value,
-            isBuffer: Buffer.isBuffer(field.value),
-            value: field.value
-        });
-    }
-
-    console.log('[IRIS DEBUG] CHANNEL_STATE fields:');
-
-for (const field of fields) {
-    console.log({
-        type: field.type,
-        valueType: typeof field.value,
-        isBuffer: Buffer.isBuffer(field.value),
-        value: field.value
-    });
-}
-
     const payload = encodeFields(fields);
-
-    console.log('[IRIS DEBUG] Before encodeFrame:', {
-        type: TYPES.CHANNEL_STATE,
-        sequence,
-        messageIdIsBuffer: Buffer.isBuffer(messageId),
-        messageIdLength: messageId?.length,
-        payloadIsBuffer: Buffer.isBuffer(payload),
-        payloadLength: payload.length
-    });
 
     return encodeFrame({
         type: TYPES.CHANNEL_STATE,
@@ -209,38 +178,59 @@ function decodeChannelState(payload) {
         members: []
     };
 
+    const seen = new Set();
+
     for (const field of fields) {
         switch (field.type) {
             case FIELDS.CHANNEL:
-                channelState.channel = field.value.toString('utf8');
-                break;
-
             case FIELDS.TOPIC:
-                channelState.topic = field.value.toString('utf8');
-                break;
+            case FIELDS.STATE:
+            case FIELDS.OWNER_SERVER_ID: {
+                if (seen.has(field.type)) {
+                    throw new Error(
+                        `IRIS CHANNEL_STATE duplicate field: 0x${field.type.toString(16)}`
+                    );
+                }
 
-            case FIELDS.STATE: {
+                seen.add(field.type);
+
                 const value = field.value.toString('utf8');
 
-                try {
-                    channelState.state = JSON.parse(value);
-                } catch {
-                    channelState.state = value;
+                switch (field.type) {
+                    case FIELDS.CHANNEL:
+                        channelState.channel = value;
+                        break;
+
+                    case FIELDS.TOPIC:
+                        channelState.topic = value;
+                        break;
+
+                    case FIELDS.STATE:
+                        try {
+                            channelState.state = JSON.parse(value);
+                        } catch {
+                            channelState.state = value;
+                        }
+                        break;
+
+                    case FIELDS.OWNER_SERVER_ID:
+                        channelState.ownerServerId = value;
+                        break;
                 }
 
                 break;
             }
 
-            case FIELDS.OWNER_SERVER_ID:
-                channelState.ownerServerId = field.value.toString('utf8');
-                break;
-
             case FIELDS.SERVER_ID:
-                channelState.servers.push(field.value.toString('utf8'));
+                channelState.servers.push(
+                    field.value.toString('utf8')
+                );
                 break;
 
             case FIELDS.MEMBER:
-                channelState.members.push(decodeMember(field.value));
+                channelState.members.push(
+                    decodeMember(field.value)
+                );
                 break;
 
             default:
