@@ -65,7 +65,19 @@ function decodeMember(payload) {
         serverId: null
     };
 
+    const seen = new Set();
+
     for (const field of fields) {
+        if (Object.values(MEMBER_FIELDS).includes(field.type)) {
+            if (seen.has(field.type)) {
+                throw new Error(
+                    `IRIS CHANNEL_STATE duplicate member field: 0x${field.type.toString(16)}`
+                );
+            }
+
+            seen.add(field.type);
+        }
+
         switch (field.type) {
             case MEMBER_FIELDS.CLIENT_ID:
                 member.clientId = field.value.toString('utf8');
