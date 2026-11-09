@@ -139,6 +139,8 @@ getState() {
     return {
         state: this.state,
         modes: this.getModes(),
+        key: this.key,
+        limit: this.limit,
         operators: this.getOperators().map(client => ({
             clientId: client.id,
             serverId: client.serverId
@@ -146,9 +148,24 @@ getState() {
     };
 }
 
-    setState(state) {
-        this.state = state;
+setState(state) {
+    if (!state) {
+        return;
     }
+
+    this.state = state.state || 'active';
+
+    this.modes = new Set(
+        Array.isArray(state.modes) ? state.modes : []
+    );
+
+    this.key = state.key || null;
+
+    this.limit =
+        Number.isInteger(state.limit) && state.limit > 0
+            ? state.limit
+            : null;
+}
 
     isActive() {
         return this.state === 'active';
