@@ -2,7 +2,7 @@
 
 const {
   ALLOWED_STATES
-} = require('../allowed-states.js.js');
+} = require('../allowed-states.js');
 
 const validateState = (
     connection,
