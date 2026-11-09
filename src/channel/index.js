@@ -9,6 +9,9 @@ class Channel {
         this.servers = new Set();
         this.modes = new Set();
 
+        this.key = null;
+this.limit = null;
+
         this.ownerServerId = ownerServerId;
         this.state = 'active';
 
@@ -200,6 +203,43 @@ removeMode(mode) {
 
 getModes() {
     return [...this.modes];
+}
+
+// Channel key (+k)
+setKey(key) {
+    this.key = key || null;
+}
+
+getKey() {
+    return this.key;
+}
+
+hasKey() {
+    return Boolean(this.key);
+}
+
+// Channel user limit (+l)
+setLimit(limit) {
+    const value = Number(limit);
+
+    if (!Number.isInteger(value) || value < 1) {
+        return false;
+    }
+
+    this.limit = value;
+    return true;
+}
+
+getLimit() {
+    return this.limit;
+}
+
+hasLimit() {
+    return this.limit !== null;
+}
+
+removeLimit() {
+    this.limit = null;
 }
 }
 

@@ -5,6 +5,7 @@ const events = require('../events');
 function handleJoin(
     client,
     names,
+    keys,
     getOrCreateChannel,
     getChannel,
     serverName,
@@ -18,7 +19,12 @@ function handleJoin(
         return;
     }
 
-    for (const channelName of names.split(',')) {
+    const channelNames = names.split(',');
+const channelKeys = typeof keys === 'string' ? keys.split(',') : [];
+
+   for (let i = 0; i < channelNames.length; i++) {
+    const channelName = channelNames[i];
+    const suppliedKey = channelKeys[i];
         if (!channelName.startsWith('#')) {
             client.send(
                 `:irc.iris.local 403 ${client.nick} ${channelName} :No such channel`
@@ -45,8 +51,12 @@ if (channel.hasMode('i')) {
 }
 
 // +k: Channel key
-if (channel.hasMode('k')) {
-    const suppliedKey = paramsKeyPlaceholder;
+// +k: Channel key
+if (channel.hasMode('k') && suppliedKey !== channel.getKey()) {
+    client.send(
+        `:${serverName} 475 ${client.nick} ${channel.name} :Cannot join channel (+k)`
+    );
+    continue;
 }
 
         channel.addClient(client);

@@ -82,7 +82,9 @@ case 'JOIN':
     handler(
         client,
         params[0] || trailing,
+        params[1],
         getOrCreateChannel,
+        getChannel,
         serverName,
         networkManager
     );
