@@ -36,6 +36,19 @@ const isNewChannel = !existingChannel;
             continue;
         }
 
+        // +i: Invite-only
+if (channel.hasMode('i')) {
+    client.send(
+        `:${serverName} 473 ${client.nick} ${channel.name} :Cannot join channel (+i)`
+    );
+    continue;
+}
+
+// +k: Channel key
+if (channel.hasMode('k')) {
+    const suppliedKey = paramsKeyPlaceholder;
+}
+
         channel.addClient(client);
 
         if (isNewChannel) {

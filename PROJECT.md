@@ -5,7 +5,7 @@
 
 Ensimmäisessä vaiheessa rakennettiin IRIS IRCd perusta.
 
-Toteutettu:
+**Toteutettu:**
 * IRC TCP-yhteydet
 * Client-yhteyksien hallinta
 * IRC-komentojen parserointi
@@ -21,7 +21,7 @@ Toteutettu:
 
 Seuraavaksi rakennettiin varsinaisen IRC-palvelimen toimintalogiikka.
 
-Toteutettu:
+**Toteutettu:**
 * Clientien hallinta
 * Kanavien hallinta
 * JOIN / PART
@@ -37,7 +37,7 @@ Toteutettu:
 
 Rakennettiin IRISin oma server-to-server-protokollan perusta.
 
-Toteutettu:
+**Toteutettu:**
 - IRIS Frame Protocol
 - Frame header
 - Message types
@@ -53,7 +53,7 @@ Toteutettu:
 
 Rakennettiin S2S-yhteyksien elinkaari ja palvelinten välinen kättely.
 
-Toteutettu:
+**Toteutettu:**
 - S2S TCP-yhteydet
 - Connection lifecycle
 - Connection states
@@ -70,7 +70,7 @@ Toteutettu:
 
 Tässä tehtiin se iso security/hardening-vaihe.
 
-Toteutettu:
+**Toteutettu:**
 - Authentication validation
 - Credential / identity binding
 - Constant-time token comparison
@@ -91,7 +91,7 @@ verkko- ja viestireitityksen rakentamista.
 
 S2S-yhteyksien päälle rakennettiin verkon tilanhallinta.
 
-Toteutettu:
+**Toteutettu:**
 * Serverien identiteetit
 * Remote server state
 * Client state
@@ -102,6 +102,7 @@ Toteutettu:
 
 Esimerkiksi:
 
+```text
 iris-03
    │
    ↓
@@ -109,6 +110,7 @@ iris-02
    │
    ↓
 iris-01
+```
 
 **Tulos:** IRIS ymmärtää, missä serverissä verkon clientit ja muut serverit sijaitsevat.
 
@@ -116,7 +118,7 @@ iris-01
 
 Seuraavaksi clientien tila alettiin välittää S2S-verkon yli.
 
-Toteutettu:
+**Toteutettu:**
 * CLIENT propagation
 * NICK propagation
 * JOIN propagation
@@ -131,7 +133,7 @@ Toteutettu:
 
 Viimeisessä valmistuneessa vaiheessa rakennettiin varsinainen IRC-viestien reititys verkon läpi.
 
-Toteutettu:
+**Toteutettu:**
 * Local → Local
 * Local → Remote
 * Remote → Local
@@ -147,7 +149,7 @@ Toteutettu:
 
 ## Cross-Server IRC Functionality
 
-**Tulos:** IRIS toimii käyttäjän näkökulmasta yhtenä multi-server IRC-verkkona.
+IRIS toimii käyttäjän näkökulmasta yhtenä multi-server IRC-verkkona.
 
 Jaettu ala-osioihin:
 
@@ -155,7 +157,7 @@ Jaettu ala-osioihin:
 
 IRC Core = yhden IRIS-palvelimen normaali IRC-toiminta.
 
-Toteutettu:
+**Toteutettu:**
 *  Client-yhteydet ja rekisteröinti
 *  NICK / USER / QUIT
 *  JOIN / PART
@@ -164,11 +166,16 @@ Toteutettu:
 *  Clientien ja kanavien hallinta
 *  Event Bus IRC-tapahtumille
 
+**Tulos:** 
+* IRIS-palvelimella on toimiva IRC-ydin, joka mahdollistaa käyttäjien yhdistämisen palvelimelle, rekisteröitymisen, kanavien luomisen ja niille liittymisen sekä reaaliaikaisen viestinnän.
+* IRC Core muodostaa perustan S2S-protokollalle ja hajautetulle IRIS-verkostolle.
+* Käyttäjät voivat käyttää IRISiä tavallisilla IRC-asiakasohjelmilla.
+
 ###  S2S TRANSPORT ✅
 
 S2S Transport = miten IRIS-palvelimet kommunikoivat keskenään.
 
-Toteutettu:
+**Toteutettu:**
 *  TCP-pohjaiset S2S-yhteydet
 * IRIS frame -protokolla
 * HELLO / AUTH / SERVER / READY -kättely
@@ -178,11 +185,14 @@ Toteutettu:
 * Framejen encode/decode
 * S2S-yhteyksien hallinta
 
+**Tulos:**
+IRIS-palvelimet pystyvät muodostamaan keskenään tunnistetun ja hallitun TCP-yhteyden sekä välittämään protokollaviestit luotettavasti IRISin oman frame-rakenteen avulla.
+
 ###  CLIENT PROPAGATION ✅
 
 Client Propagation = miten yhden palvelimen clientit tunnetaan koko IRIS-verkossa.
 
-Toteutettu:
+**Toteutettu:**
 * Clientin esittely muille palvelimille
 * Clientin NICK-muutokset
 * JOIN
@@ -191,12 +201,16 @@ Toteutettu:
 * Client-identiteetin ja serverin välisen suhteen ylläpito
 * Client-tilan välitys useamman palvelimen ketjussa
 
+**Tulos:**
+IRIS ylläpitää yhtenäistä client-tilaa koko palvelinverkossa.
+Käyttäjät ja heidän tilamuutoksensa välittyvät palvelimelta toiselle myös useamman palvelimen ketjuissa.
+
 ###  MESSAGE ROUTING ✅ 
 
 Message Routing = miten viesti löytää oikean clientin tai kanavan koko IRIS-verkon läpi.
 Message Routing päättää, minne IRC-viesti toimitetaan IRIS-verkossa.
 
-Toteutettu:
+**Toteutettu:**
 * Local client → local client
 * Remote client → local client
 * Local client → remote client
@@ -208,25 +222,35 @@ Toteutettu:
 * Remote clientien ja local clientien oikea erottelu
 * Channel-viestien toimitus usean S2S-palvelimen yli
 
-## Channel State Sync 🔄
+**Tulos:**
+* IRIS reitittää yksityisviestit ja kanavaviestit oikeille vastaanottajille koko hajautetussa palvelinverkossa.
+* Viestit kulkevat paikallisten ja etäpalvelimien välillä next-hop-reitityksellä, ja viestin palautuminen samaan yhteyteen estetään.
+* Näin käyttäjät voivat viestiä keskenään riippumatta siitä, mihin IRIS-palvelimeen he ovat yhteydessä.
+
+## Channel State Sync 
 
 Channel State Sync = miten IRC-kanavien tila pidetään yhdenmukaisena koko IRIS-verkon välillä.
 
-### CHANNEL STATE
+### CHANNEL STATE 🟡
 
 Channel State = kanavan perustila ja sen hallinta.
 
-Tavoitteena:
-- Channel name       ✅
-- Channel members    ✅ jäsenet välittyvät ja /NAMES näkee remote-jäsenen.
-Channel servers 🟡 — servers-rakenne ja CHANNEL_STATE-kuljetus toimivat,
- mutta emme ole vielä varmistaneet kaikkia tilanteita, joissa serverijoukkoa ylläpidetään jäsenmuutosten yhteydessä.
-Channel ownership 🟡 — ownerServerId kulkee CHANNEL_STATE:ssa, mutta ownerin muodostumista ja muuttumista ei ole erikseen testattu.
-Channel lifecycle 🟡 —active/empty/removed on toteutettu, mutta verkon yli tapahtuva create/remove/empty-cycle on vielä testaamatta.
-Synchronization ✅ initial CHANNEL_STATE sync toimii
-Reconnect sync ✅
-CLIENT state sync ✅
+**Toteutettu:**
+* Channel name ✅
+* Channel members ✅ – jäsenet välittyvät palvelimien välillä ja /NAMES näyttää remote-jäsenet.
+* Initial CHANNEL_STATE sync ✅ – kanavan alkutilan synkronointi toimii.
+* Reconnect sync ✅ – kanavan tila palautuu yhteyden muodostuessa uudelleen.
+* CLIENT state sync ✅ – clientien tilatiedot synkronoituvat.
 
+**Tavoitteena (vaatii vielä lisätestausta):**
+* Channel servers 🟡 – servers-rakenne ja CHANNEL_STATE-kuljetus toimivat, mutta palvelinjoukon päivittyminen jäsenmuutosten  yhteydessä vaatii testausta.
+* Channel ownership 🟡 – ownerServerId välittyy CHANNEL_STATE:ssa, mutta omistajan muodostumista ja muuttumista ei ole testattu erikseen.
+* Channel lifecycle 🟡 – active/empty/removed-tilat ja niiden hallinta on toteutettu, mutta verkon yli tapahtuva koko elinkaari vaatii testausta.
+
+**Tulos:**
+* IRIS ylläpitää kanavien perustilaa ja välittää kanavien jäsenyydet sekä muun tilatiedon palvelimien välillä.
+* Initial CHANNEL_STATE -synkronointi ja reconnect-synkronointi palauttavat kanavien ja clientien tilan palvelinyhteyden muodostuessa uudelleen.
+* Kanavien palvelinrakenteen, omistajuuden ja elinkaaren toiminta on toteutettu, mutta niiden kaikkia verkon yli tapahtuvia muutostilanteita ei ole vielä testattu kattavasti.
 
 ### CHANNEL MEMBERSHIP
 
@@ -241,71 +265,80 @@ Tavoitteena:
 - Tyhjän channelin cleanup 🟡 remove-client.js / channelin cleanup-rakenne on olemassa, 
 mutta tilannetta, jossa viimeinen remote-käyttäjä poistuu ja kanava tyhjenee verkon yli, ei ole vielä testattu.
 
-Channel synchronization on jo valmis tältä osin.
-
-### CHANNEL LIFECYCLE
+### CHANNEL LIFECYCLE 🟡
 
 Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
 
-Tavoitteena:
-- Channel create🟡 —paikallinen kanavan luonti toimii ja remote-kanava voidaan luoda NetworkManageriin CHANNEL_STATE:n vastaanotossa. 
-Mutta erillistä testiä, jossa kanava syntyy ensimmäistä kertaa verkon yli, ei ole tehty. → 🟡
-- Channel discovery🟡 — tämä on käytännössä jo todistettu CHANNEL_STATE recoveryllä: 
-iris-02 sai #test:in takaisin NetworkManageriin reconnectin yhteydessä. Tämän voisi siis merkitä ✅.
-- Channel synchronization ✅ — initial CHANNEL_STATE toimii ja reconnect sync toimii. → ✅
-- Channel remove🟡 — removeChannel() on olemassa, mutta verkon yli tapahtuvaa kanavan poistamista ei ole testattu. → 🟡
-- Empty channel cleanup🟡 — paikallinen cleanup-rakenne on olemassa, mutta viimeisen remote-jäsenen
- poistumista ja sen jälkeistä kanavan poistumista verkon yli ei ole testattu. → 🟡
+**Toteutettu ja toimivaksi varmistettu:**
+- Channel create – paikallinen kanavan luonti toimii ja remote-kanavan luonti CHANNEL_STATE-vastaanotossa on toteutettu. ✅
+- Channel discovery – reconnect recovery palautti #test-kanavan iris-02-palvelimen NetworkManageriin. ✅
+- Channel synchronization – initial CHANNEL_STATE -synkronointi ja reconnect sync toimivat. ✅
 
-### CHANNEL MODES
+**Toteutettu, mutta vaatii vielä testausta:**
+- Channel remove 🟡 – removeChannel() on toteutettu, mutta verkon yli tapahtuvaa kanavan poistamista ei ole testattu.
+- Empty channel cleanup 🟡 – paikallinen cleanup-rakenne on olemassa, mutta viimeisen remote-jäsenen poistumista ja sitä seuraavaa kanavan poistumista ei ole testattu.
 
-MODE kertoo, millaiset asetukset kanavalla on.
-+m       moderated
-+n       ulkopuoliset eivät voi lähettää kanavalle
-+t       topicin vaihtaminen rajoitettu
-+i       invite-only
-+k       kanavalla on salasana
-+l       käyttäjämäärälle limit
+**Tekemättä / varmistamatta:**
+- Kanavan ensimmäisen luonnin päästä päähän -testi kahden palvelimen välillä.
+- Kanavan poistumisen testaus koko verkossa.
+- Viimeisen jäsenen poistumisen jälkeisen tyhjennys- ja poistumisprosessin testaus usean palvelimen verkossa.
 
-Tavoitteena:
-- MODE propagation 🔴
-- Channel mode state 🔴
-- Mode changes 🔴
-- Remote mode synchronization 🔴
+**Tulos:**
+* IRIS osaa luoda ja synkronoida kanavia palvelimien välillä sekä palauttaa kanavat reconnect-tilanteissa.
+* Kanavien löytämisen ja synkronoinnin perustoiminta on varmistettu.
+* Vielä testaamatta ovat erityisesti kanavan poistuminen ja tyhjentyneen kanavan siivoaminen koko verkosta.
 
-2. Kanavamoodien laajentaminen
+### CHANNEL MODES 🟡
 
-Seuraavat olisivat järkeviä:
-- +t – vain operaattorit voivat vaihtaa topicia.
-- +m – moderoitu kanava.
-- +n – ulkopuoliset eivät voi lähettää kanavalle.
-- +k – kanavan salasana.
-- +l – käyttäjämäärän rajoitus.
-3. MODE-tilan synkronointi
+**Toteutettu:**
+- MODE S2S -viestirakenne toteutettu ✅
+- MODE encode/decode TLV-muodossa ✅
+- MODE-viestityyppi rekisteröity protokollaan ✅
+- MODE-vastaanottokäsittelijä toteutettu ✅
+- MODE-tapahtuman lähetys S2S-managerista toteutettu ✅
+- MODE-propagointi muille palvelimille toteutettu kooditasolla ✅
+- Message ID:n säilyttäminen edelleen välitettäessä ✅
+- Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset ✅
+- Operaattorioikeuden tarkistus vastaanotossa ✅
+- +i- ja +o-muutosten käsittely MODE-vastaanotossa ✅
+- Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista ✅
 
-Varmistetaan, että kaikki palvelimet saavat samat kanavamoodit myös reconnectin ja channel state -synkronoinnin yhteydessä.
+**Tekemättä:**
+- +m-moodin toiminnallisuus 🟡
+- +n-moodin toiminnallisuus 🟡
+- +t-moodin täydellinen testaus 🟡
+- +k-kanavasalasana 🟡
+- +l-käyttäjärajoitus 🟡
+- Kaikkien moodien CHANNEL_STATE-synkronointi 🟡
+- MODE-muutosten reconnect-synkronointi 🟡
+- Kahden ja useamman palvelimen MODE-testit 🟡
+- MODE-oikeuksien reunatapaukset 🟡
+- Virheellisten moodikirjainten ja parametrien käsittely 🟡
 
-4. MODE-oikeuksien reunatapaukset
-
-Esimerkiksi:
+MODE-oikeuksien reunatapaukset
 - Operaattori poistaa omat oikeutensa.
-- Operaattori yrittää antaa oikeudet käyttäjälle, joka ei ole kanavalla.
+- Operaattori yrittää antaa oikeudet kanavan ulkopuoliselle.
 - Tavallinen käyttäjä yrittää muuttaa moodia.
 - Tuntematon moodikirjain.
+- Virheelliset MODE-parametrit.
+- Remote-operaattorin oikeuksien tarkistus.
 
-### CHANNEL TOPIC 🔴
+### CHANNEL TOPIC VALMIS ✅ 
 
-TOPIC on kanavan näkyvä aihe/kuvaus.
+- Remote topic synchronization 🟡 testaamatta kahden palvelimen välisen topic-muutoksen ja reconnectin jälkeisen synkronoinnin käytännössä.
 
-Tavoitteena:
-- Topic state  🔴
-- TOPIC propagation 🔴
-- Topic changes 🔴
-- Remote topic synchronization 🔴
+**Toteutettu:**
+- TOPIC-viestin oma S2S-tyyppi (0x19).
+- TOPIC-viestin encode/decode TLV-rakenteella.
+- TOPICin lähetys palvelimelta toiselle.
+- Vastaanottavan palvelimen topic-tilan päivitys.
+- TOPICin edelleen välitys muihin palvelimiin.
+- Paikallisten käyttäjien ilmoittaminen muutoksesta.
+- +t-oikeuksien tarkistus.
+- Tyhjän topicin käsittely eli topicin poistaminen.
+- ACK-seuranta.
 
-Rakenne on jo olemassa:
-topic
-ja CHANNEL_STATE pystyy jo kuljettamaan topicin, mutta TOPIC propagation/synkronointi ei ole vielä valmis.
+**Tulos:**  TOPIC on kanavan näkyvä aihe/kuvaus. Topic state, propagation ja changes.
 
 ### CHANNEL ROUTING STATE
 
@@ -342,161 +375,3 @@ S2S MESSAGE         ✅
 - testaus
 - mahdolliset IRC-yhteensopivuusjutut
 - viimeiset käyttökokemuksen ongelmat
-
-IRIS voi hallita yhteyden katkeamisen ilmoitusta, mutta IRIS-palvelin ei voi itse tehdä 1/5 → 5/5 reconnect-yrityksiä sen jälkeen kun nodemon on tappanut Node-prosessin. Prosessi on silloin kokonaan pois.
-┌──────────────────────────┐
-│       IRIS IRCd          │
-├──────────────────────────┤
-│ Client connects          │
-│        ↓                 │
-│ socket close/error       │
-│        ↓                 │
-│ Connection lost          │
-│        ↓                 │
-│ reconnect state          │
-│        ↓                 │
-│ 1/5 → 2/5 → ... → 5/5   │
-│        ↓                 │
-│ reconnect limit          │
-└──────────────────────────┘
-
-## Oman IRIS-serverin pystystys
-
-                 IRIS Network
-                     🌸
-                      │
-        ┌─────────────┼─────────────┐
-        │             │             │
-     iris-01       iris-02       iris-03
-        │             │             │
-      users         users         users
-                                     
-                      ↑
-                uusi IRIS server
-                   iris-04
-                      │
-                  uusi käyttäjä
-
-Hänen pitäisi käytännössä pystyä:
-npm install iris-ircd
-
-konfiguroida esimerkiksi:
-serverId: iris-04
-serverName: my.iris.server
-parent: iris-03
-
-ja käynnistää:
-npm start
-
-Sen jälkeen:
-iris-04
-   │
-   │ S2S
-   ↓
-iris-03
-   │
-   ├── iris-02
-   │
-   └── iris-01
-
-Ja iris-04:n käyttäjät näkyvät koko IRIS-verkossa, aivan kuten nykyiset clientit.
-Tämä vaatii vielä käytännössä
-Channel Syncin lisäksi erityisesti:
-- Server onboarding / join procedure
-- S2S authentication credentials
-- Server configuration
-- Server identity
-- Network discovery / topology
-- Reitityksen automaattinen toiminta
-- Konfliktien käsittely
-- Dokumentoidut asennusohjeet
-- Package/install workflow
-
-**Nykyinen arkkitehtuuri on jo rakennettu tätä ajatusta varten**. serverId, serverName, topology, parent/next-hop, remote state ja S2S lifecycle eivät ole vain kolmen kiinteän serverin varten.
-
-
-Future: Anyone can run an IRIS server and join the IRIS Network. 🌸
-
-
-Kyllä — jos päätätte, että IRIS Network on teidän ylläpitämä verkko, silloin malli voisi olla juuri tämä:
-                    🌸 IRIS NETWORK
-                    ───────────────
-                         │
-          ┌──────────────┼──────────────┐
-          │              │              │
-       iris-01        iris-02        iris-03
-       official       official       official
-          │              │              │
-          └──────────────┼──────────────┘
-                         │
-                  external servers
-                         │
-                      iris-04
-                    community
-                      server
-
-Meidän ylläpitämä
-- IRIS Networkin viralliset serverit
-- network topologyä
-- serverien välistä luottamusta
-- S2S authenticationia
-- network policyä
-- protokollaversiota
-- verkon palvelimia ja infrastruktuuria
-- dokumentaatiota
-
-Muut voivat liittyä
-Myöhemmin voisi olla mahdollista, että joku asentaa oman IRIS-palvelimen:
-
-my-irc.example
-       │
-       │ S2S
-       ↓
-  IRIS Network
-
-ja liittyy verkkoon sovittujen ehtojen mukaisesti.
-Tämä tekee eron IRIS IRCd:n ja IRIS Networkin välillä:
-IRIS IRCd = ohjelmisto, jolla serveriä ajetaan.
-IRIS Network = verkko, jota serverit muodostavat ja jota te ylläpidätte.
-
-Lopullinen konsepti:
-IRIS IRCd → avoin serveriohjelmisto
-IRIS Protocol → serverien yhteinen protokolla
-IRIS Network → varsinainen verkko 🌸
-Silloin joku voi teoriassa ajaa omaa IRIS-serveriään itsenäisesti, mutta IRIS Networkiin liittyminen on erikseen hallittu asia.
-
-## Future: IRISin security layer
-
-- Miten serverit todentavat toisensa
-- miten avainten vaihto tehdään
-- miten replay-hyökkäykset estetään
-- miten viestien eheys varmistetaan 
-- ja miten compromised server käyttäytyy.
-
-Kuvittele, mihin IRIS voisi kasvaa
-
-IRIS Network Intelligence
-
-Verkko tunnistaa NetSplitit, analysoi palautumisen, havaitsee ristiriitaiset tilat ja tuottaa automaattisia diagnooseja.
-
-IRIS Admin Platform
-
-Kaikki palvelimet, käyttäjät, kanavat, yhteydet, tapahtumat ja diagnostiikka yhdessä hallintapaneelissa.
-
-IRIS Lab
-
-Testiverkko, joka luo NetSplit-tilanteita, katkaisee yhteyksiä, simuloi virheitä ja toistaa bugit automaattisesti.
-
-IRIS Protocol Extensions
-
-Omia IRC-komentoja, diagnostiikkarajapintoja, tapahtumia ja mahdollisesti tulevaisuudessa ulkopuolisten kehittäjien laajennuksia.
-
-Ja kaikkein tärkein juttu?
-Näitä ei tarvitse tehdä erillisiksi projekteiksi, jotka eivät keskustele keskenään.
-
-Voit rakentaa yhteisen ytimen:
-- IRIS Core tuottaa luotettavat tapahtumat.
-- Diagnostics analysoi niitä.
-- IRIS Lab testaa palvelimen käyttäytymistä.
-- Admin Panel näyttää verkon tilanteen.
-- IRC-komennot antavat käyttäjille ja ylläpitäjille tietoa suoraan clientissä.
