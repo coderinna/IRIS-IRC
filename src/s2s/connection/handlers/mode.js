@@ -93,7 +93,7 @@ module.exports = function handleMode(connection, frame) {
                 channel.removeMode('l');
             }
 
-        } else if (modeLetter === 'o') {
+        } else if (modeLetter === 'o' || modeLetter === 'v') {
             const targetClient = [...channel.clients].find(
                 member =>
                     member.nick.toLowerCase() ===
@@ -106,10 +106,18 @@ module.exports = function handleMode(connection, frame) {
                 );
             }
 
-            if (adding) {
-                channel.addOperator(targetClient);
+            if (modeLetter === 'o') {
+                if (adding) {
+                    channel.addOperator(targetClient);
+                } else {
+                    channel.removeOperator(targetClient);
+                }
             } else {
-                channel.removeOperator(targetClient);
+                if (adding) {
+                    channel.addVoice(targetClient);
+                } else {
+                    channel.removeVoice(targetClient);
+                }
             }
 
         } else {
@@ -124,7 +132,7 @@ module.exports = function handleMode(connection, frame) {
         if (localChannel) {
             let target = '';
 
-            if (modeLetter === 'o') {
+            if (modeLetter === 'o' || modeLetter === 'v') {
                 target = ` ${mode.targetNick}`;
             } else if (
                 adding &&

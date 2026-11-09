@@ -26,7 +26,6 @@ function handleMode(client, params, getChannel, serverName) {
         return;
     }
 
-    // Channel lookup
     const channel = getChannel(target);
 
     if (!channel) {
@@ -38,7 +37,6 @@ function handleMode(client, params, getChannel, serverName) {
 
     const modeString = params[1];
 
-    // Channel MODE query
     if (!modeString) {
         client.send(
             `:${serverName} 324 ${client.nick} ${channel.name} +${channel.getModes().join('')}`
@@ -46,7 +44,6 @@ function handleMode(client, params, getChannel, serverName) {
         return;
     }
 
-    // Channel modes require operator privileges
     if (!channel.isOperator(client)) {
         client.send(
             `:${serverName} 482 ${client.nick} ${channel.name} :You're not channel operator`
@@ -63,8 +60,9 @@ function handleMode(client, params, getChannel, serverName) {
     }
 
     let modeParam = '';
+    let targetClient = null;
 
-    // +i / -i: Invite-only
+    // +i / -i
     if (mode === 'i') {
         if (adding) {
             channel.addMode('i');
@@ -73,7 +71,7 @@ function handleMode(client, params, getChannel, serverName) {
         }
     }
 
-    // +k / -k: Channel key
+    // +k / -k
     else if (mode === 'k') {
         modeParam = params[2] || '';
 
@@ -94,7 +92,7 @@ function handleMode(client, params, getChannel, serverName) {
         }
     }
 
-    // +l / -l: Channel user limit
+    // +l / -l
     else if (mode === 'l') {
         if (adding) {
             modeParam = params[2] || '';
@@ -113,16 +111,20 @@ function handleMode(client, params, getChannel, serverName) {
         }
     }
 
-    // +o / -o: Channel operator
-    else if (mode === 'o') {
+    // +o / -o
+    else if (mode === 'o' || mode === 'v') {
         const targetNick = params[2];
 
         if (!targetNick) {
+            client.send(
+                `:${serverName} 461 ${client.nick} MODE :Not enough parameters`
+            );
             return;
         }
 
-        const targetClient = [...channel.clients].find(
-            member => member.nick.toLowerCase() === targetNick.toLowerCase()
+        targetClient = [...channel.clients].find(
+            member =>
+                member.nick.toLowerCase() === targetNick.toLowerCase()
         );
 
         if (!targetClient) {
@@ -132,10 +134,18 @@ function handleMode(client, params, getChannel, serverName) {
             return;
         }
 
-        if (adding) {
-            channel.addOperator(targetClient);
+        if (mode === 'o') {
+            if (adding) {
+                channel.addOperator(targetClient);
+            } else {
+                channel.removeOperator(targetClient);
+            }
         } else {
-            channel.removeOperator(targetClient);
+            if (adding) {
+                channel.addVoice(targetClient);
+            } else {
+                channel.removeVoice(targetClient);
+            }
         }
 
         modeParam = targetClient.nick;
@@ -149,19 +159,17 @@ function handleMode(client, params, getChannel, serverName) {
         return;
     }
 
-    // Broadcast MODE change
     const modeMessage = modeParam
         ? `:${client.nick} MODE ${channel.name} ${modeString} ${modeParam}`
         : `:${client.nick} MODE ${channel.name} ${modeString}`;
 
     channel.broadcast(modeMessage);
 
-    // Propagate mode change to the IRIS network
     events.emit('channel:mode', {
         client,
         channel,
         mode: modeString,
-        targetNick: mode === 'o' ? modeParam : '',
+        targetNick: ['o', 'v'].includes(mode) ? modeParam : '',
         modeParam
     });
 }
