@@ -25,13 +25,25 @@ module.exports = function handleChannelState(
             );
         }
 
-        const networkManager =
-            connection.manager.networkManager;
+const networkManager = connection.manager.networkManager;
 
-        let channel =
-            networkManager.getChannel(
-                channelState.channel
-            );
+// Tarkistetaan kaikki jäsenet ennen kanavatilan muuttamista.
+const resolvedMembers = channelState.members.map(member => {
+    const remoteClient = networkManager.getClient(
+        member.serverId,
+        member.clientId
+    );
+
+    if (!remoteClient) {
+        throw new Error(
+            `CHANNEL_STATE unknown client ${member.clientId} server=${member.serverId}`
+        );
+    }
+
+    return remoteClient;
+});
+
+let channel = networkManager.getChannel(channelState.channel);
 
         if (!channel) {
             channel =
@@ -93,32 +105,12 @@ module.exports = function handleChannelState(
             channel.servers.add(serverId);
         }
 
-        for (
-            const member
-            of channelState.members
-        ) {
-            const remoteClient =
-                networkManager.getClient(
-                    member.serverId,
-                    member.clientId
-                );
-
-            if (!remoteClient) {
-                console.warn(
-                    `[IRIS] CHANNEL_STATE ` +
-                    `unknown client ` +
-                    `${member.clientId} ` +
-                    `server=${member.serverId}`
-                );
-
-                continue;
-            }
-
-            networkManager.addClientToChannel(
-                channelState.channel,
-                remoteClient
-            );
-        }
+for (const remoteClient of resolvedMembers) {
+    networkManager.addClientToChannel(
+        channelState.channel,
+        remoteClient
+    );
+}
 
         for (
             const operator
