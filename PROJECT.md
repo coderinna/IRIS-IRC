@@ -300,20 +300,25 @@ Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
 - Message ID:n säilyttäminen edelleen välitettäessä ✅
 - Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset ✅
 - Operaattorioikeuden tarkistus vastaanotossa ✅
-- +i- ja +o-muutosten käsittely MODE-vastaanotossa ✅
+- +i-muutosten käsittely MODE-vastaanotossa ✅
+- +o-muutosten käsittely MODE-vastaanotossa ✅
 - Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista ✅
 
 **Tekemättä:**
-- +m-moodin toiminnallisuus 🟡
-- +n-moodin toiminnallisuus 🟡
+- +v voice-oikeuden käsittelyä S2S MODE -vastaanotossa on valmisteltu. 🟡
+- +m-moodin toiminnallisuus 🟡 	Tekemättä / varmistamatta
+- +n-moodin toiminnallisuus 🟡 v	Perusjäsenyystarkistus jo olemassa, täydellinen testaus kesken
 - +t-moodin täydellinen testaus 🟡
-- +k-kanavasalasana 🟡
-- +l-käyttäjärajoitus 🟡
+- +k-kanavasalasana 🟡 	Toteutus olemassa, testaus kesken
+- +l-käyttäjärajoitus 🟡 	Toteutus olemassa, testaus kesken
 - Kaikkien moodien CHANNEL_STATE-synkronointi 🟡
 - MODE-muutosten reconnect-synkronointi 🟡
 - Kahden ja useamman palvelimen MODE-testit 🟡
 - MODE-oikeuksien reunatapaukset 🟡
 - Virheellisten moodikirjainten ja parametrien käsittely 🟡
+CHANNEL_STATE-moodien synkronointi	Osittain toteutettu
+MODE reconnect-synkronointi	Osittain työn alla
+2+ palvelimen MODE-testit	Tekemättä / vahvistamatta
 
 MODE-oikeuksien reunatapaukset
 - Operaattori poistaa omat oikeutensa.
