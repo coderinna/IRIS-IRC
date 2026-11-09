@@ -466,7 +466,8 @@ handleFrame(frame) {
     TYPES.QUIT,
     TYPES.MESSAGE,
     TYPES.MODE,
-    TYPES.TOPIC
+    TYPES.TOPIC,
+    TYPES.CHANNEL_STATE
         ].includes(frame.type)
     ) {
         this.sendAck(
