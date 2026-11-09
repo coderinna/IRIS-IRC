@@ -1,5 +1,3 @@
-// src/s2s/routing/handlers/channel.js
-
 const {
     sendMessage
 } = require('../../../messages/message');
@@ -14,8 +12,20 @@ module.exports = function handleChannel(
         return false;
     }
 
-    const routeConnections =
-        new Set();
+    // +n: only channel members may send messages
+    if (
+        target.channel.hasMode('n') &&
+        !target.channel.hasClient(sourceClient)
+    ) {
+        console.log(
+            `[IRIS] BLOCKED external message to ` +
+            `${target.channel.name} (+n)`
+        );
+
+        return false;
+    }
+
+    const routeConnections = new Set();
 
     console.log(
         '[ROUTE DEBUG] CHANNEL CLIENTS:',
@@ -27,17 +37,11 @@ module.exports = function handleChannel(
         }))
     );
 
-    for (
-        const client
-        of target.clients
-    ) {
+    for (const client of target.clients) {
         if (!client) {
             continue;
         }
 
-        /*
-         * Local client.
-         */
         if (
             client.serverId ===
             connection.manager.serverId
@@ -50,88 +54,47 @@ module.exports = function handleChannel(
                     : null;
 
             if (!localClient) {
-                console.error(
-                    `[IRIS] Local client not found: ` +
-                    `${client.clientId}`
+                console.log(
+                    '[ROUTE DEBUG] LOCAL CLIENT NOT FOUND:',
+                    client.nick
                 );
 
                 continue;
             }
 
-            if (
-                localClient ===
-                sourceClient
-            ) {
+            if (localClient === sourceClient) {
                 continue;
             }
 
             localClient.send(
-                `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} ` +
-                `PRIVMSG ${target.channel.name} :${message.message}`
-            );
-
-            console.log(
-                `[IRIS] ← MESSAGE ` +
-                `${sourceClient.nick} → ` +
-                `${target.channel.name} (local)`
+                `:${sourceClient.nick}!${sourceClient.user}@${sourceClient.host} PRIVMSG ${target.channel.name} :${message.message}`
             );
 
             continue;
         }
 
-        /*
-         * Do not send the message back
-         * to the server where it came from.
-         */
-        const route =
-            connection.manager.getRoute(
-                client.serverId
-            );
-
-        if (!route) {
-            continue;
-        }
-
-        if (route === connection) {
-            continue;
-        }
+        const route = connection.manager.getRoute(
+            client.serverId
+        );
 
         if (
-            route.state !==
-            'connected'
+            !route ||
+            route === connection ||
+            route.state !== 'connected'
         ) {
             continue;
         }
 
-        routeConnections.add(
-            route
-        );
+        routeConnections.add(route);
     }
 
-    /*
-     * Send only once per next-hop connection.
-     */
-    for (
-        const route
-        of routeConnections
-    ) {
+    for (const route of routeConnections) {
         sendMessage(
             route,
             message,
             message.messageId
         );
-
-        console.log(
-            `[IRIS] → MESSAGE ` +
-            `${message.clientId} → ` +
-            `${target.channel.name} ` +
-            `via ${route.remote?.serverId}`
-        );
     }
 
-    /*
-     * The channel itself was a valid target.
-     * No remote recipient is not a routing error.
-     */
     return true;
 };
