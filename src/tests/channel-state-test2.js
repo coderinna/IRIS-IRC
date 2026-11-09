@@ -1,18 +1,26 @@
+
 const crypto = require('crypto');
+const assert = require('assert');
 
 const {
     encodeChannelState,
     decodeChannelState
 } = require('../s2s/messages/channel-state');
 
-console.log('[IRIS TEST] Test started');
+const {
+    HEADER_SIZE
+} = require('../s2s/protocol/frame/frame');
+
+console.log('[IRIS TEST] CHANNEL_STATE test started');
 
 const data = {
     channel: '#test',
     topic: 'IRIS test',
     state: {
         state: 'active',
-        modes: ['i'],
+        modes: ['i', 'k', 'l'],
+        key: 'secret123',
+        limit: 25,
         operators: [
             {
                 clientId: 'client-123',
@@ -31,15 +39,27 @@ const data = {
     ]
 };
 
-const frame = encodeChannelState(data, crypto.randomBytes(16));
-const payload = frame.subarray(32);
-const decoded = decodeChannelState(payload);
+try {
+    const frame = encodeChannelState(
+        data,
+        crypto.randomBytes(16)
+    );
 
-console.log('\n[IRIS TEST] DECODED STATE:');
-console.dir(decoded, { depth: null });
+    console.log('[IRIS TEST] ENCODE OK:', frame.length);
 
-console.log('\n[IRIS TEST] RESULT:',
-    JSON.stringify(decoded) === JSON.stringify(data)
-        ? 'PASS'
-        : 'CHECK OUTPUT'
-);
+    const payload = frame.subarray(HEADER_SIZE);
+
+    const decoded = decodeChannelState(payload);
+
+    assert.deepStrictEqual(decoded, data);
+
+    console.log('[IRIS TEST] DECODE OK');
+    console.log('[IRIS TEST] MEMBERS OK');
+    console.log('[IRIS TEST] CHANNEL STATE OK');
+    console.log('[IRIS TEST] RESULT: PASS');
+
+} catch (error) {
+    console.error('[IRIS TEST] RESULT: FAIL');
+    console.error(error.stack);
+    process.exitCode = 1;
+}
