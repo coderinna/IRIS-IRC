@@ -256,17 +256,46 @@ function decodeChannelState(payload) {
         );
     }
 
-if (
-    channelState.state === null ||
-    channelState.state === ''
-) {
-    throw new Error(
-        'IRIS CHANNEL_STATE missing state'
-    );
-}
+    if (
+        channelState.state === null ||
+        channelState.state === ''
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE missing state'
+        );
+    }
+
+    // Palvelin-ID:t eivät saa olla tyhjiä tai duplikaatteja.
+    const serverSet = new Set();
+
+    for (const serverId of channelState.servers) {
+        if (!serverId) {
+            throw new Error(
+                'IRIS CHANNEL_STATE empty server ID'
+            );
+        }
+
+        if (serverSet.has(serverId)) {
+            throw new Error(
+                `IRIS CHANNEL_STATE duplicate server ID: ${serverId}`
+            );
+        }
+
+        serverSet.add(serverId);
+    }
+
+    // Jokaisen jäsenen palvelimen pitää löytyä palvelinlistasta.
+    for (const member of channelState.members) {
+        if (!serverSet.has(member.serverId)) {
+            throw new Error(
+                `IRIS CHANNEL_STATE member server missing from server list: ${member.serverId}`
+            );
+        }
+    }
 
     return channelState;
 }
+
 
 module.exports = {
     FIELDS,

@@ -127,4 +127,54 @@ assert.throws(
 
 console.log('[PASS] Empty STATE rejected');
 
+// 7. Tyhjä SERVER_ID
+const emptyServerPayload = encodeFields([
+    { type: FIELDS.CHANNEL, value: '#test' },
+    { type: FIELDS.STATE, value: 'active' },
+    { type: FIELDS.SERVER_ID, value: '' }
+]);
+
+assert.throws(
+    () => decodeChannelState(emptyServerPayload),
+    /empty server ID/
+);
+
+console.log('[PASS] Empty SERVER_ID rejected');
+
+// 8. Duplikaattinen SERVER_ID
+const duplicateServerPayload = encodeFields([
+    { type: FIELDS.CHANNEL, value: '#test' },
+    { type: FIELDS.STATE, value: 'active' },
+    { type: FIELDS.SERVER_ID, value: 'iris-01' },
+    { type: FIELDS.SERVER_ID, value: 'iris-01' }
+]);
+
+assert.throws(
+    () => decodeChannelState(duplicateServerPayload),
+    /duplicate server ID/
+);
+
+console.log('[PASS] Duplicate SERVER_ID rejected');
+
+// 9. MEMBER-palvelin puuttuu SERVER_ID-listasta
+const memberPayload = encodeFields([
+    { type: MEMBER_FIELDS.CLIENT_ID, value: 'client-123' },
+    { type: MEMBER_FIELDS.NICK, value: 'Tester' },
+    { type: MEMBER_FIELDS.SERVER_ID, value: 'iris-02' }
+]);
+
+const missingMemberServerPayload = encodeFields([
+    { type: FIELDS.CHANNEL, value: '#test' },
+    { type: FIELDS.STATE, value: 'active' },
+    { type: FIELDS.SERVER_ID, value: 'iris-01' },
+    { type: FIELDS.MEMBER, value: memberPayload }
+]);
+
+assert.throws(
+    () => decodeChannelState(missingMemberServerPayload),
+    /member server missing from server list/
+);
+
+console.log('[PASS] MEMBER server missing from SERVER_ID list rejected');
+
 console.log('[IRIS TEST] CHANNEL_STATE VALIDATION: ALL PASS');

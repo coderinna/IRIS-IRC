@@ -14,77 +14,196 @@ const {
     HEADER_SIZE
 } = require('../s2s/protocol/frame/frame');
 
-// NetworkManager ja olemassa oleva kanava
-const networkManager = new NetworkManager();
+function createTestEnvironment() {
+    const networkManager = new NetworkManager();
 
-const serverId = 'iris-01';
-const clientId = 'client-existing';
+    const serverId = 'iris-01';
+    const clientId = 'client-existing';
 
-const existingClient = networkManager.addClient({
-    serverId,
-    clientId,
-    nick: 'ExistingUser',
-    user: 'existing',
-    host: 'localhost'
-});
+    const existingClient = networkManager.addClient({
+        serverId,
+        clientId,
+        nick: 'ExistingUser',
+        user: 'existing',
+        host: 'localhost'
+    });
 
-const channel = networkManager.addChannel({
-    name: '#test',
-    topic: 'Original topic',
-    ownerServerId: serverId
-});
+    const channel = networkManager.addChannel({
+        name: '#test',
+        topic: 'Original topic',
+        ownerServerId: serverId
+    });
 
-networkManager.addClientToChannel('#test', existingClient);
+    networkManager.addClientToChannel(
+        '#test',
+        existingClient
+    );
 
-// Saapuva tila sisältää tuntemattoman jäsenen
-const data = {
-    channel: '#test',
-    topic: 'Modified topic',
-    ownerServerId: 'iris-02',
-    servers: ['iris-02'],
-    members: [
+    const connection = {
+        manager: { networkManager },
+        remote: { serverId: 'iris-02' }
+    };
+
+    return {
+        networkManager,
+        existingClient,
+        connection
+    };
+}
+
+function processChannelState(connection, data) {
+    const encoded = encodeChannelState(
+        data,
+        crypto.randomBytes(16)
+    );
+
+    const frame = {
+        payload: encoded.subarray(HEADER_SIZE)
+    };
+
+    return handleChannelState(connection, frame);
+}
+
+function assertOriginalChannelPreserved(
+    networkManager,
+    existingClient
+) {
+    const channel = networkManager.getChannel('#test');
+
+    assert.strictEqual(
+        channel.topic,
+        'Original topic'
+    );
+
+    assert.strictEqual(
+        channel.ownerServerId,
+        'iris-01'
+    );
+
+    assert.strictEqual(
+        channel.clients.size,
+        1
+    );
+
+    assert.ok(
+        channel.clients.has(existingClient)
+    );
+}
+
+function createBaseState() {
+    return {
+        channel: '#test',
+        topic: 'Modified topic',
+        ownerServerId: 'iris-02',
+        servers: ['iris-02'],
+        members: [
+            {
+                serverId: 'iris-02',
+                clientId: 'client-remote',
+                nick: 'RemoteUser'
+            }
+        ],
+        state: {
+            state: 'active',
+            modes: ['i'],
+            operators: []
+        }
+    };
+}
+
+// TEST 1: Tuntematon jäsen
+
+{
+    const {
+        networkManager,
+        existingClient,
+        connection
+    } = createTestEnvironment();
+
+    const data = createBaseState();
+
+    data.members[0].clientId = 'unknown-client';
+
+    const result = processChannelState(
+        connection,
+        data
+    );
+
+    assert.strictEqual(result, false);
+
+    assertOriginalChannelPreserved(
+        networkManager,
+        existingClient
+    );
+
+    console.log('[PASS] Unknown CHANNEL_STATE member rejected');
+    console.log('[PASS] Existing channel preserved after unknown member');
+}
+
+// TEST 2: Operators ei ole taulukko
+
+{
+    const {
+        networkManager,
+        existingClient,
+        connection
+    } = createTestEnvironment();
+
+    const data = createBaseState();
+
+    data.state.operators = {
+        clientId: 'client-remote',
+        serverId: 'iris-02'
+    };
+
+    const result = processChannelState(
+        connection,
+        data
+    );
+
+    assert.strictEqual(result, false);
+
+    assertOriginalChannelPreserved(
+        networkManager,
+        existingClient
+    );
+
+    console.log('[PASS] Invalid operators field rejected');
+    console.log('[PASS] Existing channel preserved after invalid operators');
+}
+
+// TEST 3: Operaattori ei kuulu kanavaan
+
+{
+    const {
+        networkManager,
+        existingClient,
+        connection
+    } = createTestEnvironment();
+
+    const data = createBaseState();
+
+    data.state.operators = [
         {
             serverId: 'iris-02',
-            clientId: 'unknown-client',
-            nick: 'UnknownUser'
+            clientId: 'client-not-member'
         }
-    ],
-    state: {
-        state: 'active',
-        modes: ['i'],
-        operators: []
-    }
-};
+    ];
 
-const encoded = encodeChannelState(
-    data,
-    crypto.randomBytes(16)
-);
+    const result = processChannelState(
+        connection,
+        data
+    );
 
-const frame = {
-    payload: encoded.subarray(HEADER_SIZE)
-};
+    assert.strictEqual(result, false);
 
-const connection = {
-    manager: { networkManager },
-    remote: { serverId: 'iris-02' }
-};
+    assertOriginalChannelPreserved(
+        networkManager,
+        existingClient
+    );
 
-// Käsittele viesti
-const result = handleChannelState(connection, frame);
-
-// Virheellinen palautus pitää hylätä
-assert.strictEqual(result, false);
-
-// Alkuperäisen kanavatilan pitää säilyä
-const restoredChannel = networkManager.getChannel('#test');
-
-assert.strictEqual(restoredChannel.topic, 'Original topic');
-assert.strictEqual(restoredChannel.ownerServerId, serverId);
-assert.strictEqual(restoredChannel.clients.size, 1);
-assert.ok(restoredChannel.clients.has(existingClient));
-
-console.log('[PASS] Unknown CHANNEL_STATE member rejected');
-console.log('[PASS] Existing channel state preserved');
+    console.log('[PASS] Non-member operator rejected');
+    console.log('[PASS] Existing channel preserved after invalid operator');
+}
 
 console.log('[IRIS TEST] CHANNEL_STATE HANDLER ERRORS: ALL PASS');
