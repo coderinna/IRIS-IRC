@@ -256,11 +256,14 @@ function decodeChannelState(payload) {
         );
     }
 
-    if (channelState.state === null) {
-        throw new Error(
-            'IRIS CHANNEL_STATE missing state'
-        );
-    }
+if (
+    channelState.state === null ||
+    channelState.state === ''
+) {
+    throw new Error(
+        'IRIS CHANNEL_STATE missing state'
+    );
+}
 
     return channelState;
 }

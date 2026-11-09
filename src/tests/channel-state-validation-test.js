@@ -101,4 +101,30 @@ assert.throws(
 
 console.log('[PASS] Duplicate MEMBER CLIENT_ID rejected');
 
+// 5. Tyhjä CHANNEL
+const emptyChannelPayload = encodeFields([
+    { type: FIELDS.CHANNEL, value: '' },
+    { type: FIELDS.STATE, value: 'active' }
+]);
+
+assert.throws(
+    () => decodeChannelState(emptyChannelPayload),
+    /missing channel/
+);
+
+console.log('[PASS] Empty CHANNEL rejected');
+
+// 6. Tyhjä STATE
+const emptyStatePayload = encodeFields([
+    { type: FIELDS.CHANNEL, value: '#test' },
+    { type: FIELDS.STATE, value: '' }
+]);
+
+assert.throws(
+    () => decodeChannelState(emptyStatePayload),
+    /missing state/
+);
+
+console.log('[PASS] Empty STATE rejected');
+
 console.log('[IRIS TEST] CHANNEL_STATE VALIDATION: ALL PASS');
