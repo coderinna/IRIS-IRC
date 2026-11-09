@@ -12,6 +12,9 @@ class Channel {
         this.key = null;
 this.limit = null;
 
+this.operators = new Set();
+this.voiced = new Set();
+
         this.ownerServerId = ownerServerId;
         this.state = 'active';
 
@@ -58,6 +61,23 @@ removeOperator(client) {
 
 isOperator(client) {
     return this.operators.has(client);
+}
+
+addVoice(client) {
+    if (!client || this.voiced.has(client)) {
+        return false;
+    }
+
+    this.voiced.add(client);
+    return true;
+}
+
+removeVoice(client) {
+    return this.voiced.delete(client);
+}
+
+hasVoice(client) {
+    return this.voiced.has(client);
 }
 
 getOperators() {

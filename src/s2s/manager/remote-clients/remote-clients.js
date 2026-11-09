@@ -1,4 +1,3 @@
-// src/s2s/manager/remote-clients/remote-clients.js //
 
 class RemoteClientRegistry {
     constructor() {
@@ -20,40 +19,56 @@ class RemoteClientRegistry {
             );
         }
 
-        const key =
-            this.getKey(
-                client.serverId,
-                client.clientId
-            );
-console.log(
-    `[REMOTE CLIENT] ADD key=${key} ` +
-    `serverId=${client.serverId} ` +
-    `clientId=${client.clientId} ` +
-    `nick=${client.nick}`
-);
-        this.clients.set(
-            key,
-            { ...client }
+        const key = this.getKey(
+            client.serverId,
+            client.clientId
         );
+
+        const existing = this.clients.get(key);
+
+        if (existing) {
+            if (
+                existing.connection !== client.connection
+            ) {
+                throw new Error(
+                    `Remote client identity collision: ${key}`
+                );
+            }
+
+            throw new Error(
+                `Remote client already registered: ${key}`
+            );
+        }
+
+        this.clients.set(key, { ...client });
 
         return this.clients.get(key);
     }
 
     remove(serverId, clientId) {
         return this.clients.delete(
-            this.getKey(
-                serverId,
-                clientId
-            )
+            this.getKey(serverId, clientId)
         );
+    }
+
+    removeByConnection(connection) {
+        let removed = 0;
+
+        for (const [key, client] of this.clients) {
+            if (client.connection !== connection) {
+                continue;
+            }
+
+            this.clients.delete(key);
+            removed++;
+        }
+
+        return removed;
     }
 
     get(serverId, clientId) {
         return this.clients.get(
-            this.getKey(
-                serverId,
-                clientId
-            )
+            this.getKey(serverId, clientId)
         ) || null;
     }
 
@@ -65,8 +80,7 @@ console.log(
         for (const client of this.clients.values()) {
             if (
                 client.nick &&
-                client.nick.toLowerCase() ===
-                nick.toLowerCase()
+                client.nick.toLowerCase() === nick.toLowerCase()
             ) {
                 return client;
             }
@@ -76,30 +90,20 @@ console.log(
     }
 
     update(serverId, clientId, updates) {
-        const client =
-            this.get(
-                serverId,
-                clientId
-            );
+        const client = this.get(serverId, clientId);
 
         if (!client) {
             return null;
         }
 
-        Object.assign(
-            client,
-            updates
-        );
+        Object.assign(client, updates);
 
         return client;
     }
 
     has(serverId, clientId) {
         return this.clients.has(
-            this.getKey(
-                serverId,
-                clientId
-            )
+            this.getKey(serverId, clientId)
         );
     }
 
@@ -112,11 +116,7 @@ console.log(
     }
 
     getServerId(serverId, clientId) {
-        const client =
-            this.get(
-                serverId,
-                clientId
-            );
+        const client = this.get(serverId, clientId);
 
         return client?.serverId || null;
     }
