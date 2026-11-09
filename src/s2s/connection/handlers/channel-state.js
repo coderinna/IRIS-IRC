@@ -1,6 +1,4 @@
 
-// src/s2s/connection/handlers/channel-state.js
-
 const {
     decodeChannelState
 } = require('../../messages/channel-state');
@@ -15,13 +13,7 @@ module.exports = function handleChannelState(
                 frame.payload
             );
 
-        if (!connection.manager) {
-            throw new Error(
-                'S2S manager is not available'
-            );
-        }
-
-        if (!connection.manager.networkManager) {
+        if (!connection.manager?.networkManager) {
             throw new Error(
                 'Network manager is not available'
             );
@@ -57,28 +49,48 @@ module.exports = function handleChannelState(
         channel.ownerServerId =
             channelState.ownerServerId;
 
-const state = channelState.state;
+        const state = channelState.state;
 
-if (
-    typeof state === 'object' &&
-    state !== null
-) {
-    channel.setState(state);
-} else {
-    channel.setState({
-        state
-    });
-}
+        if (
+            typeof state === 'object' &&
+            state !== null
+        ) {
+            channel.state =
+                state.state || 'active';
+
+            channel.modes =
+                new Set(
+                    Array.isArray(state.modes)
+                        ? state.modes
+                        : []
+                );
+
+            channel.key =
+                state.key || null;
+
+            channel.limit =
+                Number.isInteger(state.limit) &&
+                state.limit > 0
+                    ? state.limit
+                    : null;
+        } else {
+            channel.state =
+                state || 'active';
+
+            channel.modes = new Set();
+            channel.key = null;
+            channel.limit = null;
+        }
+
         channel.servers.clear();
         channel.clients.clear();
+        channel.operators = new Set();
 
         for (
             const serverId
             of channelState.servers
         ) {
-            channel.servers.add(
-                serverId
-            );
+            channel.servers.add(serverId);
         }
 
         for (
@@ -108,31 +120,25 @@ if (
             );
         }
 
-        // Restore channel modes
-// Restore channel operators
-if (
-    typeof state === 'object' &&
-    state !== null
-) {
-    channel.operators.clear();
-
-    for (const operator of state.operators || []) {
-        const operatorClient =
-            networkManager.getClient(
-                operator.serverId,
-                operator.clientId
-            );
-
-        if (
-            operatorClient &&
-            channel.clients.has(operatorClient)
+        for (
+            const operator
+            of state?.operators || []
         ) {
-            channel.addOperator(
-                operatorClient
-            );
+            const operatorClient =
+                networkManager.getClient(
+                    operator.serverId,
+                    operator.clientId
+                );
+
+            if (
+                operatorClient &&
+                channel.clients.has(operatorClient)
+            ) {
+                channel.operators.add(
+                    operatorClient
+                );
+            }
         }
-    }
-}
 
         networkManager.updateChannelState(
             channelState.channel
