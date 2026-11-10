@@ -51,6 +51,7 @@ function handleMode(
             return;
         }
 
+
         // MODE #channel
         if (!mode) {
             const modes = channel.getModes().join('');
@@ -61,6 +62,14 @@ function handleMode(
 
             return;
         }
+
+
+        if (!channel.isOperator(client)) {
+    client.send(
+        `:${serverName} 482 ${client.nick} ${target} :You're not channel operator`
+    );
+    return;
+}
 
         // +i
         if (mode === '+i') {
