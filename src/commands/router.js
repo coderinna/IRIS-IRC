@@ -82,7 +82,9 @@ case 'JOIN':
     handler(
         client,
         params[0] || trailing,
+        params[1],
         getOrCreateChannel,
+        getChannel,
         serverName,
         networkManager
     );
@@ -132,6 +134,16 @@ case 'MODE':
     handler(
         client,
         params,
+        getChannel,
+        serverName
+    );
+    break;
+
+case 'TOPIC':
+    handler(
+        client,
+        params[0],
+        trailing,
         getChannel,
         serverName
     );

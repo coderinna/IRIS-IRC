@@ -1,4 +1,3 @@
-// src/s2s/connection/handlers/channel-state.js
 
 const {
     decodeChannelState
@@ -9,18 +8,11 @@ module.exports = function handleChannelState(
     frame
 ) {
     try {
-        const channelState =
-            decodeChannelState(
-                frame.payload
-            );
+        const channelState = decodeChannelState(
+            frame.payload
+        );
 
-        if (!connection.manager) {
-            throw new Error(
-                'S2S manager is not available'
-            );
-        }
-
-        if (!connection.manager.networkManager) {
+        if (!connection.manager?.networkManager) {
             throw new Error(
                 'Network manager is not available'
             );
@@ -35,67 +27,182 @@ module.exports = function handleChannelState(
         const networkManager =
             connection.manager.networkManager;
 
-        let channel =
-            networkManager.getChannel(
-                channelState.channel
+        const resolvedMembers = channelState.members.map(member => {
+            const remoteClient = networkManager.getClient(
+                member.serverId,
+                member.clientId
             );
 
-        if (!channel) {
-            channel =
-                networkManager.addChannel({
-                    name: channelState.channel,
-                    topic: channelState.topic,
-                    ownerServerId:
-                        channelState.ownerServerId
-                });
+            if (!remoteClient) {
+                throw new Error(
+                    `CHANNEL_STATE unknown client ${member.clientId} server=${member.serverId}`
+                );
+            }
+
+            return remoteClient;
+        });
+
+        const state = channelState.state;
+
+        const resolvedOperators = [];
+        const resolvedVoiced = [];
+
+        if (
+            typeof state === 'object' &&
+            state !== null
+        ) {
+            const memberSet = new Set(resolvedMembers);
+
+            // Validate operators
+            if (
+                state.operators !== undefined &&
+                !Array.isArray(state.operators)
+            ) {
+                throw new Error(
+                    'CHANNEL_STATE operators must be an array'
+                );
+            }
+
+            for (const operator of state.operators || []) {
+                if (
+                    !operator ||
+                    typeof operator.serverId !== 'string' ||
+                    !operator.serverId ||
+                    typeof operator.clientId !== 'string' ||
+                    !operator.clientId
+                ) {
+                    throw new Error(
+                        'CHANNEL_STATE invalid operator entry'
+                    );
+                }
+
+                const operatorClient =
+                    networkManager.getClient(
+                        operator.serverId,
+                        operator.clientId
+                    );
+
+                if (
+                    !operatorClient ||
+                    !memberSet.has(operatorClient)
+                ) {
+                    throw new Error(
+                        `CHANNEL_STATE operator is not a channel member: ${operator.clientId}`
+                    );
+                }
+
+                resolvedOperators.push(operatorClient);
+            }
+
+            // Validate voiced clients
+            if (
+                state.voiced !== undefined &&
+                !Array.isArray(state.voiced)
+            ) {
+                throw new Error(
+                    'CHANNEL_STATE voiced must be an array'
+                );
+            }
+
+            for (const voiced of state.voiced || []) {
+                if (
+                    !voiced ||
+                    typeof voiced.serverId !== 'string' ||
+                    !voiced.serverId ||
+                    typeof voiced.clientId !== 'string' ||
+                    !voiced.clientId
+                ) {
+                    throw new Error(
+                        'CHANNEL_STATE invalid voiced entry'
+                    );
+                }
+
+                const voicedClient =
+                    networkManager.getClient(
+                        voiced.serverId,
+                        voiced.clientId
+                    );
+
+                if (
+                    !voicedClient ||
+                    !memberSet.has(voicedClient)
+                ) {
+                    throw new Error(
+                        `CHANNEL_STATE voiced client is not a channel member: ${voiced.clientId}`
+                    );
+                }
+
+                resolvedVoiced.push(voicedClient);
+            }
         }
 
-        channel.topic =
-            channelState.topic;
+        let channel = networkManager.getChannel(
+            channelState.channel
+        );
 
-        channel.state =
-            channelState.state;
+        if (!channel) {
+            channel = networkManager.addChannel({
+                name: channelState.channel,
+                topic: channelState.topic,
+                ownerServerId: channelState.ownerServerId
+            });
+        }
 
-        channel.ownerServerId =
-            channelState.ownerServerId;
+        channel.topic = channelState.topic;
+        channel.ownerServerId = channelState.ownerServerId;
+
+        if (
+            typeof state === 'object' &&
+            state !== null
+        ) {
+            channel.state = state.state || 'active';
+
+            channel.modes = new Set(
+                Array.isArray(state.modes)
+                    ? state.modes
+                    : []
+            );
+
+            channel.key = state.key || null;
+
+            channel.limit =
+                Number.isInteger(state.limit) &&
+                state.limit > 0
+                    ? state.limit
+                    : null;
+        } else {
+            channel.state = state || 'active';
+            channel.modes = new Set();
+            channel.key = null;
+            channel.limit = null;
+        }
 
         channel.servers.clear();
         channel.clients.clear();
 
-        for (
-            const serverId
-            of channelState.servers
-        ) {
-            channel.servers.add(
-                serverId
-            );
+        channel.operators = new Set();
+        channel.voiced = new Set();
+
+        for (const serverId of channelState.servers) {
+            channel.servers.add(serverId);
         }
 
-        for (
-            const member
-            of channelState.members
-        ) {
-            const remoteClient =
-                networkManager.getClient(
-                    member.serverId,
-                    member.clientId
-                );
-
-            if (!remoteClient) {
-                console.warn(
-                    `[IRIS] CHANNEL_STATE ` +
-                    `unknown client ` +
-                    `${member.clientId} ` +
-                    `server=${member.serverId}`
-                );
-
-                continue;
-            }
-
+        // Restore channel members first
+        for (const remoteClient of resolvedMembers) {
             networkManager.addClientToChannel(
                 channelState.channel,
                 remoteClient
             );
+        }
+
+        // Restore operator privileges
+        for (const operatorClient of resolvedOperators) {
+            channel.operators.add(operatorClient);
+        }
+
+        // Restore voice privileges
+        for (const voicedClient of resolvedVoiced) {
+            channel.voiced.add(voicedClient);
         }
 
         networkManager.updateChannelState(
@@ -106,7 +213,9 @@ module.exports = function handleChannelState(
             `[IRIS] ← CHANNEL_STATE ` +
             `${channelState.channel} ` +
             `members=${channelState.members.length} ` +
-            `servers=${channelState.servers.length}`
+            `servers=${channelState.servers.length} ` +
+            `operators=${resolvedOperators.length} ` +
+            `voiced=${resolvedVoiced.length}`
         );
 
         return true;

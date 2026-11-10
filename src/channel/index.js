@@ -9,6 +9,12 @@ class Channel {
         this.servers = new Set();
         this.modes = new Set();
 
+        this.key = null;
+this.limit = null;
+
+this.operators = new Set();
+this.voiced = new Set();
+
         this.ownerServerId = ownerServerId;
         this.state = 'active';
 
@@ -41,7 +47,12 @@ addClient(client) {
 }
 
 addOperator(client) {
-    return this.operators.add(client), true;
+    if (!client || this.operators.has(client)) {
+        return false;
+    }
+
+    this.operators.add(client);
+    return true;
 }
 
 removeOperator(client) {
@@ -50,6 +61,23 @@ removeOperator(client) {
 
 isOperator(client) {
     return this.operators.has(client);
+}
+
+addVoice(client) {
+    if (!client || this.voiced.has(client)) {
+        return false;
+    }
+
+    this.voiced.add(client);
+    return true;
+}
+
+removeVoice(client) {
+    return this.voiced.delete(client);
+}
+
+hasVoice(client) {
+    return this.voiced.has(client);
 }
 
 getOperators() {
@@ -127,13 +155,68 @@ removeClient(client) {
         this.ownerServerId = serverId || null;
     }
 
-    getState() {
-        return this.state;
+getState() {
+    return {
+        state: this.state,
+        modes: this.getModes(),
+        key: this.key,
+        limit: this.limit,
+
+        operators: this.getOperators().map(client => ({
+            clientId: client.id,
+            serverId: client.serverId
+        })),
+
+        voiced: [...this.voiced].map(client => ({
+            clientId: client.id,
+            serverId: client.serverId
+        }))
+    };
+}
+
+
+setState(state) {
+    if (!state) {
+        return;
     }
 
-    setState(state) {
-        this.state = state;
-    }
+    this.state = state.state || 'active';
+
+    this.modes = new Set(
+        Array.isArray(state.modes) ? state.modes : []
+    );
+
+    this.key = state.key || null;
+
+    this.limit =
+        Number.isInteger(state.limit) && state.limit > 0
+            ? state.limit
+            : null;
+
+    // Restore operator privileges
+    this.operators = new Set(
+        (Array.isArray(state.operators) ? state.operators : [])
+            .map(entry =>
+                [...this.clients].find(client =>
+                    client.id === entry.clientId &&
+                    client.serverId === entry.serverId
+                )
+            )
+            .filter(Boolean)
+    );
+
+    // Restore voice privileges
+    this.voiced = new Set(
+        (Array.isArray(state.voiced) ? state.voiced : [])
+            .map(entry =>
+                [...this.clients].find(client =>
+                    client.id === entry.clientId &&
+                    client.serverId === entry.serverId
+                )
+            )
+            .filter(Boolean)
+    );
+}
 
     isActive() {
         return this.state === 'active';
@@ -188,6 +271,43 @@ removeMode(mode) {
 
 getModes() {
     return [...this.modes];
+}
+
+// Channel key (+k)
+setKey(key) {
+    this.key = key || null;
+}
+
+getKey() {
+    return this.key;
+}
+
+hasKey() {
+    return Boolean(this.key);
+}
+
+// Channel user limit (+l)
+setLimit(limit) {
+    const value = Number(limit);
+
+    if (!Number.isInteger(value) || value < 1) {
+        return false;
+    }
+
+    this.limit = value;
+    return true;
+}
+
+getLimit() {
+    return this.limit;
+}
+
+hasLimit() {
+    return this.limit !== null;
+}
+
+removeLimit() {
+    this.limit = null;
 }
 }
 

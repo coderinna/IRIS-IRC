@@ -15,7 +15,19 @@ function handlePrivmsg(
     if (target.startsWith('#')) {
         const channel = getChannel(target);
 
-        if (!channel || !channel.hasClient(client)) {
+        if (!channel) {
+            client.send(
+                `:irc.iris.local 404 ${client.nick} ${target} :Cannot send to channel`
+            );
+
+            return;
+        }
+
+        // +n: only channel members may send messages
+        if (
+            channel.hasMode('n') &&
+            !channel.hasClient(client)
+        ) {
             client.send(
                 `:irc.iris.local 404 ${client.nick} ${target} :Cannot send to channel`
             );
@@ -29,52 +41,50 @@ function handlePrivmsg(
         );
 
         events.emit('message:sent', {
-    client,
-    target,
-    message,
-    type: 'channel'
-});
+            client,
+            target,
+            message,
+            type: 'channel'
+        });
 
         return;
     }
 
-let targetClient =
-    getClientByNick(target);
+    let targetClient = getClientByNick(target);
 
-const remoteClient =
-    getRemoteClientByNick
+    const remoteClient = getRemoteClientByNick
         ? getRemoteClientByNick(target)
         : null;
 
-if (!targetClient && !remoteClient) {
-    client.send(
-        `:irc.iris.local 401 ${client.nick} ${target} :No such nick`
-    );
+    if (!targetClient && !remoteClient) {
+        client.send(
+            `:irc.iris.local 401 ${client.nick} ${target} :No such nick`
+        );
 
-    return;
-}
+        return;
+    }
 
-if (remoteClient) {
-    events.emit('message:sent', {
-        client,
-        target: remoteClient.nick,
-        message,
-        type: 'private'
-    });
+    if (remoteClient) {
+        events.emit('message:sent', {
+            client,
+            target: remoteClient.nick,
+            message,
+            type: 'private'
+        });
 
-    return;
-}
+        return;
+    }
 
     targetClient.send(
         `:${client.mask} PRIVMSG ${targetClient.nick} :${message}`
     );
 
     events.emit('message:sent', {
-    client,
-    target: targetClient,
-    message,
-    type: 'private'
-});
+        client,
+        target: targetClient,
+        message,
+        type: 'private'
+    });
 }
 
 module.exports = handlePrivmsg;

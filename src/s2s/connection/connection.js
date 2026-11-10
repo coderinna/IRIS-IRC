@@ -4,6 +4,8 @@ const crypto = require('crypto');
 
 const FrameParser = require('../protocol/parser/parser.js');
 
+const handleTopic = require('./handlers/topic');
+const handleMode = require('./handlers/mode');
 const lifecycle = require('./lifecycle/index.js');
 const transport = require('./transport/index.js');
 const acknowledgements =   require('./ack-nowledgements/index.js');
@@ -147,7 +149,9 @@ this.receiveSequence = 0n;
 [TYPES.PONG]: frame => handlePong(this, frame),
 [TYPES.ACK]: frame => handleAck(this, frame),
 [TYPES.AUTH]: frame => handleAuth(this, frame),
+[TYPES.MODE]: frame => handleMode(this, frame),
 [TYPES.SERVER]: frame => handleServer(this, frame),
+[TYPES.TOPIC]: frame => handleTopic(this, frame),
 [TYPES.CHANNEL_STATE]:
     frame => handleChannelState(
         this,
@@ -239,12 +243,11 @@ syncChannels() {
     const channels =
         this.manager.getLocalChannels();
 
-
-console.log(
-    `[IRIS] → CHANNEL STATE SYNC ` +
-    `remote=${this.remote.serverId || 'unknown'} ` +
-    `channels=${channels.length}`
-);
+    console.log(
+        `[IRIS] → CHANNEL STATE SYNC ` +
+        `remote=${this.remote.serverId || 'unknown'} ` +
+        `channels=${channels.length}`
+    );
 
     for (const channel of channels) {
         const members =
@@ -257,6 +260,9 @@ console.log(
         const servers =
             [...channel.getServers()];
 
+        const channelState =
+            channel.getState();
+
         const messageId =
             crypto.randomBytes(16);
 
@@ -268,7 +274,17 @@ console.log(
                 {
                     channel: channel.name,
                     topic: channel.getTopic(),
-                    state: channel.getState(),
+                    state: {
+                        ...channelState,
+                        operators: [...channel.operators].map(client => ({
+                            clientId: client.id,
+                            serverId: client.serverId
+                        })),
+                        voiced: [...channel.voiced].map(client => ({
+                            clientId: client.id,
+                            serverId: client.serverId
+                        }))
+                    },
                     ownerServerId:
                         channel.getOwnerServerId(),
                     servers,
@@ -288,6 +304,8 @@ console.log(
             `${channel.name} ` +
             `members=${members.length} ` +
             `servers=${servers.length} ` +
+            `operators=${channel.operators.size} ` +
+            `voiced=${channel.voiced.size} ` +
             `remote=${this.remote.serverId || 'unknown'}`
         );
     }
@@ -455,12 +473,15 @@ handleFrame(frame) {
     if (
         handled === true &&
         [
-            TYPES.CLIENT,
-            TYPES.NICK,
-            TYPES.JOIN,
-            TYPES.PART,
-            TYPES.QUIT,
-            TYPES.MESSAGE
+    TYPES.CLIENT,
+    TYPES.NICK,
+    TYPES.JOIN,
+    TYPES.PART,
+    TYPES.QUIT,
+    TYPES.MESSAGE,
+    TYPES.MODE,
+    TYPES.TOPIC,
+    TYPES.CHANNEL_STATE
         ].includes(frame.type)
     ) {
         this.sendAck(

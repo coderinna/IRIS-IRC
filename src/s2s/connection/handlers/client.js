@@ -27,15 +27,6 @@ module.exports = function handleClient(
             );
         }
 
-       /* if (
-            client.serverId !==
-            connection.remote.serverId
-        ) {
-            throw new Error(
-                'CLIENT server ID does not match remote server'
-            );
-        }*/
-
         const remoteClient =
             connection.manager.remoteClients.register({
                 clientId: client.clientId,

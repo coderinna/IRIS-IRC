@@ -1,4 +1,3 @@
-// src/s2s/messages/channel-state.js
 
 const {
     TYPES,
@@ -35,21 +34,9 @@ function encodeMember({
     nick,
     serverId
 }) {
-    if (!clientId) {
+    if (!clientId || !nick || !serverId) {
         throw new Error(
-            'IRIS CHANNEL_STATE member requires clientId'
-        );
-    }
-
-    if (!nick) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member requires nick'
-        );
-    }
-
-    if (!serverId) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member requires serverId'
+            'IRIS CHANNEL_STATE member requires clientId, nick and serverId'
         );
     }
 
@@ -70,8 +57,7 @@ function encodeMember({
 }
 
 function decodeMember(payload) {
-    const fields =
-        decodeFields(payload);
+    const fields = decodeFields(payload);
 
     const member = {
         clientId: null,
@@ -79,21 +65,30 @@ function decodeMember(payload) {
         serverId: null
     };
 
+    const seen = new Set();
+
     for (const field of fields) {
+        if (Object.values(MEMBER_FIELDS).includes(field.type)) {
+            if (seen.has(field.type)) {
+                throw new Error(
+                    `IRIS CHANNEL_STATE duplicate member field: 0x${field.type.toString(16)}`
+                );
+            }
+
+            seen.add(field.type);
+        }
+
         switch (field.type) {
             case MEMBER_FIELDS.CLIENT_ID:
-                member.clientId =
-                    field.value.toString('utf8');
+                member.clientId = field.value.toString('utf8');
                 break;
 
             case MEMBER_FIELDS.NICK:
-                member.nick =
-                    field.value.toString('utf8');
+                member.nick = field.value.toString('utf8');
                 break;
 
             case MEMBER_FIELDS.SERVER_ID:
-                member.serverId =
-                    field.value.toString('utf8');
+                member.serverId = field.value.toString('utf8');
                 break;
 
             default:
@@ -101,25 +96,89 @@ function decodeMember(payload) {
         }
     }
 
-    if (!member.clientId) {
+    if (!member.clientId || !member.nick || !member.serverId) {
         throw new Error(
-            'IRIS CHANNEL_STATE member missing client ID'
-        );
-    }
-
-    if (!member.nick) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member missing nick'
-        );
-    }
-
-    if (!member.serverId) {
-        throw new Error(
-            'IRIS CHANNEL_STATE member missing server ID'
+            'IRIS CHANNEL_STATE member has missing fields'
         );
     }
 
     return member;
+}
+
+function validatePrivilegeList(value, name) {
+    if (value === undefined) {
+        return;
+    }
+
+    if (!Array.isArray(value)) {
+        throw new Error(
+            `IRIS CHANNEL_STATE ${name} must be an array`
+        );
+    }
+
+    const seen = new Set();
+
+    for (const entry of value) {
+        if (
+            !entry ||
+            typeof entry.serverId !== 'string' ||
+            !entry.serverId ||
+            typeof entry.clientId !== 'string' ||
+            !entry.clientId
+        ) {
+            throw new Error(
+                `IRIS CHANNEL_STATE invalid ${name} entry`
+            );
+        }
+
+        const key = `${entry.serverId}:${entry.clientId}`;
+
+        if (seen.has(key)) {
+            throw new Error(
+                `IRIS CHANNEL_STATE duplicate ${name} entry: ${key}`
+            );
+        }
+
+        seen.add(key);
+    }
+}
+
+function validateState(state) {
+    if (typeof state !== 'object' || state === null) {
+        return;
+    }
+
+    validatePrivilegeList(state.operators, 'operators');
+    validatePrivilegeList(state.voiced, 'voiced');
+
+    if (
+        state.modes !== undefined &&
+        !Array.isArray(state.modes)
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE modes must be an array'
+        );
+    }
+
+    if (
+        state.limit !== undefined &&
+        state.limit !== null &&
+        (!Number.isInteger(state.limit) || state.limit < 1)
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE invalid channel limit'
+        );
+    }
+
+    if (
+        state.key !== undefined &&
+        state.key !== null &&
+        typeof state.key !== 'string'
+    ) {
+        throw new Error(
+            'IRIS CHANNEL_STATE invalid channel key'
+        );
+    }
 }
 
 function encodeChannelState({
@@ -142,6 +201,8 @@ function encodeChannelState({
         );
     }
 
+    validateState(state);
+
     const fields = [
         {
             type: FIELDS.CHANNEL,
@@ -149,7 +210,9 @@ function encodeChannelState({
         },
         {
             type: FIELDS.STATE,
-            value: state
+            value: typeof state === 'object' && state !== null
+                ? JSON.stringify(state)
+                : state
         }
     ];
 
@@ -168,14 +231,12 @@ function encodeChannelState({
     }
 
     for (const serverId of servers) {
-        if (!serverId) {
-            continue;
+        if (serverId) {
+            fields.push({
+                type: FIELDS.SERVER_ID,
+                value: serverId
+            });
         }
-
-        fields.push({
-            type: FIELDS.SERVER_ID,
-            value: serverId
-        });
     }
 
     for (const member of members) {
@@ -185,8 +246,7 @@ function encodeChannelState({
         });
     }
 
-    const payload =
-        encodeFields(fields);
+    const payload = encodeFields(fields);
 
     return encodeFrame({
         type: TYPES.CHANNEL_STATE,
@@ -197,8 +257,7 @@ function encodeChannelState({
 }
 
 function decodeChannelState(payload) {
-    const fields =
-        decodeFields(payload);
+    const fields = decodeFields(payload);
 
     const channelState = {
         channel: null,
@@ -209,36 +268,48 @@ function decodeChannelState(payload) {
         members: []
     };
 
-
-console.log(
-    `[IRIS DEBUG] CHANNEL_STATE FIELDS ` +
-    fields.map(field =>
-        `${field.type}:${field.value.toString('utf8')}`
-    ).join(' | ')
-);
-
+    const seen = new Set();
 
     for (const field of fields) {
         switch (field.type) {
             case FIELDS.CHANNEL:
-                channelState.channel =
-                    field.value.toString('utf8');
-                break;
-
             case FIELDS.TOPIC:
-                channelState.topic =
-                    field.value.toString('utf8');
-                break;
-
             case FIELDS.STATE:
-                channelState.state =
-                    field.value.toString('utf8');
-                break;
+            case FIELDS.OWNER_SERVER_ID: {
+                if (seen.has(field.type)) {
+                    throw new Error(
+                        `IRIS CHANNEL_STATE duplicate field: 0x${field.type.toString(16)}`
+                    );
+                }
 
-            case FIELDS.OWNER_SERVER_ID:
-                channelState.ownerServerId =
-                    field.value.toString('utf8');
+                seen.add(field.type);
+
+                const value = field.value.toString('utf8');
+
+                switch (field.type) {
+                    case FIELDS.CHANNEL:
+                        channelState.channel = value;
+                        break;
+
+                    case FIELDS.TOPIC:
+                        channelState.topic = value;
+                        break;
+
+                    case FIELDS.STATE:
+                        try {
+                            channelState.state = JSON.parse(value);
+                        } catch {
+                            channelState.state = value;
+                        }
+                        break;
+
+                    case FIELDS.OWNER_SERVER_ID:
+                        channelState.ownerServerId = value;
+                        break;
+                }
+
                 break;
+            }
 
             case FIELDS.SERVER_ID:
                 channelState.servers.push(
@@ -263,10 +334,41 @@ console.log(
         );
     }
 
-    if (!channelState.state) {
+    if (
+        channelState.state === null ||
+        channelState.state === ''
+    ) {
         throw new Error(
             'IRIS CHANNEL_STATE missing state'
         );
+    }
+
+    validateState(channelState.state);
+
+    const serverSet = new Set();
+
+    for (const serverId of channelState.servers) {
+        if (!serverId) {
+            throw new Error(
+                'IRIS CHANNEL_STATE empty server ID'
+            );
+        }
+
+        if (serverSet.has(serverId)) {
+            throw new Error(
+                `IRIS CHANNEL_STATE duplicate server ID: ${serverId}`
+            );
+        }
+
+        serverSet.add(serverId);
+    }
+
+    for (const member of channelState.members) {
+        if (!serverSet.has(member.serverId)) {
+            throw new Error(
+                `IRIS CHANNEL_STATE member server missing from server list: ${member.serverId}`
+            );
+        }
     }
 
     return channelState;

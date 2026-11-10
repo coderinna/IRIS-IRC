@@ -63,6 +63,8 @@ module.exports = function handleJoin(
             );
         }
 
+        
+
         let channel =
             networkManager.getChannel(
                 join.channel
