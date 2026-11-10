@@ -177,7 +177,7 @@ Viimeisessä valmistuneessa vaiheessa rakennettiin varsinainen IRC-viestien reit
 
 **Tulos:** eri IRIS-palvelimille liittyneet IRC-clientit voivat kommunikoida keskenään normaalin IRC tapaan.
 
-## 9. Cross-Server IRC Functionality
+## 9. Cross-Server IRC Functionality  ✅
 
 IRIS toimii käyttäjän näkökulmasta yhtenä multi-server IRC-verkkona.
 
@@ -257,7 +257,7 @@ Message Routing päättää, minne IRC-viesti toimitetaan IRIS-verkossa.
 * Viestit kulkevat paikallisten ja etäpalvelimien välillä next-hop-reitityksellä, ja viestin palautuminen samaan yhteyteen estetään.
 * Näin käyttäjät voivat viestiä keskenään riippumatta siitä, mihin IRIS-palvelimeen he ovat yhteydessä.
 
-## 10. Channel State Sync
+## 10. Channel State Sync 🟡
 
 Channel State Sync = miten IRC-kanavien tila pidetään yhdenmukaisena koko IRIS-verkon välillä.
 
@@ -321,27 +321,27 @@ Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
 ### 10.4. CHANNEL MODES 🟡
 
 **Toteutettu:**
-*  MODE S2S -viestirakenne toteutettu ✅
-* MODE encode/decode TLV-muodossa ✅
-* MODE-viestityyppi rekisteröity protokollaan ✅
-* MODE-vastaanottokäsittelijä toteutettu ✅
-* MOD-tapahtuman lähetys S2S-managerista toteutettu ✅
-* MODE-propagointi muille palvelimille toteutettu kooditasolla ✅
-* Message ID:n säilyttäminen edelleen välitettäessä ✅
-* Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset ✅
-* Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista ✅
-* Operaattorioikeuden tarkistus vastaanotossa ✅
-* +i-muutosten käsittely MODE-vastaanotossa ✅
-* +o-muutosten käsittely MODE-vastaanotossa ✅
-* +v-muutosten käsittely MODE-vastaanotossa ✅
-* +m-moodin käsittely MODE-vastaanotossa ✅
-* +n-moodin käsittely MODE-vastaanotossa ✅
-* +t-moodin käsittely MODE-vastaanotossa ✅
-* Paikallinen +m-viestirajoitus ✅
-* S2S-reitityksen +m-viestirajoitus ✅
-* Paikallinen +n-jäsenyystarkistus ✅
-* S2S-reitityksen +n-jäsenyystarkistus ✅
-* MODE-komennon moodikohtainen tiedostojako (i, k, l, m, n, o, t, v) ✅
+*  MODE S2S -viestirakenne toteutettu 
+* MODE encode/decode TLV-muodossa 
+* MODE-viestityyppi rekisteröity protokollaan 
+* MODE-vastaanottokäsittelijä toteutettu 
+* MOD-tapahtuman lähetys S2S-managerista toteutettu 
+* MODE-propagointi muille palvelimille toteutettu kooditasolla 
+* Message ID:n säilyttäminen edelleen välitettäessä 
+* Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset 
+* Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista 
+* Operaattorioikeuden tarkistus vastaanotossa 
+* +i-muutosten käsittely MODE-vastaanotossa 
+* +o-muutosten käsittely MODE-vastaanotossa 
+* +v-muutosten käsittely MODE-vastaanotossa 
+* +m-moodin käsittely MODE-vastaanotossa 
+* +n-moodin käsittely MODE-vastaanotossa 
+* +t-moodin käsittely MODE-vastaanotossa 
+* Paikallinen +m-viestirajoitus 
+* S2S-reitityksen +m-viestirajoitus 
+* Paikallinen +n-jäsenyystarkistus 
+* S2S-reitityksen +n-jäsenyystarkistus 
+* MODE-komennon moodikohtainen tiedostojako (i, k, l, m, n, o, t, v) 
 * +t-topic-lukituksen täydellinen toiminnallinen varmistus 
 * +k-knavasalasanan toiminnallinen varmistus 
 * +l-käyttäjärajoituksen toiminnallinen varmistus 
@@ -364,8 +364,6 @@ MODE-oikeuksien reunatapaukset
 - Remote-operaattorin oikeuksien tarkistus.
 
 ### 10.5. CHANNEL TOPIC VALMIS ✅
-
-- Remote topic synchronization 🟡 testaamatta kahden palvelimen välisen topic-muutoksen ja reconnectin jälkeisen synkronoinnin käytännössä.
 
 **Toteutettu:**
 - TOPIC-viestin oma S2S-tyyppi (0x19).
@@ -429,9 +427,6 @@ S2S Reliability = miten IRIS-palvelinten välinen verkko toimii virhe-, katkos- 
 - Yhteyskatkot eivät jätä verkkoon pysyvästi virheellistä client-, channel- tai routing-tilaa.
 - Palvelimet pystyvät palauttamaan verkkotilansa yhteyden muodostuessa uudelleen.
 
-
-
-
 ## 12. IRC Client Compatibility & Polish 🟡
 
 IRC Client Compatibility = IRISin yhteensopivuuden ja käyttökokemuksen varmistaminen tavallisilla IRC-asiakasohjelmilla.
@@ -492,8 +487,6 @@ Integration & Network Testing = IRISin toiminnan varmistaminen käytännössä y
 - Palvelinten välinen tila ja viestiliikenne toimivat yhdenmukaisesti myös useamman palvelimen verkossa.
 - Yhteyskatkot, palautuminen ja virhetilanteet on testattu.
 - IRISin toimintavarmuudesta ja tunnetuista rajoituksista on muodostettu dokumentoitu kokonaiskuva.
-
-
 
 ## 13. Authentication & Authorization 🟡
 
