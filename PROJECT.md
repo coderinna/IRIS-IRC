@@ -321,31 +321,36 @@ Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
 ### 10.4. CHANNEL MODES 🟡
 
 **Toteutettu:**
-- MODE S2S -viestirakenne toteutettu ✅
-- MODE encode/decode TLV-muodossa ✅
-- MODE-viestityyppi rekisteröity protokollaan ✅
-- MODE-vastaanottokäsittelijä toteutettu ✅
-- MODE-tapahtuman lähetys S2S-managerista toteutettu ✅
-- MODE-propagointi muille palvelimille toteutettu kooditasolla ✅
-- Message ID:n säilyttäminen edelleen välitettäessä ✅
-- Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset ✅
-- Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista ✅
-- Operaattorioikeuden tarkistus vastaanotossa ✅
-- +i-muutosten käsittely MODE-vastaanotossa ✅
-- +o-muutosten käsittely MODE-vastaanotossa ✅
-- +v voice-oikeuden käsittelyä S2S MODE -vastaanotossa on valmisteltu. ✅ varmista 2-servu 
+MODE S2S -viestirakenne toteutettu ✅
+MODE encode/decode TLV-muodossa ✅
+MODE-viestityyppi rekisteröity protokollaan ✅
+MODE-vastaanottokäsittelijä toteutettu ✅
+MOD-tapahtuman lähetys S2S-managerista toteutettu ✅
+MODE-propagointi muille palvelimille toteutettu kooditasolla ✅
+Message ID:n säilyttäminen edelleen välitettäessä ✅
+Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset ✅
+Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista ✅
+Operaattorioikeuden tarkistus vastaanotossa ✅
++i-muutosten käsittely MODE-vastaanotossa ✅
++o-muutosten käsittely MODE-vastaanotossa ✅
++v-muutosten käsittely MODE-vastaanotossa ✅
++m-moodin käsittely MODE-vastaanotossa ✅
++n-moodin käsittely MODE-vastaanotossa ✅
++t-moodin käsittely MODE-vastaanotossa ✅
+Paikallinen +m-viestirajoitus ✅
+S2S-reitityksen +m-viestirajoitus ✅
+Paikallinen +n-jäsenyystarkistus ✅
+S2S-reitityksen +n-jäsenyystarkistus ✅
+MODE-komennon moodikohtainen tiedostojako (i, k, l, m, n, o, t, v) ✅
 
 **Tekemättä:**
-- +m-moodin toiminnallisuus 🟡 	Tekemättä / varmistamatta
-- +n-moodin toiminnallisuus 🟡    Perusjäsenyystarkistus jo olemassa, täydellinen testaus kesken
-- +t-moodin täydellinen testaus 🟡
-- +k-kanavasalasana 🟡          	Toteutus olemassa, testaus kesken
-- +l-käyttäjärajoitus 🟡 	      Toteutus olemassa, testaus kesken
-
-- Kaikkien moodien CHANNEL_STATE-synkronointi 🟡
-- MODE-muutosten reconnect-synkronointi 🟡
-- Kahden ja useamman palvelimen MODE-testit 🟡
-- Virheellisten moodikirjainten ja parametrien käsittely 🟡
++t-topic-lukituksen täydellinen toiminnallinen varmistus 🟡
++k-knavasalasanan toiminnallinen varmistus 🟡
++l-käyttäjärajoituksen toiminnallinen varmistus 🟡
+Kaikkien moodien CHANNEL_STATE-synkronointi 🟡
+MODE-muutosten reconnect-synkronointi 🟡
+Kahden ja useamman palvelimen MODE-testit 🟡
+Virheellisten moodikirjainten ja parametrien käsittely 🟡
 
 MODE-oikeuksien reunatapaukset
 - Operaattori poistaa omat oikeutensa.
