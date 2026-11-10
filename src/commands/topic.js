@@ -59,14 +59,6 @@ function handleTopic(
         return;
     }
 
-    // +t: only channel operators may change the topic
-    if (channel.hasMode('t') && !channel.isOperator(client)) {
-        client.send(
-            `:irc.iris.local 482 ${client.nick} ${channel.name} :You're not channel operator`
-        );
-        return;
-    }
-
     channel.setTopic(topic);
 
     const message =
