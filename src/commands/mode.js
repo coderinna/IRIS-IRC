@@ -1,7 +1,18 @@
 
-// src/commands/mode.js
+ // src/commands/mode.js
 
 const events = require('../events');
+
+const modeHandlers = {
+    i: require('./mode/i.js'),
+    k: require('./mode/k.js'),
+    l: require('./mode/l.js'),
+    m: require('./mode/m.js'),
+    n: require('./mode/n.js'),
+    o: require('./mode/o.js'),
+    t: require('./mode/t.js'),
+    v: require('./mode/v.js')
+};
 
 function handleMode(client, params, getChannel, serverName) {
     const target = params[0];
@@ -59,60 +70,42 @@ function handleMode(client, params, getChannel, serverName) {
         return;
     }
 
+    const handler = modeHandlers[mode];
+
+    if (!handler) {
+        client.send(
+            `:${serverName} 472 ${client.nick} ${mode} :is unknown mode char to me`
+        );
+        return;
+    }
+
     let modeParam = '';
     let targetClient = null;
 
-    // +i / -i
-    if (mode === 'i') {
-        if (adding) {
-            channel.addMode('i');
-        } else {
-            channel.removeMode('i');
-        }
-    }
-
-    // +k / -k
-    else if (mode === 'k') {
+    // Modes requiring a parameter
+    if (mode === 'k' && adding) {
         modeParam = params[2] || '';
 
-        if (adding) {
-            if (!modeParam) {
-                client.send(
-                    `:${serverName} 461 ${client.nick} MODE :Not enough parameters`
-                );
-                return;
-            }
-
-            channel.setKey(modeParam);
-            channel.addMode('k');
-        } else {
-            channel.setKey(null);
-            channel.removeMode('k');
-            modeParam = '';
+        if (!modeParam) {
+            client.send(
+                `:${serverName} 461 ${client.nick} MODE :Not enough parameters`
+            );
+            return;
         }
     }
 
-    // +l / -l
-    else if (mode === 'l') {
-        if (adding) {
-            modeParam = params[2] || '';
+    if (mode === 'l' && adding) {
+        modeParam = params[2] || '';
 
-            if (!channel.setLimit(modeParam)) {
-                client.send(
-                    `:${serverName} 461 ${client.nick} MODE :Invalid or missing channel limit`
-                );
-                return;
-            }
-
-            channel.addMode('l');
-        } else {
-            channel.removeLimit();
-            channel.removeMode('l');
+        if (!modeParam) {
+            client.send(
+                `:${serverName} 461 ${client.nick} MODE :Not enough parameters`
+            );
+            return;
         }
     }
 
-    // +o / -o
-    else if (mode === 'o' || mode === 'v') {
+    if (mode === 'o' || mode === 'v') {
         const targetNick = params[2];
 
         if (!targetNick) {
@@ -134,27 +127,19 @@ function handleMode(client, params, getChannel, serverName) {
             return;
         }
 
-        if (mode === 'o') {
-            if (adding) {
-                channel.addOperator(targetClient);
-            } else {
-                channel.removeOperator(targetClient);
-            }
-        } else {
-            if (adding) {
-                channel.addVoice(targetClient);
-            } else {
-                channel.removeVoice(targetClient);
-            }
-        }
-
         modeParam = targetClient.nick;
     }
 
-    // Unsupported channel mode
-    else {
+    const result = handler(
+        channel,
+        adding,
+        modeParam,
+        targetClient
+    );
+
+    if (!result) {
         client.send(
-            `:${serverName} 472 ${client.nick} ${mode} :is unknown mode char to me`
+            `:${serverName} 461 ${client.nick} MODE :Invalid or missing mode parameter`
         );
         return;
     }
