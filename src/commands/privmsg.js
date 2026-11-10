@@ -35,6 +35,19 @@ function handlePrivmsg(
             return;
         }
 
+        // +m: only operators and voiced members may speak
+        if (
+            channel.hasMode('m') &&
+            !channel.isOperator(client) &&
+            !channel.hasVoice(client)
+        ) {
+            client.send(
+                `:irc.iris.local 404 ${client.nick} ${target} :Cannot send to channel`
+            );
+
+            return;
+        }
+
         channel.broadcast(
             `:${client.mask} PRIVMSG ${target} :${message}`,
             client

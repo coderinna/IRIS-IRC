@@ -25,6 +25,20 @@ module.exports = function handleChannel(
         return false;
     }
 
+        // +m: only operators and voiced members may speak
+    if (
+        target.channel.hasMode('m') &&
+        !target.channel.isOperator(sourceClient) &&
+        !target.channel.hasVoice(sourceClient)
+    ) {
+        console.log(
+            `[IRIS] BLOCKED message to ` +
+            `${target.channel.name} (+m)`
+        );
+
+        return false;
+    }
+
     const routeConnections = new Set();
 
     console.log(
