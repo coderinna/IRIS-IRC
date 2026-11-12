@@ -41,8 +41,8 @@ Ensimmäisessä vaiheessa rakennettiin IRIS IRCd perusta.
 * IRC-komentojen parserointi
 * Client-rekisteröinti
 * NICK / USER
-*  Perusnumerics
-*  IRC Client -olio
+* Perusnumerics
+* IRC Client -olio
 * IRC Channel -olio
 
 **Tulos:** IRIS pystyi toimimaan itsenäisenä IRC-palvelimena.

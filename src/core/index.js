@@ -62,6 +62,46 @@ class Core {
             `:${this.serverName} 004 ${client.nick} ${this.serverName} iris-irc 0`
         );
 
+const motd = [
+    '══════════════════════════════════════════════════════════════',
+    '\x0306  ___  ____   ___  ____',
+    '\x0306 |_ _| |  _ \\ |_ _|/ ___|',
+    '\x0306  | | | |_) | | | \\___ \\',
+    '\x0306  | | |  _ <  | |  ___) |',
+    '\x0306 |___|_| |_|\\_\\|___||____/',
+    '',
+    '\x0308 Modern Old IRC. Custom S2S-Protocol & Network.',
+    '',
+    '\x0304 ✦ \x0306 Welcome to  I R I S   I R C D  \x0304 ✦',
+    '',
+    '\x0307 DIY by Coderinna - Codetar - ninni :) <3',
+    '',
+    '\x0308 Nauti ajastasi ♥ Käytä IRISiä sovellettavien lakien mukaisesti.',
+    '',
+    ''
+];
+
+    console.log('══════════════════════════════════════════════════════════════');
+    console.log('\x1b[36m%s\x1b[0m', '  ___  ____   ___  ____  ');
+    console.log('\x1b[36m%s\x1b[0m', ' |_ _| |  _ \\ |_ _|/ ___| ');
+    console.log('\x1b[36m%s\x1b[0m', '  | |  | |_) | | | \\___ \\  ');
+    console.log('\x1b[36m%s\x1b[0m', '  | |  |  _ <  | |  ___) | ');
+    console.log('\x1b[36m%s\x1b[0m', ' |___| |_| \\_\\|___||____/  ');
+    console.log('🌸 ✨  I R I S   I R C D  ✨🌸');
+        client.send(
+            `:${this.serverName} 375 ${client.nick} :- ${this.serverName} viesti tänään -`
+        );
+
+        for (const line of motd) {
+            client.send(
+                `:${this.serverName} 372 ${client.nick} :-${line}`
+            );
+        }
+
+        client.send(
+            `:${this.serverName} 376 ${client.nick} :End of /MOTD command.`
+        );
+
         console.log(
             `[${client.id}] Registered as ${client.nick}`
         );
