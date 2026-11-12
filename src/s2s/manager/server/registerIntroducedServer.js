@@ -1,8 +1,6 @@
 
 // src/s2s/manager/server/registerIntroducedServer.js
 
-// Tämä on nyt se varsinainen kohta, jossa IRIS alkaa muuttua monipalvelinverkoksi. 🌸
-
 module.exports = function registerIntroducedServer(
     manager,
     connection,
