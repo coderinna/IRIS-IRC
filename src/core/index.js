@@ -61,6 +61,35 @@ class Core {
         client.send(
             `:${this.serverName} 004 ${client.nick} ${this.serverName} iris-irc 0`
         );
+/* ovat vain tämän Core-instanssin paikalliset määrät.:
+const userCount = this.clients.size;
+const channelCount = this.channels.size;
+// Jos IRIS-verkossa on myöhemmin IRIS-01, IRIS-02, IRIS-03,
+//  nämä eivät vielä kerro koko verkon käyttäjä- ja kanavamääriä.
+myöhemmin vaihdetaan nuo networkManager-pohjaisiksi.!!!!!!!
+*/
+        const userCount = this.clients.size;
+const channelCount = this.channels.size;
+
+client.send(
+    `:${this.serverName} 251 ${client.nick} :There are ${userCount} users and 0 invisible on 1 server`
+);
+
+client.send(
+    `:${this.serverName} 252 ${client.nick} 0 :IRC operators online`
+);
+
+client.send(
+    `:${this.serverName} 253 ${client.nick} 0 :unknown connection(s)`
+);
+
+client.send(
+    `:${this.serverName} 254 ${client.nick} ${channelCount} :channels formed`
+);
+
+client.send(
+    `:${this.serverName} 255 ${client.nick} :I have 1 server`
+);
 
 const motd = [
     '══════════════════════════════════════════════════════════════',
