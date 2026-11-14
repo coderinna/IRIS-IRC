@@ -7,6 +7,43 @@ const {
 } = require('../../messages/auth');
 
 module.exports = function sendAuth(connection) {
+    const remoteServerId =
+        connection.remote.serverId;
+
+    if (!remoteServerId) {
+        throw new Error(
+            'Cannot authenticate: remote server ID is missing'
+        );
+    }
+
+    if (!connection.trustRegistry) {
+        throw new Error(
+            'Cannot authenticate: trust registry is not configured'
+        );
+    }
+
+    const trustedServer =
+        connection.trustRegistry.getServer(
+            remoteServerId
+        );
+
+    if (!trustedServer) {
+        throw new Error(
+            `Cannot authenticate: server is not trusted: ${remoteServerId}`
+        );
+    }
+
+    if (
+        !connection.trustRegistry.hasPermission(
+            remoteServerId,
+            'connect'
+        )
+    ) {
+        throw new Error(
+            `Cannot connect to server: ${remoteServerId}`
+        );
+    }
+
     const messageId =
         crypto.randomBytes(16);
 
@@ -17,11 +54,8 @@ module.exports = function sendAuth(connection) {
         encodeAuth(
             {
                 method: 'token',
-                serverId:
-                    connection.serverId,
-
-                token:
-                    connection.authToken
+                serverId: connection.serverId,
+                token: trustedServer.secret
             },
             messageId,
             sequence
