@@ -1,3 +1,4 @@
+
 const assert = require('assert');
 
 const Channel = require('../channel');
@@ -28,8 +29,10 @@ function createClient({
 
 function runTest({
     name,
-    modeN,
-    senderIsMember,
+    modeN = false,
+    modeM = false,
+    senderIsMember = false,
+    senderRole = null,
     expectedMessages
 }) {
     const channel = new Channel('#test');
@@ -53,7 +56,19 @@ function runTest({
     }
 
     if (modeN) {
-        channel.modes.add('n');
+        channel.addMode('n');
+    }
+
+    if (modeM) {
+        channel.addMode('m');
+    }
+
+    if (senderRole === 'operator') {
+        channel.addOperator(sender);
+    }
+
+    if (senderRole === 'voice') {
+        channel.addVoice(sender);
     }
 
     const manager = {
@@ -70,9 +85,7 @@ function runTest({
         }
     };
 
-    const connection = {
-        manager
-    };
+    const connection = { manager };
 
     const target = {
         type: 'channel',
@@ -88,7 +101,7 @@ function runTest({
         message: 'Hello IRIS!'
     };
 
-    const result = handleChannel(
+    handleChannel(
         connection,
         target,
         sender,
@@ -109,12 +122,11 @@ function runTest({
     }
 
     console.log(`✓ ${name}`);
-
-    return result;
 }
 
-console.log('=== IRIS S2S +n TEST ===\n');
+console.log('=== IRIS S2S CHANNEL MODE TESTS ===\n');
 
+// +n tests
 runTest({
     name: '+n blocks non-member sender',
     modeN: true,
@@ -131,8 +143,36 @@ runTest({
 
 runTest({
     name: 'without +n allows non-member sender',
-    modeN: false,
-    senderIsMember: false,
+    expectedMessages: 1
+});
+
+// +m tests
+runTest({
+    name: '+m blocks ordinary member',
+    modeM: true,
+    senderIsMember: true,
+    expectedMessages: 0
+});
+
+runTest({
+    name: '+m allows channel operator',
+    modeM: true,
+    senderIsMember: true,
+    senderRole: 'operator',
+    expectedMessages: 1
+});
+
+runTest({
+    name: '+m allows voiced member',
+    modeM: true,
+    senderIsMember: true,
+    senderRole: 'voice',
+    expectedMessages: 1
+});
+
+runTest({
+    name: 'without +m allows ordinary member',
+    senderIsMember: true,
     expectedMessages: 1
 });
 

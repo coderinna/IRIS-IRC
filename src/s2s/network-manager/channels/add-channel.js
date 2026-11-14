@@ -1,4 +1,7 @@
+
 // src/s2s/network-manager/channels/add-channel.js
+
+const Channel = require('../../../channel');
 
 module.exports = function addChannel(
     networkManager,
@@ -14,28 +17,20 @@ module.exports = function addChannel(
         return networkManager.channels.get(channel.name);
     }
 
-    const remoteChannel = {
-        name: channel.name,
-        topic: channel.topic || null,
+    const remoteChannel = new Channel(
+        channel.name,
+        channel.ownerServerId || null
+    );
 
-        clients: new Set(),
-        servers: new Set(),
+    remoteChannel.topic = channel.topic || null;
+    remoteChannel.state = channel.state || 'active';
 
-        modes: new Set(
-            Array.isArray(channel.modes)
-                ? channel.modes
-                : []
-        ),
+    if (Array.isArray(channel.modes)) {
+        remoteChannel.modes = new Set(channel.modes);
+    }
 
-        key: channel.key || null,
-        limit: channel.limit || null,
-
-        operators: new Set(),
-        voiced: new Set(),
-
-        ownerServerId: channel.ownerServerId || null,
-        state: channel.state || 'active'
-    };
+    remoteChannel.key = channel.key || null;
+    remoteChannel.limit = channel.limit || null;
 
     networkManager.channels.set(
         channel.name,

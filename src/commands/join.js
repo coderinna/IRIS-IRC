@@ -71,6 +71,12 @@ if (
     continue;
 }
 
+console.log(
+    `[IRIS DEBUG] JOIN ${channelName} ` +
+    `isNewChannel=${isNewChannel} ` +
+    `membersBefore=${channel.clients.size}`
+);
+
         channel.addClient(client);
 
         if (isNewChannel) {
@@ -103,19 +109,41 @@ const networkNicknames =
             .filter(Boolean)
         : [];
 
-const localNicknames =
-    channel.getMembers().map(member =>
+const nicknameMap = new Map();
+
+for (const member of channel.getMembers()) {
+    if (!member.nick) continue;
+
+    nicknameMap.set(
+        member.nick,
         channel.isOperator(member)
             ? `@${member.nick}`
             : member.nick
-    ).filter(Boolean);
+    );
+}
 
-const nicknames = [
-    ...new Set([
-        ...localNicknames,
-        ...networkNicknames
-    ])
-];
+if (remoteChannel) {
+    for (const member of remoteChannel.clients) {
+        if (!member.nick) continue;
+
+        const isOperator =
+            remoteChannel.isOperator(member);
+
+        const existing =
+            nicknameMap.get(member.nick);
+
+        if (isOperator || !existing) {
+            nicknameMap.set(
+                member.nick,
+                isOperator
+                    ? `@${member.nick}`
+                    : member.nick
+            );
+        }
+    }
+}
+
+const nicknames = [...nicknameMap.values()];
 
 client.send(
     `:${serverName} 353 ${client.nick} = ${channel.name} :${nicknames.join(' ')}`

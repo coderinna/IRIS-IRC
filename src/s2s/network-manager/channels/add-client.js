@@ -49,7 +49,7 @@ module.exports = function addClient(
             entry.serverId === client.serverId &&
             entry.clientId === client.clientId
         )) {
-            channel.operators.add(client);
+            channel.addOperator(client);
         }
     }
 
@@ -59,7 +59,7 @@ module.exports = function addClient(
             entry.serverId === client.serverId &&
             entry.clientId === client.clientId
         )) {
-            channel.voiced.add(client);
+          channel.addVoice(client);
         }
     }
 

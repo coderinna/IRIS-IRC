@@ -43,6 +43,14 @@ function handleTopic(
         return;
     }
 
+        // Only channel members may change the topic
+    if (!channel.hasClient(client)) {
+        client.send(
+            `:irc.iris.local 442 ${client.nick} ${channel.name} :You're not on that channel`
+        );
+        return;
+    }
+
     // +t: only channel operators may change the topic
     if (channel.hasMode('t') && !channel.isOperator(client)) {
         client.send(

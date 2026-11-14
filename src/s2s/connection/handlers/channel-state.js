@@ -196,14 +196,14 @@ module.exports = function handleChannelState(
         }
 
         // Restore operator privileges
-        for (const operatorClient of resolvedOperators) {
-            channel.operators.add(operatorClient);
-        }
+for (const operatorClient of resolvedOperators) {
+    channel.addOperator(operatorClient);
+}
 
         // Restore voice privileges
-        for (const voicedClient of resolvedVoiced) {
-            channel.voiced.add(voicedClient);
-        }
+for (const voicedClient of resolvedVoiced) {
+    channel.addVoice(voicedClient);
+}
 
         networkManager.updateChannelState(
             channelState.channel

@@ -60,15 +60,17 @@ module.exports = function handleTopic(connection, frame) {
             `:${client.nick}!${client.user || '*'}@${client.host || 'localhost'} ` +
             `TOPIC ${channel.name} :${topic.topic}`;
 
-        const localChannel = connection.manager
-            .getLocalChannels()
-            .find(item => item.name === topic.channel);
+const localChannel = connection.manager
+    .getLocalChannels()
+    .find(item => item.name === topic.channel);
 
-        if (localChannel) {
-            for (const localClient of localChannel.getMembers()) {
-                localClient.send(message);
-            }
-        }
+if (localChannel) {
+    localChannel.setTopic(topic.topic);
+
+    for (const localClient of localChannel.getMembers()) {
+        localClient.send(message);
+    }
+}
 
         console.log(
             `[IRIS] ← TOPIC ${topic.channel}: ${topic.topic}`

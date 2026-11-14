@@ -68,6 +68,17 @@ module.exports = function handleMode(connection, frame) {
                 channel.removeMode('i');
             }
 
+        } else if (
+            modeLetter === 'm' ||
+            modeLetter === 'n' ||
+            modeLetter === 't'
+        ) {
+            if (adding) {
+                channel.addMode(modeLetter);
+            } else {
+                channel.removeMode(modeLetter);
+            }
+
         } else if (modeLetter === 'k') {
             if (adding) {
                 if (!modeParam) {
