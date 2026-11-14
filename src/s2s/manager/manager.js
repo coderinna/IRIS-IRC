@@ -1,5 +1,9 @@
 // src/s2s/manager/manager.js
-
+const {
+    TrustRegistry,
+    createNetworkPolicy,
+    createServerPolicy
+} = require('../security');
 const setupEvents = require('./handlers/setupEvents.js');
 const RemoteClientRegistry = require('./remote-clients/remote-clients.js');
 const { sendRemoteMessage } = require('./routing');
@@ -24,7 +28,10 @@ constructor({
     networkManager,
     getLocalClientByNick,
     getLocalClientById,
-    getLocalChannels
+    getLocalChannels,
+    trustRegistry,
+    networkPolicy = {},
+    serverPolicy = {}
 }) {
         this.serverId = serverId;
         this.serverName = serverName;
@@ -37,6 +44,14 @@ constructor({
      this.getLocalClientByNick = getLocalClientByNick;
 this.getLocalClientById = getLocalClientById;
 this.getLocalChannels = getLocalChannels;
+this.trustRegistry =
+    trustRegistry || new TrustRegistry();
+
+this.networkPolicy =
+    createNetworkPolicy(networkPolicy);
+
+this.serverPolicy =
+    createServerPolicy(serverPolicy);
 
         setupEvents(this);
     }
