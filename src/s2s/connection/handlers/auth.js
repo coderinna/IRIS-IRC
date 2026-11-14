@@ -1,5 +1,3 @@
-const crypto = require('crypto');
-
 const {
     decodeAuth
 } = require('../../messages/auth');
@@ -7,6 +5,9 @@ const {
 const {
     STATES
 } = require('../states.js');
+
+const authenticateServer =
+    require('../../security/authenticate-server');
 
 module.exports = function handleAuth(
     connection,
@@ -16,57 +17,40 @@ module.exports = function handleAuth(
         const auth =
             decodeAuth(frame.payload);
 
+        if (
+            auth.serverId !==
+            connection.remote.serverId
+        ) {
+            throw new Error(
+                'S2S AUTH server ID mismatch'
+            );
+        }
 
-if (
-    auth.serverId !==
-    connection.remote.serverId
-) {
-    throw new Error(
-        `IRISH AUTH server ID mismatch: ` +
-        `auth=${auth.serverId}, ` +
-        `hello=${connection.remote.serverId}, ` +
-        `local=${connection.serverId}`
-    );
-}
+        if (!connection.trustRegistry) {
+            throw new Error(
+                'S2S trust registry is not configured'
+            );
+        }
 
-        console.log(
-            `[IRIS] ← AUTH ${auth.serverId}`
+        const result = authenticateServer(
+            connection.trustRegistry,
+            auth.serverId,
+            auth.token
         );
 
-        if (!connection.authToken) {
+        if (!result.authenticated) {
             throw new Error(
-                'IRISH authentication token is not configured'
+                `S2S authentication rejected: ${result.reason}`
             );
         }
 
-        if (typeof auth.token !== 'string') {
-            throw new Error(
-                'IRISH authentication token is invalid'
-            );
-        }
+        connection.authenticated = true;
 
-        const expectedToken =
-            Buffer.from(connection.authToken, 'utf8');
+        connection.state = STATES.SERVER;
 
-        const receivedToken =
-            Buffer.from(auth.token, 'utf8');
-
-        if (
-            expectedToken.length !== receivedToken.length ||
-            !crypto.timingSafeEqual(
-                expectedToken,
-                receivedToken
-            )
-        ) {
-            console.error(
-                `[IRIS] Authentication failed for ${auth.serverId}`
-            );
-
-            connection.socket.destroy();
-            return false;
-        }
-
-   connection.state = STATES.SERVER;
+        console.log(
+            `[IRIS] ✓ AUTHENTICATED ${auth.serverId}`
+        );
 
         connection.sendServer();
 
@@ -74,10 +58,11 @@ if (
 
     } catch (error) {
         console.error(
-            '[IRIS] Invalid AUTH:',
+            '[IRIS] Authentication failed:',
             error.message
         );
 
+        connection.authenticated = false;
         connection.socket.destroy();
 
         return false;

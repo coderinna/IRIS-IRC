@@ -59,6 +59,21 @@ class S2SConnection {
                 this.manager =
             options.manager || null;
 
+            this.trustRegistry =
+    options.trustRegistry ||
+    this.manager?.trustRegistry ||
+    null;
+
+this.networkPolicy =
+    options.networkPolicy ||
+    this.manager?.networkPolicy ||
+    null;
+
+this.serverPolicy =
+    options.serverPolicy ||
+    this.manager?.serverPolicy ||
+    null;
+
         this.networkManager =
             options.networkManager ||
             this.manager?.networkManager ||
