@@ -17,6 +17,10 @@ const authenticateServer =
 const authorizeServer =
     require('./authorize-server');
 
+
+const authorizeAction =
+    require('./authorize-action');
+
 module.exports = {
     TrustRegistry,
 
@@ -27,5 +31,7 @@ module.exports = {
     DEFAULT_SERVER_POLICY,
 
     authenticateServer,
-    authorizeServer
+    authorizeServer,
+
+    authorizeAction
 };

@@ -1,4 +1,5 @@
 const { STATES } = require('../states.js');
+const destroy = require('./destroy.js');
 
 function startHandshakeTimeout(connection) {
     connection.handshakeTimeout = setTimeout(() => {
@@ -6,14 +7,10 @@ function startHandshakeTimeout(connection) {
             return;
         }
 
-        console.error(
-            '[IRIS] S2S handshake timeout'
-        );
+        console.error('[IRIS] S2S handshake timeout');
 
         destroy(connection);
     }, 10_000);
 }
 
-module.exports = 
-   startHandshakeTimeout
-;
+module.exports = startHandshakeTimeout;

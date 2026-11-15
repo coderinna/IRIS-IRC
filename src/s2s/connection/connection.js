@@ -3,7 +3,9 @@
 const crypto = require('crypto');
 
 const FrameParser = require('../protocol/parser/parser.js');
-
+const {
+    authorizeAction
+} = require('../security');
 const handleTopic = require('./handlers/topic');
 const handleMode = require('./handlers/mode');
 const lifecycle = require('./lifecycle/index.js');
@@ -433,8 +435,9 @@ handleData(chunk) {
     );
 }
 
+
 handleFrame(frame) {
-        console.log(
+    console.log(
         `[IRIS] ← FRAME type=0x${frame.type.toString(16)} ` +
         `messageId=${frame.messageId?.toString('hex') || 'none'}`
     );
@@ -466,12 +469,7 @@ handleFrame(frame) {
         return;
     }
 
-    const handler =
-        this.handlers[frame.type];
-
-        console.log(
-    `[IRIS] DISPATCH FRAME type=0x${frame.type.toString(16)}`
-);
+    const handler = this.handlers[frame.type];
 
     if (!handler) {
         console.log(
@@ -482,26 +480,46 @@ handleFrame(frame) {
         return;
     }
 
-    const handled =
-        handler(frame);
+    // Keskitetty S2S-toimintovaltuutus
+    const authorization = authorizeAction({
+        connection: this,
+        frameType: frame.type
+    });
+
+    if (!authorization.authorized) {
+        console.warn(
+            `[IRIS] S2S authorization rejected: ` +
+            `server=${this.remote.serverId} ` +
+            `frame=0x${frame.type.toString(16)} ` +
+            `reason=${authorization.reason}`
+        );
+
+        return;
+    }
+
+    console.log(
+        `[IRIS] DISPATCH FRAME ` +
+        `action=${authorization.action} ` +
+        `type=0x${frame.type.toString(16)}`
+    );
+
+    const handled = handler(frame);
 
     if (
         handled === true &&
         [
-    TYPES.CLIENT,
-    TYPES.NICK,
-    TYPES.JOIN,
-    TYPES.PART,
-    TYPES.QUIT,
-    TYPES.MESSAGE,
-    TYPES.MODE,
-    TYPES.TOPIC,
-    TYPES.CHANNEL_STATE
+            TYPES.CLIENT,
+            TYPES.NICK,
+            TYPES.JOIN,
+            TYPES.PART,
+            TYPES.QUIT,
+            TYPES.MESSAGE,
+            TYPES.MODE,
+            TYPES.TOPIC,
+            TYPES.CHANNEL_STATE
         ].includes(frame.type)
     ) {
-        this.sendAck(
-            frame.messageId
-        );
+        this.sendAck(frame.messageId);
     }
 }
 

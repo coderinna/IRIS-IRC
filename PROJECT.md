@@ -497,22 +497,50 @@ Authentication & Authorization = IRIS-verkon palvelinten ja IRC-käyttäjien tun
 S2S Authentication = miten IRIS-palvelimet tunnistavat toisensa ennen verkkoon liittymistä.
 
 **Toteutettu:**
-- S2S HELLO / AUTH -kättely
-- Palvelimen tunnistetietojen validointi
-- Credential- ja server identity -sidonta
-- Tokenien constant-time-vertailu
-- Virheellisten tunnistetietojen hylkääminen
-- Yhteyden tilan validointi
+[x] Palvelinten HELLO-tunnistus
+[x] AUTH-autentikointi
+[x] Molemminpuolinen palvelinautentikointi
+[x] Luottamusrekisteri (TrustRegistry)
+[x] Tuntemattoman palvelimen tunnistaminen ja hylkääminen
+[x] Väärän autentikoinnin hylkääminen – testattu aiemmin
+[x] Palvelimen CONNECT-oikeuden tarkistus
+[x] SERVER-tietojen välitys
+[x] READY-vaiheen valtuutustarkistus
+[x] CONNECTED-tilaan siirtyminen
+[x] Verkkotopologian rekisteröinti
+[x] PING/PONG-heartbeat
+[x] Kahden palvelimen välinen S2S-yhteys
+[x] JOIN-tapahtumien välitys
+[x] IRC-viestien välitys
 
 **Varmistettava:**
-- [ ] Kahden palvelimen tunnistautuminen päästä päähän
-- [ ] Useamman palvelimen tunnistautuminen
-- [ ] Virheellisen tunnisteen hylkääminen
-- [ ] Tuntemattoman palvelimen hylkääminen
-- [ ] Väärään server identityyn sidotun tunnisteen hylkääminen
-- [ ] Katkenneen tunnistautumisprosessin siivoaminen
-- [ ] Uudelleenyhdistämisen tunnistautuminen
-- [ ] Palvelinten tunnistetietojen turvallinen säilytys ja konfigurointi
+[ ] introduce-oikeuden tarkistus kaikissa esittelytoiminnoissa
+[ ] route-oikeuden tarkistus kaikissa reititystoiminnoissa
+[ ] sync-oikeuden tarkistus kaikissa synkronointitoiminnoissa
+[ ] Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen
+[ ] Palvelinroolien rajoitukset
+[ ] Kaksisuuntaisen liikenteen kattava testaus
+[ ] Yhteyden katkeamisen ja uudelleenyhdistämisen turvallisuus
+[ ] Etäkäyttäjien ja kanavien tilan eheys
+
+Ei vielä 
+- [ ] TLS-salaus S2S-yhteyksille
+- [ ] Palvelinkohtaiset vahvat tuotantosalaisuudet
+- [ ] Salaisuuksien vaihtaminen eli key rotation
+- [ ] Replay-hyökkäysten esto
+- [ ] Nonce- tai istuntokohtainen tunnistus
+- [ ] Kaikkien S2S-pakettien alkuperän tarkistus
+- [ ] Viestien ja pakettien kokorajat
+- [ ] Syötteiden kattava validointi
+- [ ] Rate limiting
+- [ ] Yhteysmäärien rajoitukset
+- [ ] Reitityssilmukoiden esto
+- [ ] Duplikaattitapahtumien esto
+- [ ] ID-törmäysten esto
+- [ ] IRC-operaattorien oikeuksien turvallisuus palvelinten välillä
+- [ ] Netsplit-tilanteiden turvallisuustestit
+- [ ] Turvallisuuslokitus ilman salaisuuksien vuotamista
+- [] Riippuvuuksien haavoittuvuustarkistukset
 
 ### 13.2. IRC Client Authentication
 
