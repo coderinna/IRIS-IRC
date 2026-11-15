@@ -12,6 +12,9 @@ const { createCommandRouter } = require('./src/commands/router');
 const S2SManager = require('./src/s2s/manager/manager.js');
 const NetworkManager = require('./src/s2s/network-manager/network-manager.js');
 const S2SListener = require('./src/s2s/listener/server.js');
+const {
+    TrustRegistry
+} = require('./src/s2s/security');
 
 const { server: serverConfig } = config;
 const S2S_PEER_HOST = process.env.S2S_PEER_HOST || null;
@@ -42,9 +45,26 @@ const networkManager = new NetworkManager();
     networkManager.channels.delete('#test');
 }, 10000);*/
 
+const trustRegistry = new TrustRegistry();
+
+const S2S_PEER_SERVER_ID =
+    process.env.S2S_PEER_SERVER_ID || 'iris-01';
+
+trustRegistry.addServer({
+    serverId: S2S_PEER_SERVER_ID,
+    secret: S2S_AUTH_TOKEN,
+    permissions: {
+        connect: true,
+        introduce: true,
+        route: true,
+        sync: true
+    }
+});
+
 const s2sManager = new S2SManager({
     serverId: S2S_SERVER_ID,
     serverName: S2S_SERVER_NAME,
+    trustRegistry,
     networkManager,
     getLocalClientByNick:
         core.getClientByNick.bind(core),
