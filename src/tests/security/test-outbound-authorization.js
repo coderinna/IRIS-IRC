@@ -3,19 +3,19 @@ const assert = require('assert');
 
 const {
     validateOutgoingFrame
-} = require('../s2s/connection/outbound-validation');
+} = require('../../s2s/connection/outbound-validation');
 
 const {
     encodeFrame
-} = require('../s2s/protocol/frame/frame');
+} = require('../../s2s/protocol/frame/frame');
 
 const {
     TYPES
-} = require('../s2s/protocol/frame/frame');
+} = require('../../s2s/protocol/frame/frame');
 
 const {
     STATES
-} = require('../s2s/connection/states');
+} = require('../../s2s/connection/states');
 
 function createFrame(type) {
     return encodeFrame({

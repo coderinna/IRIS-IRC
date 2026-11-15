@@ -1,6 +1,6 @@
 
 const assert = require('assert');
-const S2SManager = require('../s2s/manager/manager');
+const S2SManager = require('../../s2s/manager/manager');
 
 const manager = Object.create(S2SManager.prototype);
 

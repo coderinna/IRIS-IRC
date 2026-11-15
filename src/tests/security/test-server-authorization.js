@@ -2,15 +2,15 @@
 
 const assert = require('assert');
 
-const authorizeServer = require('../../src/s2s/security/authorization/authorize-server');
+const authorizeServer = require('../../s2s/security/authorization/authorize-server');
 
 const {
     createNetworkPolicy
-} = require('../../src/s2s/security/policies/network-policy');
+} = require('../../s2s/security/policies/network-policy');
 
 const {
     createServerPolicy
-} = require('../../src/s2s/security/policies/server-policy');
+} = require('../../s2s/security/policies/server-policy');
 
 const trustRegistry = {
     getServer: () => ({

@@ -1,6 +1,6 @@
 
 const authorizeOutbound = require(
-    '../s2s/security/authorization/authorize-outbound'
+    '../../s2s/security/authorization/authorize-outbound'
 );
 
 let passed = 0;

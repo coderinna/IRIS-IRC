@@ -8,7 +8,7 @@ const {
     createServerPolicy,
     authenticateServer,
     authorizeServer
-} = require('../s2s/security');
+} = require('../../s2s/security');
 
 // Trust registry
 const trustRegistry = new TrustRegistry();

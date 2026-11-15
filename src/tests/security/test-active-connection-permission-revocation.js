@@ -1,10 +1,10 @@
 
 const authorizeAction = require(
-    '../s2s/security/authorization/authorize-action'
+    '../../s2s/security/authorization/authorize-action.js'
 );
 
 const { STATES } = require(
-    '../s2s/connection/states.js'
+    '../../s2s/connection/states.js'
 );
 
 let passed = 0;

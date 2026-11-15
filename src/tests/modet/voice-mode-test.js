@@ -3,7 +3,7 @@ const assert = require('assert');
 const {
     encodeMode,
     decodeMode
-} = require('../s2s/messages/mode');
+} = require('../../s2s/messages/mode');
 
 const crypto = require('crypto');
 
