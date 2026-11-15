@@ -3,7 +3,8 @@
 const {
     decodeServer
 } = require('../../messages/server');
-
+const authorizeServer =
+    require('../../security/authorize-server');
 const {
     STATES
 } = require('../states.js');
@@ -15,30 +16,61 @@ module.exports = function handleServer(
     try {
         const server =
             decodeServer(frame.payload);
+if (
+    connection.state === STATES.CONNECTED
+) {
+    if (!connection.manager) {
+        throw new Error(
+            'IRIS SERVER requires manager'
+        );
+    }
 
-        if (
-            connection.state === STATES.CONNECTED
-        ) {
-            if (!connection.manager) {
-                throw new Error(
-                    'IRIS SERVER requires manager'
-                );
-            }
+    const trustedServer =
+        connection.trustRegistry?.getServer(
+            server.serverId
+        );
 
-            const registered =
-                connection.manager.registerIntroducedServer(
-                    connection,
-                    server
-                );
+    if (!trustedServer) {
+        throw new Error(
+            `IRIS SERVER introduction rejected: server is not trusted: ${server.serverId}`
+        );
+    }
 
-            if (!registered) {
-                throw new Error(
-                    `IRIS SERVER introduction rejected: ${server.serverId}`
-                );
-            }
+    if (
+        !connection.trustRegistry.hasPermission(
+            server.serverId,
+            'introduce'
+        )
+    ) {
+        throw new Error(
+            `IRIS SERVER introduction rejected: permission denied: ${server.serverId}`
+        );
+    }
 
-            return true;
-        }
+    if (
+        connection.serverPolicy &&
+        !connection.serverPolicy.allowServerIntroduction
+    ) {
+        throw new Error(
+            'IRIS SERVER introduction rejected: local policy'
+        );
+    }
+
+    const registered =
+        connection.manager.registerIntroducedServer(
+            connection,
+            server
+        );
+
+    if (!registered) {
+        throw new Error(
+            `IRIS SERVER introduction rejected: ${server.serverId}`
+        );
+    }
+
+    return true;
+}
+
 
         if (
             server.serverId !==

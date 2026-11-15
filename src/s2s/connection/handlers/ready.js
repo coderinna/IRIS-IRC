@@ -7,7 +7,8 @@ const {
 const {
     STATES
 } = require('../states.js');
-
+const authorizeServer =
+    require('../../security/authorize-server');
 module.exports = function handleReady(
     connection,
     frame
@@ -31,11 +32,46 @@ module.exports = function handleReady(
             );
         }
 
-        console.log(
-            `[IRIS] ← READY ${ready.serverId}`
-        );
+console.log(
+    `[IRIS] ← READY ${ready.serverId}`
+);
 
-        connection.state = STATES.CONNECTED;
+const authorization =
+    authorizeServer({
+        trustRegistry:
+            connection.trustRegistry,
+
+        networkPolicy:
+            connection.networkPolicy,
+
+        serverPolicy:
+            connection.serverPolicy,
+
+        serverId:
+            ready.serverId,
+
+        server: {
+            serverRole:
+                connection.remote.serverRole,
+
+            capabilities:
+                connection.remote.capabilities,
+
+            tls:
+                connection.remote.tls
+        }
+    });
+
+if (!authorization.authorized) {
+    throw new Error(
+        `S2S authorization rejected: ${authorization.reason}`
+    );
+}
+
+connection.remote.permissions =
+    authorization.permissions;
+
+connection.state = STATES.CONNECTED;
 
         if (connection.manager) {
             connection.manager.registerRemoteServer(

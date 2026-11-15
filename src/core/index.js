@@ -110,13 +110,6 @@ const motd = [
     ''
 ];
 
-    console.log('══════════════════════════════════════════════════════════════');
-    console.log('\x1b[36m%s\x1b[0m', '  ___  ____   ___  ____  ');
-    console.log('\x1b[36m%s\x1b[0m', ' |_ _| |  _ \\ |_ _|/ ___| ');
-    console.log('\x1b[36m%s\x1b[0m', '  | |  | |_) | | | \\___ \\  ');
-    console.log('\x1b[36m%s\x1b[0m', '  | |  |  _ <  | |  ___) | ');
-    console.log('\x1b[36m%s\x1b[0m', ' |___| |_| \\_\\|___||____/  ');
-    console.log('🌸 ✨  I R I S   I R C D  ✨🌸');
         client.send(
             `:${this.serverName} 375 ${client.nick} :- ${this.serverName} viesti tänään -`
         );
