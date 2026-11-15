@@ -434,7 +434,7 @@ S2S Reliability = miten IRIS-palvelinten välinen verkko toimii virhe-, katkos- 
 ## 13. Authentication & Authorization 🟡
 
 ### 13.1. S2S Security
-
+moi
 Rakennettu on paljon enemmän kuin pelkän IRC-palvelinten välisen kirjautumisen.
 Nyt testataan, kestääkö IRIS myös oikean hajautetun IRC-verkon häiriöitä ja hyökkäystilanteita.
 
@@ -528,7 +528,7 @@ C. Tuotantotason kovennukset
 - [ ] ID-törmäysten esto
 - [ ] Turvallisuuslokitus ilman salaisuuksien vuotamista
 
-### 13.3. IRC-Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle
+### 13.2. IRC-Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle
 
 **Tarkistettavaa ja toteutettavaa:**
 - [ ] IRC PASS -komennon käsittely, jos palvelimella vaaditaan salasana
@@ -540,7 +540,7 @@ C. Tuotantotason kovennukset
 - [ ] Yhteensopivuus käytettävien IRC-clientien kanssa
 - [ ] Mahdollinen SASL-tuki erillisenä laajennuksena
 
-### 13.4. IRC Operator Authentication = miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi
+### 13.3. IRC Operator Authentication (OPIT)= miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi
 
 **Tarkistettavaa ja toteutettavaa:**
 - [ ] OPER-komennon toteutus
@@ -551,21 +551,21 @@ C. Tuotantotason kovennukset
 - [ ] Operaattorioikeuksien poistaminen
 - [ ] Operaattorin oikeuksien tarkistus komentojen yhteydessä
 
-### 13.5. Authorization & Permission Management = Mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa
+### 13.4. Authorization & Permission Management = Mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa
 
 **Tarkistettavaa ja toteutettavaa:**
 - [ ] IRC-käyttäjien oikeuksien tarkistus
-- [ ] IRC operator -oikeuksien tarkistus
-- [ ] Channel operator -oikeuksien tarkistus
-- [ ] Voice-oikeuksien tarkistus
+- [ x] IRC operator -oikeuksien tarkistus
+- [x ] Channel operator -oikeuksien tarkistus
+- [x ] Voice-oikeuksien tarkistus
 - [ ] Channel mode -muutosten käyttöoikeudet
-- [ ] TOPIC-muutosten käyttöoikeudet
+- [x ] TOPIC-muutosten käyttöoikeudet
 - [ ] Remote-clientien oikeuksien tarkistus
 - [ ] Remote operator -oikeuksien yhdenmukaisuus
 - [ ] Palvelinten välisten komentojen ja tapahtumien valtuutus
 - [ ] Luvattomien toimintojen hylkääminen
 
-### 13.6. Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen
+### 13.5. Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen
 
 Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen.
 
