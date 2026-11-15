@@ -1,5 +1,5 @@
 
-const { STATES } = require('../connection/states.js');
+const { STATES } = require('../../connection/states.js');
 
 const CONTROL_FRAMES = new Set([
     0x01, // HELLO

@@ -5,6 +5,10 @@ const {
 } = require('../../messages/server');
 const authorizeServer =
     require('../../security/authorization/authorize-server');
+const validateServerIdentity =
+    require('../../security/validation/validate-server-identity');
+const validateServerIntroduction =
+    require('../../security/validation/validate-server-introduction');
 const {
     STATES
 } = require('../states.js');
@@ -25,34 +29,15 @@ if (
         );
     }
 
-    const trustedServer =
-        connection.trustRegistry?.getServer(
-            server.serverId
-        );
+    const introductionCheck = validateServerIntroduction({
+        server,
+        trustRegistry: connection.trustRegistry,
+        serverPolicy: connection.serverPolicy
+    });
 
-    if (!trustedServer) {
+    if (!introductionCheck.valid) {
         throw new Error(
-            `IRIS SERVER introduction rejected: server is not trusted: ${server.serverId}`
-        );
-    }
-
-    if (
-        !connection.trustRegistry.hasPermission(
-            server.serverId,
-            'introduce'
-        )
-    ) {
-        throw new Error(
-            `IRIS SERVER introduction rejected: permission denied: ${server.serverId}`
-        );
-    }
-
-    if (
-        connection.serverPolicy &&
-        !connection.serverPolicy.allowServerIntroduction
-    ) {
-        throw new Error(
-            'IRIS SERVER introduction rejected: local policy'
+            `IRIS SERVER introduction rejected: ${introductionCheck.reason}`
         );
     }
 
@@ -72,12 +57,14 @@ if (
 }
 
 
-        if (
-            server.serverId !==
-            connection.remote.serverId
-        ) {
+        const identityCheck = validateServerIdentity({
+            hello: connection.remote,
+            server
+        });
+
+        if (!identityCheck.valid) {
             throw new Error(
-                'IRIS SERVER server ID does not match HELLO'
+                `IRIS SERVER identity validation failed: ${identityCheck.reason}`
             );
         }
 

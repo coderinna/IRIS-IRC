@@ -21,6 +21,12 @@ const authorizeServer =
 const authorizeAction =
     require('./authorization/authorize-action');
 
+const validateServerIdentity =
+    require('./validation/validate-server-identity');
+
+const validateServerIntroduction =
+    require('./validation/validate-server-introduction');
+
 module.exports = {
     TrustRegistry,
 
@@ -33,5 +39,7 @@ module.exports = {
     authenticateServer,
     authorizeServer,
 
-    authorizeAction
+    authorizeAction,
+    validateServerIdentity,
+    validateServerIntroduction
 };
