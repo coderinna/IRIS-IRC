@@ -4,7 +4,7 @@ const {
     decodeServer
 } = require('../../messages/server');
 const authorizeServer =
-    require('../../security/authorize-server');
+    require('../../security/authorization/authorize-server');
 const {
     STATES
 } = require('../states.js');

@@ -8,7 +8,7 @@ const {
     STATES
 } = require('../states.js');
 const authorizeServer =
-    require('../../security/authorize-server');
+    require('../../security/authorization/authorize-server');
 module.exports = function handleReady(
     connection,
     frame

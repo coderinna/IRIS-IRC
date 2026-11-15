@@ -7,7 +7,7 @@ const {
 } = require('../states.js');
 
 const authenticateServer =
-    require('../../security/authenticate-server');
+    require('../../security/authentication/authenticate-server');
 
 module.exports = function handleAuth(
     connection,

@@ -4,22 +4,22 @@ const TrustRegistry =
 const {
     createNetworkPolicy,
     DEFAULT_NETWORK_POLICY
-} = require('./network-policy');
+} = require('./policies/network-policy');
 
 const {
     createServerPolicy,
     DEFAULT_SERVER_POLICY
-} = require('./server-policy');
+} = require('./policies/server-policy');
 
 const authenticateServer =
-    require('./authenticate-server');
+    require('./authentication/authenticate-server');
 
 const authorizeServer =
-    require('./authorize-server');
+    require('./authorization/authorize-server');
 
 
 const authorizeAction =
-    require('./authorize-action');
+    require('./authorization/authorize-action');
 
 module.exports = {
     TrustRegistry,
