@@ -438,8 +438,10 @@ S2S Reliability = miten IRIS-palvelinten välinen verkko toimii virhe-, katkos- 
 Rakennettu on paljon enemmän kuin pelkän IRC-palvelinten välisen kirjautumisen.
 Nyt testataan, kestääkö IRIS myös oikean hajautetun IRC-verkon häiriöitä ja hyökkäystilanteita.
 
+#### Toteutettu
+
 1. Palvelinten tunnistaminen ja autentikointi
-Toteutettu
+
 - [x] Palvelinten HELLO-tunnistus
 - [x] AUTH-autentikointi
 - [x] Molemminpuolinen palvelinautentikointi
@@ -448,22 +450,25 @@ Toteutettu
 - [x] Virheellisen autentikoinnin hylkääminen
 - [x] Palvelimen CONNECT-oikeuden tarkistus
 - [x] Palvelinidentiteetin validointi (serverId ja serverName)
+
 2. Yhteyden muodostaminen ja hallinta
-Toteutettu
+
 - [x] SERVER-tietojen välitys
 - [x] READY-vaiheen valtuutustarkistus
 - [x] CONNECTED-tilaan siirtyminen
 - [x] Verkkotopologian rekisteröinti
 - [x] PING/PONG-heartbeat
 - [x] Kahden palvelimen välinen S2S-yhteys
+
 3. Tapahtumien välitys
-Toteutettu
+
 - [x] JOIN-tapahtumien välitys
 - [x] IRC-viestien välitys
 - [x] Palvelinten esittely ja edelleen välitys
 - [x] Introduce-oikeuden tarkistus palvelimen esittelyssä
+
 4. Valtuutus ja tietoturva
-Peruslogiikka toteutettu
+
 - [x] Sisään tulevan liikenteen keskitetty valtuutus (authorizeAction)
 - [x] Lähtevän liikenteen valtuutus (authorizeOutbound)
 - [x] Lähtevän liikenteen introduce-, route- ja sync-policy-tarkistukset
@@ -485,25 +490,28 @@ Tässä viimeisessä kohdassa aiemmissa testeissä on kaksi eri asiaa:
  ja aktiivisen yhteyden oikeuksien uudelleenlukemista authorizeAction-testissä 6/6. 
 Jälkimmäinen käytti mockattua rekisteriä eikä yksin todista oikean TCP-yhteyden sulkeutumista.
 
-### 13.2. Vielä toteutettava ja varmistettava
+#### Vielä toteutettava ja varmistettava
 5. Valtuutuksen kattavuus
 
 A: Perusominaisuudet on jo rakennettu. Kattavuus pitää vielä tarkistaa.
 B: Toiminnallisuutta on jo toteutettu. Nyt tarvitaan kattavat verkkotestit.
 C: Tuotantotason kovennukset ovat pääosin vielä avoimia, vaikka osa perustasta on jo olemassa.
 
-A. Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen	Osittain testattu
+A. Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen	
+
 - [ ] Route-oikeuden tarkistus kaikissa reititystoiminnoissa
 - [ ] Sync-oikeuden tarkistus kaikissa synkronointitoiminnoissa
 - [ ] Oikeuksien poistamisen vaikutuksen kattava testaus oikeassa aktiivisessa yhteydessä
+
 B. S2S-toiminnan turvallisuustestit
-Avoinna
+
 - [ ] Kaksisuuntaisen liikenteen kattava testaus
 - [ ] Yhteyden katkeamisen ja uudelleenyhdistämisen turvallisuustestit
 - [ ] Etäkäyttäjien ja kanavien tilan eheyden testaus
 - [ ] Netsplit-tilanteiden turvallisuustestit
+
 C. Tuotantotason kovennukset
-Avoinna
+
 - [ ] TLS-salaus S2S-yhteyksille
 - [ ] Credential management
 - [ ] Vahvat palvelinkohtaiset salaisuudet
