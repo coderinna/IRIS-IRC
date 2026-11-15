@@ -1,6 +1,9 @@
-node - <<'NODE'
+
 const crypto = require('crypto');
-const { encodeTopic, decodeTopic } = require('./src/s2s/messages/topic');
+const {
+    encodeTopic,
+    decodeTopic
+} = require('../../../src/s2s/messages/topic.js');
 
 const data = {
     clientId: 'client-123',
@@ -18,4 +21,3 @@ if (decoded.topic !== '') {
 } else {
     console.log('[IRIS EMPTY TOPIC TEST] PASS');
 }
-NODE

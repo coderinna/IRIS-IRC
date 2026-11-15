@@ -8,7 +8,8 @@ const {
 
 module.exports = function sendServer(
     connection,
-    server = null
+    server = null,
+    action = null
 ) {
     const messageId =
         crypto.randomBytes(16);
@@ -68,5 +69,8 @@ module.exports = function sendServer(
             sequence
         );
 
-    return connection.sendFrame(frame);
+   return connection.sendFrame(
+    frame,
+    action
+);
 };

@@ -5,11 +5,11 @@ const assert = require('assert');
 const {
     FIELDS,
     decodeChannelState
-} = require('../s2s/messages/channel-state');
+} = require('../../s2s/messages/channel-state');
 
 const {
     encodeFields
-} = require('../s2s/protocol/tlv/tlv');
+} = require('../../s2s/protocol/tlv/tlv');
 
 // 1. Normaali viesti
 const validPayload = encodeFields([

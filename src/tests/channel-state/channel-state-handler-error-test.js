@@ -2,17 +2,17 @@
 const assert = require('assert');
 const crypto = require('crypto');
 
-const NetworkManager = require('../s2s/network-manager/network-manager');
+const NetworkManager = require('../../s2s/network-manager/network-manager');
 
-const handleChannelState = require('../s2s/connection/handlers/channel-state');
+const handleChannelState = require('../../s2s/connection/handlers/channel-state');
 
 const {
     encodeChannelState
-} = require('../s2s/messages/channel-state');
+} = require('../../s2s/messages/channel-state');
 
 const {
     HEADER_SIZE
-} = require('../s2s/protocol/frame/frame');
+} = require('../../s2s/protocol/frame/frame');
 
 function createTestEnvironment() {
     const networkManager = new NetworkManager();

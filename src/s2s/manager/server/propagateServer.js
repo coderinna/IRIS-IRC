@@ -55,27 +55,21 @@ module.exports = function propagateServer(
             `to ${connection.remote.serverId}`
         );
 
-        connection.sendServer({
-            serverId:
-                server.serverId,
+const sent = connection.sendServer(
+    {
+        serverId: server.serverId,
+        serverName: server.serverName,
+        serverVersion: server.serverVersion,
+        serverRole: server.role,
+        parentServerId: manager.serverId,
+        hopCount: server.hopCount + 1
+    },
+    'introduce'
+);
 
-            serverName:
-                server.serverName,
-
-            serverVersion:
-                server.serverVersion,
-
-            serverRole:
-                server.role,
-
-            parentServerId:
-                manager.serverId,
-
-            hopCount:
-                server.hopCount + 1
-        });
-
-        propagated++;
+if (sent) {
+    propagated++;
+}
     }
 
     console.log(

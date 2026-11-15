@@ -1,10 +1,10 @@
-node - <<'NODE'
+
 const crypto = require('crypto');
 
 const {
     encodeTopic,
     decodeTopic
-} = require('./src/s2s/messages/topic');
+} = require('../../../src/s2s/messages/topic.js');
 
 const data = {
     clientId: 'client-123',
@@ -30,4 +30,3 @@ if (
     console.error('[IRIS TOPIC TEST] FAIL');
     process.exitCode = 1;
 }
-NODE

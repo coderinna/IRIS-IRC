@@ -3,13 +3,13 @@ const assert = require('assert');
 
 const {
     encodeFields
-} = require('../s2s/protocol/tlv/tlv');
+} = require('../../s2s/protocol/tlv/tlv');
 
 const {
     FIELDS,
     MEMBER_FIELDS,
     decodeChannelState
-} = require('../s2s/messages/channel-state');
+} = require('../../s2s/messages/channel-state');
 
 // 1. Normaali CHANNEL_STATE
 const validPayload = encodeFields([

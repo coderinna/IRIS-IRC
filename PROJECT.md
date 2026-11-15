@@ -3,32 +3,35 @@
 
 <!-- TOC START -->
 
-- [1. IRC Server Foundation](#irc-server-foundation)
-- [2. IRC Core & Channel System](#irc-core-channel-system)
-- [3. IRIS Protocol Foundation](#iris-protocol-foundation)
-- [4. S2S Lifecycle & Handshake](#s2s-lifecycle-handshake)
-- [5. S2S Security Hardening](#s2s-security-hardening)
-- [6. Network State & Server Topology](#network-state-server-topology)
-- [7. Client Propagation](#client-propagation)
-- [8. Message Routing](#message-routing)
-- [9. Cross-Server IRC Functionality](#cross-server-irc-functionality)
-  - [9.1. IRC Core](#irc-core)
-  - [9.2. S2S Transport](#s2s-transport)
-  - [9.3. Client Propagation](#client-propagation-1)
-  - [9.4. Message Routing](#message-routing-1)
-- [10. Channel State Synchronization](#channel-state-synchronization)
-  - [10.1. Channel State](#channel-state)
-  - [10.2. Channel Membership](#channel-membership)
-  - [10.3. Channel Lifecycle](#channel-lifecycle)
-  - [10.4. Channel Modes](#channel-modes)
-  - [10.5. Channel Topic](#channel-topic)
-  - [10.6. Channel Routing State](#channel-routing-state)
-- [11. S2S Reliability & Edge Cases](#s2s-reliability-edge-cases)
-- [12. IRC Client Compatibility & Polish](#irc-client-compatibility-polish)
-- [13. Authentication & Authorization](#authentication-authorization)
-- [14. Integration & Network Testing](#integration-network-testing)
-- [15. Public Release & npm Package](#public-release-npm-package)
-- [16. Documentation & Protocol Specification](#documentation-protocol-specification)
+- [1. IRC Server Foundation ✅](#irc-server-foundation)
+- [2. IRC Core & Channel System ✅](#irc-core-channel-system)
+- [3. IRIS Protocol Foundation ✅](#iris-protocol-foundation)
+- [4. S2S Lifecycle & Handshake ✅](#s2s-lifecycle-handshake)
+- [5. S2S Security Hardening ✅](#s2s-security-hardening)
+- [6. Network State & Server Topology ✅](#network-state-server-topology)
+- [7. Client Propagation ✅](#client-propagation)
+- [8. Message Routing ✅](#message-routing)
+- [9. Cross-Server IRC Functionality  ✅](#cross-server-irc-functionality)
+  - [9.1. IRC CORE ✅](#irc-core)
+  - [9.2. S2S TRANSPORT ✅](#s2s-transport)
+  - [9.3. CLIENT PROPAGATION ✅](#client-propagation-1)
+  - [9.4. MESSAGE ROUTING ✅](#message-routing-1)
+- [10. Channel State Sync 🟡](#channel-state-sync)
+  - [10.1. CHANNEL STATE 🟡](#channel-state)
+  - [10.2. CHANNEL MEMBERSHIP](#channel-membership)
+  - [10.3. CHANNEL LIFECYCLE 🟡](#channel-lifecycle)
+  - [10.4. CHANNEL MODES 🟡](#channel-modes)
+  - [10.5. CHANNEL TOPIC VALMIS ✅](#channel-topic-valmis)
+  - [10.6. CHANNEL ROUTING STATE](#channel-routing-state)
+- [11. S2S Reliability & Edge Cases 🟡](#s2s-reliability-edge-cases)
+- [12. IRC Client Compatibility & Polish 🟡](#irc-client-compatibility-polish)
+- [13. Authentication & Authorization 🟡](#authentication-authorization)
+  - [13.1. S2S-palvelinten välinen](#s2s-palvelinten-välinen)
+  - [13.2. Vielä toteutettava ja varmistettava](#vielä-toteutettava-ja-varmistettava)
+  - [13.3. IRC-Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle](#irc-client-authentication-miten-irc-käyttäjä-tunnistautuu-irc-palvelimelle)
+  - [13.4. IRC Operator Authentication = miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi](#irc-operator-authentication-miten-palvelimen-ylläpitäjä-tunnistautuu-irc-operaattoriksi)
+  - [13.5. Authorization & Permission Management = Mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa](#authorization-permission-management-mitä-tunnistetut-käyttäjät-ja-palvelimet-saavat-tehdä-iris-verkossa)
+  - [13.6. Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen](#connection-security-irc-clientien-ja-iris-palvelinten-välisten-yhteyksien-suojaaminen)
 
 <!-- TOC END -->
 ## 1. IRC Server Foundation ✅
@@ -427,7 +430,154 @@ S2S Reliability = miten IRIS-palvelinten välinen verkko toimii virhe-, katkos- 
 - Yhteyskatkot eivät jätä verkkoon pysyvästi virheellistä client-, channel- tai routing-tilaa.
 - Palvelimet pystyvät palauttamaan verkkotilansa yhteyden muodostuessa uudelleen.
 
-## 12. IRC Client Compatibility & Polish 🟡
+
+## 13. Authentication & Authorization 🟡
+
+### 13.1. S2S Security
+
+Rakennettu on paljon enemmän kuin pelkän IRC-palvelinten välisen kirjautumisen.
+Nyt testataan, kestääkö IRIS myös oikean hajautetun IRC-verkon häiriöitä ja hyökkäystilanteita.
+
+1. Palvelinten tunnistaminen ja autentikointi
+Toteutettu
+- [x] Palvelinten HELLO-tunnistus
+- [x] AUTH-autentikointi
+- [x] Molemminpuolinen palvelinautentikointi
+- [x] TrustRegistry eli luottamusrekisteri
+- [x] Tuntemattomien palvelinten tunnistaminen ja hylkääminen
+- [x] Virheellisen autentikoinnin hylkääminen
+- [x] Palvelimen CONNECT-oikeuden tarkistus
+- [x] Palvelinidentiteetin validointi (serverId ja serverName)
+2. Yhteyden muodostaminen ja hallinta
+Toteutettu
+- [x] SERVER-tietojen välitys
+- [x] READY-vaiheen valtuutustarkistus
+- [x] CONNECTED-tilaan siirtyminen
+- [x] Verkkotopologian rekisteröinti
+- [x] PING/PONG-heartbeat
+- [x] Kahden palvelimen välinen S2S-yhteys
+3. Tapahtumien välitys
+Toteutettu
+- [x] JOIN-tapahtumien välitys
+- [x] IRC-viestien välitys
+- [x] Palvelinten esittely ja edelleen välitys
+- [x] Introduce-oikeuden tarkistus palvelimen esittelyssä
+4. Valtuutus ja tietoturva
+Peruslogiikka toteutettu
+- [x] Sisään tulevan liikenteen keskitetty valtuutus (authorizeAction)
+- [x] Lähtevän liikenteen valtuutus (authorizeOutbound)
+- [x] Lähtevän liikenteen introduce-, route- ja sync-policy-tarkistukset
+- [x] Luottamuksen peruuttaminen TrustRegistryssä
+- [x] Palvelinten roolipohjaisen valtuutuksen peruslogiikka
+- [ ]!!!!!! Luottamuksen menettäneen aktiivisen S2S-yhteyden sulkemisen tuotantotason toiminnan erillinen varmistus
+
+5. Valtuutuksen kattavuus
+- [x] Route- ja sync-valtuutuksen peruslogiikan testaus
+- [x] Aktiivisen yhteyden oikeuksien uudelleenlukemisen testaus
+- [x] Palvelinroolien peruslogiikan integraatiotestaus
+- [x] Hyväksytyn palvelimen koko kättely
+- [x] Kielletyn roolin hylkääminen READY-vaiheessa
+- [x] Hylätyn palvelimen rekisteröitymisen eston testaus
+
+
+Tässä viimeisessä kohdassa aiemmissa testeissä on kaksi eri asiaa:
+ TrustRegistry-luottamuksen peruuttamista testattiin 4/4 
+ ja aktiivisen yhteyden oikeuksien uudelleenlukemista authorizeAction-testissä 6/6. 
+Jälkimmäinen käytti mockattua rekisteriä eikä yksin todista oikean TCP-yhteyden sulkeutumista.
+
+### 13.2. Vielä toteutettava ja varmistettava
+5. Valtuutuksen kattavuus
+
+A: Perusominaisuudet on jo rakennettu. Kattavuus pitää vielä tarkistaa.
+B: Toiminnallisuutta on jo toteutettu. Nyt tarvitaan kattavat verkkotestit.
+C: Tuotantotason kovennukset ovat pääosin vielä avoimia, vaikka osa perustasta on jo olemassa.
+
+A. Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen	Osittain testattu
+- [ ] Route-oikeuden tarkistus kaikissa reititystoiminnoissa
+- [ ] Sync-oikeuden tarkistus kaikissa synkronointitoiminnoissa
+- [ ] Oikeuksien poistamisen vaikutuksen kattava testaus oikeassa aktiivisessa yhteydessä
+B. S2S-toiminnan turvallisuustestit
+Avoinna
+- [ ] Kaksisuuntaisen liikenteen kattava testaus
+- [ ] Yhteyden katkeamisen ja uudelleenyhdistämisen turvallisuustestit
+- [ ] Etäkäyttäjien ja kanavien tilan eheyden testaus
+- [ ] Netsplit-tilanteiden turvallisuustestit
+C. Tuotantotason kovennukset
+Avoinna
+- [ ] TLS-salaus S2S-yhteyksille
+- [ ] Credential management
+- [ ] Vahvat palvelinkohtaiset salaisuudet
+- [ ] Salaisuuksien kierrätys (key rotation)
+- [ ] Replay-hyökkäysten esto
+- [ ] Nonce- ja istuntokohtainen tunnistus
+- [ ] Kaikkien S2S-pakettien alkuperän tarkistus
+- [ ] Pakettien kokorajojen valvonta
+- [ ] Syötteiden kattava validointi
+- [ ] Rate limiting
+- [ ] Yhteysmäärien rajoitukset
+- [ ] Reitityssilmukoiden esto
+- [ ] Duplikaattitapahtumien esto
+- [ ] ID-törmäysten esto
+- [ ] Turvallisuuslokitus ilman salaisuuksien vuotamista
+
+### 13.3. IRC-Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle
+
+**Tarkistettavaa ja toteutettavaa:**
+- [ ] IRC PASS -komennon käsittely, jos palvelimella vaaditaan salasana
+- [ ] Käyttäjän tunnistautumistilan hallinta
+- [ ] Salasanojen turvallinen tallennus ja vertailu
+- [ ] Virheellisten tunnistetietojen hylkääminen
+- [ ] Tunnistautumisen virhetilanteet
+- [ ] Rekisteröitymisen ja tunnistautumisen oikea järjestys
+- [ ] Yhteensopivuus käytettävien IRC-clientien kanssa
+- [ ] Mahdollinen SASL-tuki erillisenä laajennuksena
+
+### 13.4. IRC Operator Authentication = miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi
+
+**Tarkistettavaa ja toteutettavaa:**
+- [ ] OPER-komennon toteutus
+- [ ] Operaattoritunnistetietojen hallinta
+- [ ] Operaattoriksi tunnistautuminen
+- [ ] Virheellisten operaattoritunnusten hylkääminen
+- [ ] Operaattorioikeuksien myöntäminen
+- [ ] Operaattorioikeuksien poistaminen
+- [ ] Operaattorin oikeuksien tarkistus komentojen yhteydessä
+
+### 13.5. Authorization & Permission Management = Mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa
+
+**Tarkistettavaa ja toteutettavaa:**
+- [ ] IRC-käyttäjien oikeuksien tarkistus
+- [ ] IRC operator -oikeuksien tarkistus
+- [ ] Channel operator -oikeuksien tarkistus
+- [ ] Voice-oikeuksien tarkistus
+- [ ] Channel mode -muutosten käyttöoikeudet
+- [ ] TOPIC-muutosten käyttöoikeudet
+- [ ] Remote-clientien oikeuksien tarkistus
+- [ ] Remote operator -oikeuksien yhdenmukaisuus
+- [ ] Palvelinten välisten komentojen ja tapahtumien valtuutus
+- [ ] Luvattomien toimintojen hylkääminen
+
+### 13.6. Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen
+
+Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen.
+
+**Tarkistettavaa:**
+- [ ] IRC-clientien TLS-yhteydet
+- [ ] S2S-yhteyksien TLS-suojaus
+- [ ] Sertifikaattien validointi
+- [ ] Suojaamattomien yhteyksien käytännöt
+- [ ] Tunnistetietojen suojaaminen lokituksessa
+- [ ] Yhteyksien ja tunnistautumisyritysten rajoittaminen
+
+**Tulos:**
+
+- IRIS-palvelimet tunnistavat luotettavasti toisensa ennen verkkoon liittymistä.
+- IRC-käyttäjien ja operaattorien tunnistautuminen voidaan toteuttaa hallitusti.
+- Käyttöoikeudet tarkistetaan sekä paikallisessa IRC-toiminnassa että hajautetussa IRIS-verkossa.
+- Palvelinten ja käyttäjien yhteydet voidaan suojata asianmukaisesti.
+
+
+## 13. IRC Client Compatibility & Polish 🟡
 
 IRC Client Compatibility = IRISin yhteensopivuuden ja käyttökokemuksen varmistaminen tavallisilla IRC-asiakasohjelmilla.
 
@@ -458,182 +608,3 @@ IRC Client Compatibility = IRISin yhteensopivuuden ja käyttökokemuksen varmist
 - IRIS toimii yhteensopivasti valituilla IRC-asiakasohjelmilla.
 - Käyttäjä voi liittyä IRIS-verkkoon ilman erillistä IRIS-clientiä.
 - Tavallinen IRC-käyttö toimii johdonmukaisesti yhden ja useamman palvelimen verkossa.
-
-
-## 13. Integration & Network Testing 🟡
-
-Integration & Network Testing = IRISin toiminnan varmistaminen käytännössä yhden ja useamman palvelimen verkossa.
-
-**Testattavaa:**
-
-- [ ] Yhden IRIS-palvelimen integraatiotestit
-- [ ] Kahden palvelimen välinen integraatiotestaus
-- [ ] Kolmen tai useamman palvelimen testiverkko
-- [ ] IRC-clientien välinen viestintä eri palvelimilla
-- [ ] Client propagation ja remote client -tilat
-- [ ] Channel membership ja channel state -synkronointi
-- [ ] MODE- ja TOPIC-muutosten välittyminen
-- [ ] Yksityisviestien ja kanavaviestien reititys
-- [ ] S2S-yhteyden katkeaminen ja uudelleenmuodostaminen
-- [ ] Reconnect- ja resynchronization-testit
-- [ ] Netsplit-tilanteiden testaus
-- [ ] Virheellisten ja odottamattomien viestien käsittely
-- [ ] Pitkäkestoisen verkkotoiminnan testaus
-- [ ] Testien automatisointi ja regressiotestit
-
-**Tulos:**
-
-- IRISin keskeinen IRC- ja S2S-toiminnallisuus on testattu käytännössä.
-- Palvelinten välinen tila ja viestiliikenne toimivat yhdenmukaisesti myös useamman palvelimen verkossa.
-- Yhteyskatkot, palautuminen ja virhetilanteet on testattu.
-- IRISin toimintavarmuudesta ja tunnetuista rajoituksista on muodostettu dokumentoitu kokonaiskuva.
-
-## 13. Authentication & Authorization 🟡
-
-Authentication & Authorization = IRIS-verkon palvelinten ja IRC-käyttäjien tunnistaminen sekä niiden käyttöoikeuksien hallinta.
-
-### 13.1. Server-to-Server Authentication
-
-S2S Authentication = miten IRIS-palvelimet tunnistavat toisensa ennen verkkoon liittymistä.
-
-**Toteutettu:**
-[x] Palvelinten HELLO-tunnistus
-[x] AUTH-autentikointi
-[x] Molemminpuolinen palvelinautentikointi
-[x] Luottamusrekisteri (TrustRegistry)
-[x] Tuntemattoman palvelimen tunnistaminen ja hylkääminen
-[x] Väärän autentikoinnin hylkääminen – testattu aiemmin
-[x] Palvelimen CONNECT-oikeuden tarkistus
-[x] SERVER-tietojen välitys
-[x] READY-vaiheen valtuutustarkistus
-[x] CONNECTED-tilaan siirtyminen
-[x] Verkkotopologian rekisteröinti
-[x] PING/PONG-heartbeat
-[x] Kahden palvelimen välinen S2S-yhteys
-[x] JOIN-tapahtumien välitys
-[x] IRC-viestien välitys
-[x ] introduce-oikeuden tarkistus kaikissa esittelytoiminnoissa
-
-**Varmistettava:**
-[ ] route-oikeuden tarkistus kaikissa reititystoiminnoissa
-[ ] sync-oikeuden tarkistus kaikissa synkronointitoiminnoissa
-[ ] Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen
-[ ] Palvelinroolien rajoitukset
-[ ] Kaksisuuntaisen liikenteen kattava testaus
-[ ] Yhteyden katkeamisen ja uudelleenyhdistämisen turvallisuus
-[ ] Etäkäyttäjien ja kanavien tilan eheys
-Vielä tekemättä
-Kaikki TLS-, credential management-, key rotation-, replay-suojaus-, rate limiting-,
- pakettien validointi- ja muut tuotantotason kovennukset ovat edelleen avoinna.
-Ei vielä 
-- [ ] TLS-salaus S2S-yhteyksille
-- [ ] Palvelinkohtaiset vahvat tuotantosalaisuudet
-- [ ] Salaisuuksien vaihtaminen eli key rotation
-- [ ] Replay-hyökkäysten esto
-- [ ] Nonce- tai istuntokohtainen tunnistus
-- [ ] Kaikkien S2S-pakettien alkuperän tarkistus
-- [ ] Viestien ja pakettien kokorajat
-- [ ] Syötteiden kattava validointi
-- [ ] Rate limiting
-- [ ] Yhteysmäärien rajoitukset
-- [ ] Reitityssilmukoiden esto
-- [ ] Duplikaattitapahtumien esto
-- [ ] ID-törmäysten esto
-- [ ] IRC-operaattorien oikeuksien turvallisuus palvelinten välillä
-- [ ] Netsplit-tilanteiden turvallisuustestit
-- [ ] Turvallisuuslokitus ilman salaisuuksien vuotamista
-- [] Riippuvuuksien haavoittuvuustarkistukset
-
-### 13.2. IRC Client Authentication
-
-IRC Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle.
-
-**Tarkistettavaa ja toteutettavaa:**
-- [ ] IRC PASS -komennon käsittely, jos palvelimella vaaditaan salasana
-- [ ] Käyttäjän tunnistautumistilan hallinta
-- [ ] Salasanojen turvallinen tallennus ja vertailu
-- [ ] Virheellisten tunnistetietojen hylkääminen
-- [ ] Tunnistautumisen virhetilanteet
-- [ ] Rekisteröitymisen ja tunnistautumisen oikea järjestys
-- [ ] Yhteensopivuus käytettävien IRC-clientien kanssa
-- [ ] Mahdollinen SASL-tuki erillisenä laajennuksena
-
-### 13.3. IRC Operator Authentication
-
-IRC Operator Authentication = miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi.
-
-**Tarkistettavaa ja toteutettavaa:**
-- [ ] OPER-komennon toteutus
-- [ ] Operaattoritunnistetietojen hallinta
-- [ ] Operaattoriksi tunnistautuminen
-- [ ] Virheellisten operaattoritunnusten hylkääminen
-- [ ] Operaattorioikeuksien myöntäminen
-- [ ] Operaattorioikeuksien poistaminen
-- [ ] Operaattorin oikeuksien tarkistus komentojen yhteydessä
-
-### 13.4. Authorization & Permission Management
-
-Authorization = mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa.
-
-**Tarkistettavaa ja toteutettavaa:**
-- [ ] IRC-käyttäjien oikeuksien tarkistus
-- [ ] IRC operator -oikeuksien tarkistus
-- [ ] Channel operator -oikeuksien tarkistus
-- [ ] Voice-oikeuksien tarkistus
-- [ ] Channel mode -muutosten käyttöoikeudet
-- [ ] TOPIC-muutosten käyttöoikeudet
-- [ ] Remote-clientien oikeuksien tarkistus
-- [ ] Remote operator -oikeuksien yhdenmukaisuus
-- [ ] Palvelinten välisten komentojen ja tapahtumien valtuutus
-- [ ] Luvattomien toimintojen hylkääminen
-
-### 13.5. Connection Security
-
-Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen.
-
-**Tarkistettavaa:**
-- [ ] IRC-clientien TLS-yhteydet
-- [ ] S2S-yhteyksien TLS-suojaus
-- [ ] Sertifikaattien validointi
-- [ ] Suojaamattomien yhteyksien käytännöt
-- [ ] Tunnistetietojen suojaaminen lokituksessa
-- [ ] Yhteyksien ja tunnistautumisyritysten rajoittaminen
-
-**Tulos:**
-
-- IRIS-palvelimet tunnistavat luotettavasti toisensa ennen verkkoon liittymistä.
-- IRC-käyttäjien ja operaattorien tunnistautuminen voidaan toteuttaa hallitusti.
-- Käyttöoikeudet tarkistetaan sekä paikallisessa IRC-toiminnassa että hajautetussa IRIS-verkossa.
-- Palvelinten ja käyttäjien yhteydet voidaan suojata asianmukaisesti.
-
-## 14. Integration & Network Testing 🟡
-
-Integration & Network Testing = IRISin toiminnan varmistaminen käytännössä yhden ja useamman palvelimen verkossa.
-
-**Testattavaa:**
-
-- [ ] Yhden palvelimen integraatiotestit
-- [ ] Kahden palvelimen päästä päähän -testit
-- [ ] Kolmen tai useamman palvelimen testiverkko
-- [ ] Paikallisten ja remote-clientien välinen viestintä
-- [ ] Client propagation ja state synchronization
-- [ ] Channel membership ja lifecycle
-- [ ] Kaikkien tuettujen channel mode -toimintojen testaus
-- [ ] TOPIC-muutosten välittyminen
-- [ ] Yksityisviestien ja kanavaviestien reititys
-- [ ] S2S authentication -testit
-- [ ] IRC user authentication -testit
-- [ ] Operator- ja channel permission -testit
-- [ ] S2S-yhteyden katkeaminen ja uudelleenmuodostaminen
-- [ ] Reconnect- ja resynchronization-testit
-- [ ] Netsplit- ja recovery-testit
-- [ ] Virheellisten ja luvattomien viestien testaus
-- [ ] Pitkäkestoisen verkkotoiminnan testaus
-- [ ] Testien automatisointi ja regressiotestit
-
-**Tulos:**
-
-- IRISin keskeinen IRC- ja S2S-toiminnallisuus on testattu päästä päähän.
-- Palvelinten välinen tila ja viestiliikenne toimivat yhdenmukaisesti testatuissa verkkotopologioissa.
-- Yhteyskatkot, palautuminen ja virhetilanteet on testattu.
-- Testitulokset, tunnetut rajoitukset ja julkaisua estävät virheet on dokumentoitu.

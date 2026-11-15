@@ -5,11 +5,11 @@ const assert = require('assert');
 const {
     encodeChannelState,
     decodeChannelState
-} = require('../s2s/messages/channel-state');
+} = require('../../s2s/messages/channel-state');
 
 const {
     HEADER_SIZE
-} = require('../s2s/protocol/frame/frame');
+} = require('../../s2s/protocol/frame/frame');
 
 console.log('[IRIS TEST] CHANNEL_STATE test started');
 

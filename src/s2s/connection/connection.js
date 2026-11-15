@@ -404,24 +404,21 @@ sendAck(acknowledgedMessageId) {
     );
 }
 
-sendFrame(frame) {
-    console.log(
-        `[IRIS] → SEND FRAME type=0x${frame.readUInt8(1).toString(16)} sequence=${frame.readBigUInt64BE(8)}`
-    );
+
+sendFrame(frame, action = null) {
+    console.log( `[IRIS] → SEND FRAME type=0x${frame.readUInt8(1).toString(16)} sequence=${frame.readBigUInt64BE(8)}` );
 
     if (
         !outboundValidation.validateOutgoingFrame(
             this,
-            frame
+            frame,
+            action
         )
     ) {
         return false;
     }
 
-    return transport.sendFrame(
-        this,
-        frame
-    );
+    return transport.sendFrame(this, frame);
 }
 
 flushSendQueue() {

@@ -1,4 +1,5 @@
-
+const authorizeOutbound =
+    require('../../security/authorization/authorize-outbound');
     const validateVersion =
     require('./validation/validateVersion.js');
 
@@ -27,7 +28,8 @@ const {
 
 function validateOutgoingFrame(
     connection,
-    frame
+    frame,
+    action = null
 ) {
     if (!Buffer.isBuffer(frame)) {
         console.warn(
@@ -137,6 +139,24 @@ function validateOutgoingFrame(
     ) {
         return false;
     }
+
+    if (action !== null) {
+    const authorization =
+        authorizeOutbound({
+            serverPolicy: connection.serverPolicy,
+            action
+        });
+
+    if (!authorization.authorized) {
+        console.warn(
+            '[S2S] Outbound action denied:',
+            authorization.reason,
+            action
+        );
+
+        return false;
+    }
+}
 
     return true;
 }

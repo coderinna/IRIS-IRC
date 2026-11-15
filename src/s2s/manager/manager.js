@@ -69,6 +69,24 @@ sendRemoteMessage(
     );
 }
 
+revokeServerTrust(serverId) {
+    const removed =
+        this.trustRegistry.removeServer(serverId);
+
+    if (!removed) {
+        return false;
+    }
+
+    for (const connection of this.connections) {
+        if (
+            connection.remote?.serverId === serverId
+        ) {
+            connection.destroy();
+        }
+    }
+
+    return true;
+}
 
 getClientRoute(serverId, clientId) {
     const client =
