@@ -1,15 +1,6 @@
-// src/tests/security/test-active-s2s-permission-revocation.js
-/*
-aktiivisen S2S-yhteyden revokaatio toimii nyt oikeasti managerin, TrustRegistryn ja authorization-kerroksen läpi:
-- ✅ kaikki 8 ROUTE-framea sallitaan ennen revokaatiota
-- ✅ SYNC sallitaan ennen revokaatiota
-- ✅ revokeServerTrust() onnistuu
-- ✅ palvelin poistuu TrustRegistry:stä
-- ✅ aktiivinen yhteys tuhotaan
-- ✅ kaikki ROUTE-operaatiot estetään revokaation jälkeen
-- ✅ SYNC estetään
-- ✅ yhteys jää CLOSED-tilaan
-*/
+
+const EventEmitter = require('events');
+
 const S2SManager = require(
     '../../../src/s2s/manager/manager.js'
 );
@@ -22,8 +13,11 @@ const authorizeAction = require(
     '../../../src/s2s/security/authorization/authorize-action.js'
 );
 
-const { STATES } = require(
-    '../../../src/s2s/connection/states.js'
+const {
+    S2SConnection,
+    STATES
+} = require(
+    '../../../src/s2s/connection/connection.js'
 );
 
 const TYPES = {
@@ -39,10 +33,21 @@ const TYPES = {
     ROUTE_TOPIC: 0x19
 };
 
+const ROUTE_TYPES = [
+    TYPES.ROUTE_MESSAGE,
+    TYPES.ROUTE_NOTICE,
+    TYPES.ROUTE_JOIN,
+    TYPES.ROUTE_PART,
+    TYPES.ROUTE_QUIT,
+    TYPES.ROUTE_NICK,
+    TYPES.ROUTE_MODE,
+    TYPES.ROUTE_TOPIC
+];
+
 let passed = 0;
 let failed = 0;
 
-function test(name, callback) {
+function check(name, callback) {
     try {
         callback();
 
@@ -50,7 +55,7 @@ function test(name, callback) {
         passed++;
     } catch (error) {
         console.error(`[FAIL] ${name}`);
-        console.error(error.message);
+        console.error(error.stack || error.message);
 
         failed++;
     }
@@ -59,6 +64,44 @@ function test(name, callback) {
 function assert(condition, message) {
     if (!condition) {
         throw new Error(message);
+    }
+}
+
+/*
+ * ------------------------------------------------------------
+ * TEST SOCKET
+ * ------------------------------------------------------------
+ */
+
+class TestSocket extends EventEmitter {
+    constructor() {
+        super();
+
+        this.destroyed = false;
+        this.writable = true;
+    }
+
+    destroy() {
+        if (this.destroyed) {
+            return;
+        }
+
+        this.destroyed = true;
+        this.writable = false;
+
+        this.emit('close');
+    }
+
+    write() {
+        if (this.destroyed) {
+            return false;
+        }
+
+        return true;
+    }
+
+    end() {
+        this.destroy();
     }
 }
 
@@ -84,6 +127,52 @@ trustRegistry.addServer({
 
 /*
  * ------------------------------------------------------------
+ * REMOTE SERVER
+ * ------------------------------------------------------------
+ */
+
+const remoteServer = {
+    serverId: 'remote-1',
+    connection: null,
+    status: 'online'
+};
+
+/*
+ * ------------------------------------------------------------
+ * NETWORK MANAGER
+ * ------------------------------------------------------------
+ */
+
+const networkManager = {
+    getClients() {
+        return [];
+    },
+
+    removeClientsByConnection(connection) {
+        return 0;
+    },
+
+    getServer(serverId) {
+        return serverId === 'remote-1'
+            ? remoteServer
+            : null;
+    },
+
+    setConnection(serverId, connection) {
+        if (serverId === 'remote-1') {
+            remoteServer.connection = connection;
+        }
+    },
+
+    setStatus(serverId, status) {
+        if (serverId === 'remote-1') {
+            remoteServer.status = status;
+        }
+    }
+};
+
+/*
+ * ------------------------------------------------------------
  * S2S MANAGER
  * ------------------------------------------------------------
  */
@@ -92,11 +181,7 @@ const manager = new S2SManager({
     serverId: 'local-1',
     serverName: 'local.iris.test',
 
-    networkManager: {
-        getClients() {
-            return [];
-        }
-    },
+    networkManager,
 
     getLocalClientByNick() {
         return null;
@@ -115,36 +200,31 @@ const manager = new S2SManager({
 
 /*
  * ------------------------------------------------------------
- * ACTIVE S2S CONNECTION
+ * REAL S2S CONNECTION
  * ------------------------------------------------------------
  */
 
-let destroyed = false;
+const socket = new TestSocket();
 
-const connection = {
-    state: STATES.CONNECTED,
-
-    remote: {
-        serverId: 'remote-1'
-    },
-
-    /*
-     * Nämä ovat samat valtuutusasetukset,
-     * joita authorizeAction() odottaa.
-     */
+const connection = new S2SConnection(socket, {
+    manager,
     trustRegistry,
 
-    serverPolicy: {
-        allowServerIntroduction: true,
-        allowRouting: true,
-        allowSynchronization: true
-    },
+    serverId: 'local-1',
+    serverName: 'local.iris.test'
+});
 
-    destroy() {
-        destroyed = true;
-        this.state = STATES.CLOSED;
-    }
+connection.remote = {
+    serverId: 'remote-1',
+    serverName: 'remote.iris.test',
+    serverVersion: 'iris-test',
+    serverRole: 'hub',
+    capabilities: []
 };
+
+connection.state = STATES.CONNECTED;
+
+remoteServer.connection = connection;
 
 manager.addConnection(connection);
 
@@ -167,36 +247,40 @@ function authorize(frameType) {
  * ------------------------------------------------------------
  */
 
-test(
-    'Active S2S connection starts CONNECTED',
+check(
+    'Real S2S connection is registered and CONNECTED',
     () => {
+        assert(
+            manager.connections.has(connection),
+            'Connection is missing from manager'
+        );
+
         assert(
             connection.state === STATES.CONNECTED,
             `Expected CONNECTED, got ${connection.state}`
+        );
+
+        assert(
+            socket.destroyed === false,
+            'Socket is already destroyed'
+        );
+
+        assert(
+            remoteServer.connection === connection,
+            'Remote server does not reference active connection'
         );
     }
 );
 
 /*
  * ------------------------------------------------------------
- * 2. ROUTE PERMISSION
+ * 2. ROUTE PERMISSION BEFORE REVOCATION
  * ------------------------------------------------------------
  */
 
-const routeTypes = [
-    TYPES.ROUTE_MESSAGE,
-    TYPES.ROUTE_NOTICE,
-    TYPES.ROUTE_JOIN,
-    TYPES.ROUTE_PART,
-    TYPES.ROUTE_QUIT,
-    TYPES.ROUTE_NICK,
-    TYPES.ROUTE_MODE,
-    TYPES.ROUTE_TOPIC
-];
-
-for (const frameType of routeTypes) {
-    test(
-        `ROUTE permission allows frame 0x${frameType.toString(16)}`,
+for (const frameType of ROUTE_TYPES) {
+    check(
+        `Active connection allows ROUTE 0x${frameType.toString(16)}`,
         () => {
             const result = authorize(frameType);
 
@@ -215,12 +299,12 @@ for (const frameType of routeTypes) {
 
 /*
  * ------------------------------------------------------------
- * 3. SYNC PERMISSION
+ * 3. SYNC PERMISSION BEFORE REVOCATION
  * ------------------------------------------------------------
  */
 
-test(
-    'SYNC permission allows synchronization',
+check(
+    'Active connection allows SYNC',
     () => {
         const result = authorize(TYPES.SYNC);
 
@@ -238,19 +322,19 @@ test(
 
 /*
  * ------------------------------------------------------------
- * 4. REVOKE TRUST
+ * 4. REVOKE THROUGH PRODUCTION MANAGER
  * ------------------------------------------------------------
  */
 
-test(
-    'Revoking trusted server succeeds',
+check(
+    'Manager revokes remote server trust',
     () => {
         const result =
             manager.revokeServerTrust('remote-1');
 
         assert(
             result === true,
-            `Expected revokeServerTrust() === true, got ${result}`
+            `Expected true, got ${result}`
         );
     }
 );
@@ -261,65 +345,78 @@ test(
  * ------------------------------------------------------------
  */
 
-test(
-    'Revoked server is removed from TrustRegistry',
+check(
+    'Remote server is removed from TrustRegistry',
     () => {
         assert(
             trustRegistry.getServer('remote-1') === null,
-            'remote-1 is still trusted'
+            'Remote server is still trusted'
         );
     }
 );
 
 /*
  * ------------------------------------------------------------
- * 6. ACTIVE CONNECTION
+ * 6. ACTIVE CONNECTION DESTRUCTION
  * ------------------------------------------------------------
  */
 
-test(
-    'Active S2S connection is destroyed after trust revocation',
+check(
+    'Manager destroys the real active S2S connection',
     () => {
         assert(
-            destroyed === true,
-            'Active S2S connection was not destroyed'
+            socket.destroyed === true,
+            'Production connection did not destroy its socket'
         );
 
         assert(
             connection.state === STATES.CLOSED,
             `Expected CLOSED, got ${connection.state}`
         );
+
+        assert(
+            !manager.connections.has(connection),
+            'Closed connection remains registered in manager'
+        );
     }
 );
 
 /*
  * ------------------------------------------------------------
- * 7. ROUTE AFTER REVOCATION
+ * 7. REMOTE SERVER UNREGISTRATION
  * ------------------------------------------------------------
  */
 
-for (const frameType of routeTypes) {
-    test(
-        `Revoked server cannot ROUTE frame 0x${frameType.toString(16)}`,
+check(
+    'Remote server connection is removed',
+    () => {
+        assert(
+            remoteServer.connection === null,
+            'Remote server still references the closed connection'
+        );
+
+        assert(
+            remoteServer.status === 'offline',
+            `Expected offline, got ${remoteServer.status}`
+        );
+    }
+);
+
+/*
+ * ------------------------------------------------------------
+ * 8. ROUTE OPERATIONS AFTER REVOCATION
+ * ------------------------------------------------------------
+ */
+
+for (const frameType of ROUTE_TYPES) {
+    check(
+        `Revoked connection denies ROUTE 0x${frameType.toString(16)}`,
         () => {
             const result = authorize(frameType);
 
             assert(
                 result.authorized === false,
-                `Expected denied authorization: ${JSON.stringify(result)}`
-            );
-
-            /*
-             * Koska TrustRegistry poistaa palvelimen kokonaan,
-             * authorization hylkää yhteyden jo SERVER_NOT_CONNECTED
-             * -tasolla, koska manager tuhosi yhteyden.
-             */
-            assert(
-                [
-                    'SERVER_NOT_CONNECTED',
-                    'SERVER_NOT_TRUSTED'
-                ].includes(result.reason),
-                `Unexpected denial reason: ${result.reason}`
+                `ROUTE was unexpectedly authorized: ${JSON.stringify(result)}`
             );
         }
     );
@@ -327,42 +424,39 @@ for (const frameType of routeTypes) {
 
 /*
  * ------------------------------------------------------------
- * 8. SYNC AFTER REVOCATION
+ * 9. SYNC AFTER REVOCATION
  * ------------------------------------------------------------
  */
 
-test(
-    'Revoked server cannot SYNC',
+check(
+    'Revoked connection denies SYNC',
     () => {
         const result = authorize(TYPES.SYNC);
 
         assert(
             result.authorized === false,
-            `Expected denied authorization: ${JSON.stringify(result)}`
-        );
-
-        assert(
-            [
-                'SERVER_NOT_CONNECTED',
-                'SERVER_NOT_TRUSTED'
-            ].includes(result.reason),
-            `Unexpected denial reason: ${result.reason}`
+            `SYNC was unexpectedly authorized: ${JSON.stringify(result)}`
         );
     }
 );
 
 /*
  * ------------------------------------------------------------
- * 9. CONNECTION STAYS CLOSED
+ * 10. CONNECTION REMAINS CLOSED
  * ------------------------------------------------------------
  */
 
-test(
+check(
     'Revoked connection remains CLOSED',
     () => {
         assert(
             connection.state === STATES.CLOSED,
             `Connection unexpectedly became ${connection.state}`
+        );
+
+        assert(
+            socket.destroyed === true,
+            'Socket unexpectedly became active again'
         );
     }
 );
@@ -376,9 +470,12 @@ test(
 console.log('');
 
 console.log(
-    `[RESULT] Active S2S permission revocation tests: ` +
+    `[RESULT] Active S2S permission revocation: ` +
     `${passed}/${passed + failed}`
 );
+
+console.log(`Passed: ${passed}`);
+console.log(`Failed: ${failed}`);
 
 if (failed > 0) {
     process.exitCode = 1;
