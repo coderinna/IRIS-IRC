@@ -262,144 +262,174 @@ Message Routing päättää, minne IRC-viesti toimitetaan IRIS-verkossa.
 
 ## 10. Channel State Sync 🟡
 
-Channel State Sync = miten IRC-kanavien tila pidetään yhdenmukaisena koko IRIS-verkon välillä.
+Channel State Sync tarkoittaa sitä, miten IRC-kanavien tila pidetään yhdenmukaisena koko IRIS-verkon välillä.
+
+Tavoitteena on, että kaikki verkon palvelimet ylläpitävät oikeaa tietoa kanavista, niiden jäsenistä, asetuksista ja reitityksestä.
 
 ### 10.1. CHANNEL STATE 🟡
 
-Channel State = kanavan perustila ja sen hallinta.
+Channel State = kanavan perustila ja sen synkronointi palvelinten välillä.
 
-**Toteutettu:**
-* Channel name ✅
-* Channel members ✅ – jäsenet välittyvät palvelimien välillä ja /NAMES näyttää remote-jäsenet.
-* Initial CHANNEL_STATE sync ✅ – kanavan alkutilan synkronointi toimii.
-* Reconnect sync ✅ – kanavan tila palautuu yhteyden muodostuessa uudelleen.
-* CLIENT state sync ✅ – clientien tilatiedot synkronoituvat.
+Toteutettu ja toimivaksi varmistettu:
+- Channel name ✅
+- Initial CHANNEL_STATE sync ✅
+- Reconnect sync ✅
+- CLIENT state sync ✅
+Toteutettu, mutta vaatii vielä testausta:
+- Channel servers 🟡 – servers-rakenne ja CHANNEL_STATE-kuljetus toimivat, mutta palvelinjoukon päivittyminen jäsenmuutosten yhteydessä vaatii testausta.
+- Channel ownership 🟡 – ownerServerId välittyy CHANNEL_STATE-viestissä, mutta omistajan muodostumista ja muuttumista ei ole testattu erikseen.
+- Channel modes state 🟡 – moodit sisältyvät kanavan tilaan, mutta kaikkien moodien synkronointi vaatii lisätestausta.
 
-**Tavoitteena (vaatii vielä lisätestausta):**
-* Channel servers 🟡 – servers-rakenne ja CHANNEL_STATE-kuljetus toimivat, mutta palvelinjoukon päivittyminen jäsenmuutosten  yhteydessä vaatii testausta.
-* Channel ownership 🟡 – ownerServerId välittyy CHANNEL_STATE:ssa, mutta omistajan muodostumista ja muuttumista ei ole testattu erikseen.
-* Channel lifecycle 🟡 – active/empty/removed-tilat ja niiden hallinta on toteutettu, mutta verkon yli tapahtuva koko elinkaari vaatii testausta.
+Tulos:
+- IRIS välittää kanavien perustilan ja clientien tilatiedot palvelinten välillä.
+- Initial CHANNEL_STATE- ja reconnect-synkronointi toimivat.
+- Palvelinjoukon, omistajuuden ja moodien muutosten kattava synkronointi vaatii vielä testausta.
 
-**Tulos:**
-* IRIS ylläpitää kanavien perustilaa ja välittää kanavien jäsenyydet sekä muun tilatiedon palvelimien välillä.
-* Initial CHANNEL_STATE -synkronointi ja reconnect-synkronointi palauttavat kanavien ja clientien tilan palvelinyhteyden muodostuessa uudelleen.
-* Kanavien palvelinrakenteen, omistajuuden ja elinkaaren toiminta on toteutettu, mutta niiden kaikkia verkon yli tapahtuvia muutostilanteita ei ole vielä testattu kattavasti.
+### 10.2. CHANNEL MEMBERSHIP 🟡
 
-### 10.2. CHANNEL MEMBERSHIP
+Channel Membership = miten käyttäjien jäsenyydet välitetään ja ylläpidetään palvelinten välillä.
 
-Channel Membership = miten käyttäjien jäsenyydet välitetään palvelimien välillä.
-
-Tavoitteena:
+Toteutettu ja toimivaksi varmistettu:
 - JOIN state ✅
 - PART state ✅
 - Remote membership ✅
 - Membership propagation ✅
-- Member removal 🟡 PART toimii ja poistuminen propagoi, mutta reconnectin jälkeen tapahtuva member removal ei ole vielä erikseen testattu.
-- Tyhjän channelin cleanup 🟡 remove-client.js / channelin cleanup-rakenne on olemassa, 
-mutta tilannetta, jossa viimeinen remote-käyttäjä poistuu ja kanava tyhjenee verkon yli, ei ole vielä testattu.
+- Remote-jäsenten näkyminen /NAMES-komennolla ✅
+Toteutettu, mutta vaatii vielä testausta:
+- Member removal 🟡 – PART toimii ja poistuminen propagoi, mutta reconnectin jälkeen tapahtuvaa jäsenen poistamista ei ole testattu erikseen.
+- Empty channel cleanup 🟡 – remove-client.js ja kanavan cleanup-rakenne ovat olemassa, mutta viimeisen remote-käyttäjän poistumista ja sitä seuraavaa kanavan tyhjentymistä ei ole testattu verkon yli.
+
+Tulos:
+- IRIS välittää JOIN- ja PART-tapahtumat palvelinten välillä.
+- Remote-jäsenyydet näkyvät verkon muilla palvelimilla.
+- Jäsenen poistumisen ja tyhjentyneen kanavan siivoamisen reunatapaukset vaativat vielä testausta.
 
 ### 10.3. CHANNEL LIFECYCLE 🟡
 
-Channel Lifecycle = miten kanava syntyy, muuttuu ja poistuu verkossa.
+Channel Lifecycle = miten kanava syntyy, löytyy ja poistuu IRIS-verkosta.
 
-**Toteutettu ja toimivaksi varmistettu:**
-- Channel create – paikallinen kanavan luonti toimii ja remote-kanavan luonti CHANNEL_STATE-vastaanotossa on toteutettu. ✅
-- Channel discovery – reconnect recovery palautti #test-kanavan iris-02-palvelimen NetworkManageriin. ✅
-- Channel synchronization – initial CHANNEL_STATE -synkronointi ja reconnect sync toimivat. ✅
-
-**Toteutettu, mutta vaatii vielä testausta:**
+Toteutettu ja toimivaksi varmistettu:
+- Local channel creation ✅
+- Remote channel creation CHANNEL_STATE-vastaanotossa ✅
+- Channel discovery reconnect recovery -tilanteessa ✅ – reconnect recovery palautti #test-kanavan iris-02-palvelimen NetworkManageriin.
+Toteutettu, mutta vaatii vielä testausta:
 - Channel remove 🟡 – removeChannel() on toteutettu, mutta verkon yli tapahtuvaa kanavan poistamista ei ole testattu.
-- Empty channel cleanup 🟡 – paikallinen cleanup-rakenne on olemassa, mutta viimeisen remote-jäsenen poistumista ja sitä seuraavaa kanavan poistumista ei ole testattu.
+- Empty channel cleanup 🟡 – paikallinen cleanup-rakenne on olemassa, mutta viimeisen jäsenen poistumisen jälkeistä kanavan poistamista ei ole testattu usean palvelimen verkossa.
 
-**Tekemättä / varmistamatta:**
-- Kanavan ensimmäisen luonnin päästä päähän -testi kahden palvelimen välillä.
-- Kanavan poistumisen testaus koko verkossa.
-- Viimeisen jäsenen poistumisen jälkeisen tyhjennys- ja poistumisprosessin testaus usean palvelimen verkossa.
+Varmistettava:
+- [ ] Kanavan ensimmäisen luonnin päästä päähän -testi kahden palvelimen välillä
+- [ ] Kanavan poistumisen testaus koko verkossa
+- [ ] Viimeisen jäsenen poistumisen jälkeisen tyhjennys- ja poistumisprosessin testaus usean palvelimen verkossa
 
-**Tulos:**
-* IRIS osaa luoda ja synkronoida kanavia palvelimien välillä sekä palauttaa kanavat reconnect-tilanteissa.
-* Kanavien löytämisen ja synkronoinnin perustoiminta on varmistettu.
-* Vielä testaamatta ovat erityisesti kanavan poistuminen ja tyhjentyneen kanavan siivoaminen koko verkosta.
+Tulos:
+- IRIS pystyy luomaan paikallisia ja vastaanottamaan remote-kanavia.
+- Kanavien löytyminen reconnect recovery -tilanteessa on varmistettu.
+- Kanavan poistuminen ja tyhjentyneen kanavan poistaminen koko verkosta vaativat vielä testausta.
 
 ### 10.4. CHANNEL MODES 🟡
 
-**Toteutettu:**
-*  MODE S2S -viestirakenne toteutettu 
-* MODE encode/decode TLV-muodossa 
-* MODE-viestityyppi rekisteröity protokollaan 
-* MODE-vastaanottokäsittelijä toteutettu 
-* MOD-tapahtuman lähetys S2S-managerista toteutettu 
-* MODE-propagointi muille palvelimille toteutettu kooditasolla 
-* Message ID:n säilyttäminen edelleen välitettäessä 
-* Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset 
-* Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista 
-* Operaattorioikeuden tarkistus vastaanotossa 
-* +i-muutosten käsittely MODE-vastaanotossa 
-* +o-muutosten käsittely MODE-vastaanotossa 
-* +v-muutosten käsittely MODE-vastaanotossa 
-* +m-moodin käsittely MODE-vastaanotossa 
-* +n-moodin käsittely MODE-vastaanotossa 
-* +t-moodin käsittely MODE-vastaanotossa 
-* Paikallinen +m-viestirajoitus 
-* S2S-reitityksen +m-viestirajoitus 
-* Paikallinen +n-jäsenyystarkistus 
-* S2S-reitityksen +n-jäsenyystarkistus 
-* MODE-komennon moodikohtainen tiedostojako (i, k, l, m, n, o, t, v) 
-* +t-topic-lukituksen täydellinen toiminnallinen varmistus 
-* +k-knavasalasanan toiminnallinen varmistus 
-* +l-käyttäjärajoituksen toiminnallinen varmistus 
-* Kahden ja useamman palvelimen MODE-testit 
+Channel Modes = kanavan asetusten, käyttöoikeuksien ja viestirajoitusten hallinta sekä niiden välittäminen palvelinten välillä.
 
-**Tekemättä:**
-* m, n ja v: toiminnallinen testaus vielä tekemättä. 🟡
-* Kaikkien moodien CHANNEL_STATE-synkronointi 🟡
-* MODE-muutosten reconnect-synkronointi 🟡
-* Useamman kuin 2 palvelimen MODE-testit 🟡
-* MODE-testit ERI kanavilla ja usealla 🟡
-* Virheellisten moodikirjainten ja parametrien käsittely 🟡
+Toteutettu:
 
-MODE-oikeuksien reunatapaukset
-- Operaattori poistaa omat oikeutensa.
-- Operaattori yrittää antaa oikeudet kanavan ulkopuoliselle.
-- Tavallinen käyttäjä yrittää muuttaa moodia.
-- Tuntematon moodikirjain.
-- Virheelliset MODE-parametrit.
-- Remote-operaattorin oikeuksien tarkistus.
+S2S-protokolla ja viestinkäsittely:
+- MODE S2S -viestirakenne
+- MODE encode/decode TLV-muodossa
+- MODE-viestityypin rekisteröinti protokollaan
+- MODE-vastaanottokäsittelijä
+- MODE-tapahtuman lähetys S2S-managerista
+- MODE-propagointi muille palvelimille kooditasolla
+- Message ID:n säilyttäminen edelleen välitettäessä
+Identiteetti ja oikeudet:
+- Remote-clientin identiteetin ja kanavajäsenyyden tarkistukset
+- Operaattorioikeuden tarkistus vastaanotossa
+- Paikallisten käyttäjien ilmoittaminen remote MODE-muutoksista
+Moodien käsittely:
+- +i – käsittely vastaanotossa
+- +o – käsittely vastaanotossa
+- +v – käsittely vastaanotossa
+- +m – käsittely vastaanotossa
+- +n – käsittely vastaanotossa
+- +t – käsittely vastaanotossa
+- Paikallinen +m-viestirajoitus
+- S2S-reitityksen +m-viestirajoitus
+- Paikallinen +n-jäsenyystarkistus
+- S2S-reitityksen +n-jäsenyystarkistus
+- Moodikohtainen käsittely: i, k, l, m, n, o, t, v
 
-### 10.5. CHANNEL TOPIC VALMIS ✅
+Toiminnallisesti varmistettu:
+- +t – topicin muuttamisen oikeusrajoitus
+- +k – kanavasalasanan toiminta
+- +l – käyttäjämäärän rajoitus
 
-**Toteutettu:**
-- TOPIC-viestin oma S2S-tyyppi (0x19).
-- TOPIC-viestin encode/decode TLV-rakenteella.
-- TOPICin lähetys palvelimelta toiselle.
-- Vastaanottavan palvelimen topic-tilan päivitys.
-- TOPICin edelleen välitys muihin palvelimiin.
-- Paikallisten käyttäjien ilmoittaminen muutoksesta.
-- +t-oikeuksien tarkistus.
-- Tyhjän topicin käsittely eli topicin poistaminen.
-- ACK-seuranta.
+Varmistettava:
+- [ ] +m-moodin toiminnallinen testaus
+- [ ] +n-moodin toiminnallinen testaus
+- [ ] +v-moodin toiminnallinen testaus
+- [ ] Kaikkien moodien CHANNEL_STATE-synkronointi
+- [ ] MODE-muutosten reconnect-synkronointi
+- [ ] Yli kahden palvelimen MODE-testit
+- [ ] MODE-testit eri kanavilla ja useilla samanaikaisilla kanavilla
+- [ ] Virheellisten moodikirjainten ja parametrien käsittely
 
-**Tulos:**  TOPIC on kanavan näkyvä aihe/kuvaus. Topic state, propagation ja changes.
+MODE-oikeuksien reunatapaukset:
+- [ ] Operaattori poistaa omat oikeutensa
+- [ ] Operaattori yrittää antaa oikeudet kanavan ulkopuoliselle
+- [ ] Tavallinen käyttäjä yrittää muuttaa moodia
+- [ ] Tuntematon moodikirjain
+- [ ] Virheelliset MODE-parametrit
+- [ ] Remote-operaattorin oikeuksien tarkistus
 
-### 10.6. CHANNEL ROUTING STATE
+Tulos:
+- MODE-viestien S2S-rakenne, lähetys, vastaanotto ja edelleenreititys on toteutettu.
+- Keskeisten moodien käsittely ja käyttöoikeustarkistukset ovat olemassa.
+- Moodien kattava toiminnallinen testaus, synkronointi ja reunatapaukset vaativat vielä varmistamista.
 
-IRIS tietää, missä palvelimissa tiettyä kanavaa ja sen jäseniä on, jotta viesti voidaan lähettää oikeaan suuntaan.
-Channel Routing State = tieto siitä, mille palvelimille kanavan liikennettä pitää reitittää.
+### 10.5. CHANNEL TOPIC Valmis
 
-**Toteutettu:**
-* Channel state       ✅
-* Remote membership   ✅
-* Server information  🟡
-* Message routing     ✅
-* S2S MESSAGE         ✅
+Channel Topic = kanavan näkyvän aiheen tai kuvauksen hallinta ja välittäminen palvelinten välillä.
 
-**Tulos:** 
+Toteutettu:
+- TOPIC-viestin oma S2S-tyyppi (0x19)
+- TOPIC-viestin encode/decode TLV-rakenteella
+- TOPICin lähetys palvelimelta toiselle
+- Vastaanottavan palvelimen topic-tilan päivitys
+- TOPICin edelleen välitys muihin palvelimiin
+- Paikallisten käyttäjien ilmoittaminen muutoksesta
+- +t-oikeuksien tarkistus
+- Tyhjän topicin käsittely eli topicin poistaminen
+- ACK-seuranta
 
-## 11. S2S Reliability & Edge Cases 🟡
+Tulos:
+- TOPIC-tila välittyy palvelinten välillä.
+- Topic-muutokset päivittyvät vastaanottaville palvelimille ja näkyvät paikallisille käyttäjille.
+- Topicin asettaminen, muuttaminen ja poistaminen on toteutettu.
 
-S2S Reliability = miten IRIS-palvelinten välinen verkko toimii virhe-, katkos- ja palautumistilanteissa.
+### 10.6. CHANNEL ROUTING STATE 🟡
 
-**Toteutettu:**
+Channel Routing State = tieto siitä, missä palvelimissa tietty kanava ja sen jäsenet sijaitsevat, jotta kanavaliikenne voidaan reitittää oikeisiin suuntiin.
+
+Toteutettu:
+- Channel state ✅
+- Remote membership ✅
+- Message routing ✅
+- S2S MESSAGE ✅
+Vaatii vielä varmistamista:
+
+- Server information 🟡 – palvelintietojen ja kanavakohtaisen palvelinrakenteen kattava ylläpito ja päivittyminen.
+
+Tulos:
+- IRIS pystyy välittämään kanavaliikennettä palvelinten välillä.
+- Remote-jäsenyydet ja kanavatiedot ovat reitityksen perustana.
+- Palvelintietojen kattava ylläpito ja reititystilan muutostilanteet vaativat vielä testausta.
+
+## 11. S2S Reliability  🟡
+
+S2S Reliability tarkoittaa sitä, miten IRIS-palvelinten välinen verkkoyhteys ja viestinvälitys toimivat virhe-, katkos- ja palautumistilanteissa.
+
+Keskeinen tavoite on varmistaa, että S2S-yhteydet, viestiliikenne ja palvelinten välinen reititys toimivat luotettavasti myös poikkeustilanteissa.
+
+Toteutettu:
 - Message validation
 - Frame validation
 - Message deduplication
@@ -408,40 +438,36 @@ S2S Reliability = miten IRIS-palvelinten välinen verkko toimii virhe-, katkos- 
 - Connection cleanup
 - Sequence number handling (perustoiminta)
 
-**Varmistettava:**
-- [ ] Sequence number -virhetilanteet
-- [ ] Puuttuvien ACK-kuittausten käsittely
-- [ ] Duplikaattiviestien estäminen
+Varmistettava:
+- [ ] Virheellisten ja vanhojen sequence number -arvojen käsittely
+- [ ] Puuttuvien ACK-kuittausten ja timeoutien käsittely
+- [ ] Duplikaattiviestien eston toiminta virhetilanteissa
 - [ ] Virheellisten tai puutteellisten viestien käsittely
 - [ ] Odottamattomien viestien käsittely eri yhteystiloissa
 - [ ] S2S-yhteyden katkeaminen kesken viestinvälityksen
-- [ ] Reconnect ja verkon tilan palautuminen
-- [ ] Vanhojen remote client -tietojen poistaminen
-- [ ] Vanhentuneiden reittien poistaminen
-- [ ] Samanaikaisten yhteyskatkojen käsittely
-- [ ] Netsplit-tilanteiden käsittely
-- [ ] Verkon palautuminen osittaisen yhteyskatkon jälkeen
-- [ ] Viestien silmukkareitityksen estäminen
-- [ ] Palvelinten ristiriitaisen tilan tunnistaminen ja ratkaiseminen
+- [ ] Reconnect ja S2S-yhteyden palautuminen
+- [ ] Vanhentuneiden reittitietojen poistaminen
+- [ ] Samanaikaisten S2S-yhteyskatkojen käsittely
+- [ ] Netsplit-tilanteiden käsittely ja niistä palautuminen
+- [ ] Osittaisen verkkokatkon jälkeinen yhteyksien palautuminen
+- [ ] Viestien silmukkareitityksen eston toiminta
+- [ ] Palvelinten ristiriitaisen verkkotilan tunnistaminen ja ratkaiseminen
 
-**Tulos:**
+Tulos:
+- IRISin S2S-yhteyksien ja viestinvälityksen virhetilanteiden hallinta varmistetaan järjestelmällisesti.
+- Yhteyskatkot eivät saa jättää verkkoon virheellisiä tai vanhentuneita reititystietoja.
+- Palvelinten välisten yhteyksien tulee palautua hallitusti katkosten jälkeen.
+- Netsplit- ja osittaisten yhteyskatkojen käsittely varmistetaan usean palvelimen testeillä.
 
-- IRIS pystyy käsittelemään S2S-yhteyksien virhetilanteita hallitusti.
-- Yhteyskatkot eivät jätä verkkoon pysyvästi virheellistä client-, channel- tai routing-tilaa.
-- Palvelimet pystyvät palauttamaan verkkotilansa yhteyden muodostuessa uudelleen.
+## 12. Authentication & Authorization 🟡
 
+### 12.1. S2S Security
 
-## 13. Authentication & Authorization 🟡
-
-### 13.1. S2S Security
-moi
 Rakennettu on paljon enemmän kuin pelkän IRC-palvelinten välisen kirjautumisen.
 Nyt testataan, kestääkö IRIS myös oikean hajautetun IRC-verkon häiriöitä ja hyökkäystilanteita.
 
-#### Toteutettu
-
+Toteutettu
 1. Palvelinten tunnistaminen ja autentikointi
-
 - [x] Palvelinten HELLO-tunnistus
 - [x] AUTH-autentikointi
 - [x] Molemminpuolinen palvelinautentikointi
@@ -452,7 +478,6 @@ Nyt testataan, kestääkö IRIS myös oikean hajautetun IRC-verkon häiriöitä 
 - [x] Palvelinidentiteetin validointi (serverId ja serverName)
 
 2. Yhteyden muodostaminen ja hallinta
-
 - [x] SERVER-tietojen välitys
 - [x] READY-vaiheen valtuutustarkistus
 - [x] CONNECTED-tilaan siirtyminen
@@ -461,74 +486,78 @@ Nyt testataan, kestääkö IRIS myös oikean hajautetun IRC-verkon häiriöitä 
 - [x] Kahden palvelimen välinen S2S-yhteys
 
 3. Tapahtumien välitys
-
 - [x] JOIN-tapahtumien välitys
 - [x] IRC-viestien välitys
 - [x] Palvelinten esittely ja edelleen välitys
 - [x] Introduce-oikeuden tarkistus palvelimen esittelyssä
 
 4. Valtuutus ja tietoturva
-
 - [x] Sisään tulevan liikenteen keskitetty valtuutus (authorizeAction)
 - [x] Lähtevän liikenteen valtuutus (authorizeOutbound)
 - [x] Lähtevän liikenteen introduce-, route- ja sync-policy-tarkistukset
 - [x] Luottamuksen peruuttaminen TrustRegistryssä
 - [x] Palvelinten roolipohjaisen valtuutuksen peruslogiikka
-- [ ]!!!!!! Luottamuksen menettäneen aktiivisen S2S-yhteyden sulkemisen tuotantotason toiminnan erillinen varmistus
+- [x] Sisään tulevan ROUTE- ja SYNC-liikenteen valtuutustarkistukset
+- [x] Lähtevän ROUTE- ja SYNC-liikenteen valtuutustarkistukset
+- [x] Kielletyn liikenteen estäminen ennen lähetystä tai käsittelyä
 
-5. Valtuutuksen kattavuus
+5. Valtuutuksen kattavuus ja testaus
 - [x] Route- ja sync-valtuutuksen peruslogiikan testaus
-- [x] Aktiivisen yhteyden oikeuksien uudelleenlukemisen testaus
-- [x] Palvelinroolien peruslogiikan integraatiotestaus
-- [x] Hyväksytyn palvelimen koko kättely
-- [x] Kielletyn roolin hylkääminen READY-vaiheessa
-- [x] Hylätyn palvelimen rekisteröitymisen eston testaus
+- [x] Kaikkien kahdeksan ROUTE-kehystyypin sisään tulevan valtuutuksen testaus
+- [x] Molempien SYNC-kehystyyppien sisään tulevan valtuutuksen testaus
+- [x] Kaikkien kahdeksan ROUTE-kehystyypin lähtevän valtuutuksen testaus
+- [x] Molempien SYNC-kehystyyppien lähtevän valtuutuksen testaus
+- [x] Kiellettyjen lähtevien kehysten lähetyksen estäminen
+- [x] TrustRegistry-luottamuksen peruuttamisen vaikutuksen testaus
+- [x] Peruutetun palvelimen ROUTE- ja SYNC-valtuutuksen hylkääminen
+- [x] Epäonnistuneen lähetyksen ACK-seurannan siivoaminen
+- [x] Aktiivisen S2S-yhteyden socketin sulkemisen toiminnan testaus
+- [x] Lopullinen S2S-valtuutuksen integraatiotesti: 47/47 hyväksytty
 
+6. Aktiivisen yhteyden oikeuksien peruuttaminen
+- [x] TrustRegistry-luottamuksen peruuttamisen kytkeminen aktiivisten yhteyksien sulkemiseen tuotantotason toiminnassa
+- [x] Managerin kautta tehtävän luottamuksen peruuttamisen testaaminen oikealla aktiivisella S2S-yhteydellä
+- [x] Route-oikeuden poistamisen vaikutuksen testaaminen aktiivisessa yhteydessä
+- [x] Sync-oikeuden poistamisen vaikutuksen testaaminen aktiivisessa yhteydessä
+- [x] Oikeuksien poistamisen vaikutuksen varmistaminen kaikissa reititys- ja synkronointitoiminnoissa
 
-Tässä viimeisessä kohdassa aiemmissa testeissä on kaksi eri asiaa:
- TrustRegistry-luottamuksen peruuttamista testattiin 4/4 
- ja aktiivisen yhteyden oikeuksien uudelleenlukemista authorizeAction-testissä 6/6. 
-Jälkimmäinen käytti mockattua rekisteriä eikä yksin todista oikean TCP-yhteyden sulkeutumista.
+## Kohta	Mitä IRISissä on tehty
 
-#### Vielä toteutettava ja varmistettava
-5. Valtuutuksen kattavuus
+* TLS S2S-yhteyksille	Palvelimen valtuutus tarkistaa TLS-vaatimuksen.
+* Palvelinkohtaiset salaisuudet	TrustRegistry tallentaa palvelimen serverId- ja secret-tiedot.
+* Salaisuuden vertailu	verifySecret() käyttää crypto.timingSafeEqual-vertailua.
+* Replay-/duplikaattiviestien esto	messageId-tunniste tarkistetaan ennen viestin käsittelyä.
+* Viestijärjestyksen tarkistus	validateSequence tarkistaa saapuvan kehyksen sekvenssin.
+* Viestitunnisteiden validointi	validateMessageId tarkistaa viestitunnisteen ennen käsittelyä.
+* Pakettien syötevalidointi	S2S-kehysten ja esimerkiksi CHANNEL_STATE-viestien kenttiä validoidaan.
+* Rate limiting	validateRateLimit on kytketty saapuvien kehysten validointiin.
+* Palvelimen luotettavuuden tarkistus	authorizeServer() tarkistaa TrustRegistry-merkinnän.
+* Roolien ja kyvykkyyksien tarkistus	Palvelimen roolit ja vaaditut capabilities tarkistetaan.
+* Aktiivisen yhteyden oikeuksien poisto	TrustRegistry-revokaatio sulkee aktiivisen yhteyden. Tämä testattiin integraatiotestillä.
+* Turvallinen asiakasidentiteetti	Asiakkailla on UUID-pohjainen clientId ja palvelinkohtainen identiteetti.
+* Duplikaattiviestien esto on toteutettu yhteyskohtaisella messageIds-Setillä. Sen historia on rajattu maxMessageIds-arvolla, joten kyseessä ei ole rajattomasti kasvava muistirakenne.
 
-A: Perusominaisuudet on jo rakennettu. Kattavuus pitää vielä tarkistaa.
-B: Toiminnallisuutta on jo toteutettu. Nyt tarvitaan kattavat verkkotestit.
-C: Tuotantotason kovennukset ovat pääosin vielä avoimia, vaikka osa perustasta on jo olemassa.
+## Osittain toteutettu tai vaatii lisävarmistuksen
 
-A. Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen	
+* TLS-salauksen kattavuus	TLS-vaatimus tarkistetaan valtuutuksessa, mutta koko yhteyden muodostuksen ja sertifikaattien hallinnan kattavuus pitää vielä varmistaa.
+* Replay-hyökkäysten esto	Sekvenssi- ja messageId-tarkistukset ovat olemassa. Viestitunnisteiden historia on kuitenkin yhteyskohtainen ja rajattu.
+* Pakettien kokorajojen valvonta	Varsinaista kattavaa kokorajojen toteutusta ei ole vielä vahvistettu.
+* Kaikkien S2S-pakettien alkuperän tarkistus	Yhteyden ja etäasiakkaan identiteettiä tarkistetaan esimerkiksi JOIN-käsittelyssä. Kaikkien viestityyppien kattavuus pitää vielä tarkistaa.
+* Syötteiden kattava validointi	Useita validointikerroksia on olemassa, mutta kaikkien frame-tyyppien kattavuus ei ole vielä todistettu.
+* Reitityssilmukoiden esto	Ei vielä vahvistettua näyttöä kattavasta toteutuksesta.
+* ID-törmäysten esto	UUID-pohjainen tunnistus on käytössä, mutta törmäysten käsittelyä ei ole erikseen vahvistettu.
 
-- [ ] Route-oikeuden tarkistus kaikissa reititystoiminnoissa
-- [ ] Sync-oikeuden tarkistus kaikissa synkronointitoiminnoissa
-- [ ] Oikeuksien poistamisen vaikutuksen kattava testaus oikeassa aktiivisessa yhteydessä
+## Vielä tekemättä tai vahvistamatta
 
-B. S2S-toiminnan turvallisuustestit
+- Credential management eli keskitetty tunnistetietojen hallinta.
+- Salaisuuksien turvallinen tallennus pysyvästi.
+- Salaisuuksien kierrätys eli key rotation.
+- Nonce- ja istuntokohtainen tunnistus erillisenä mekanismina.
+- Yhteysmäärien rajoitukset.
+- Turvallisuuslokituksen kattava tarkistus, jotta salaisuudet tai tunnistetiedot eivät vuoda lokeihin.
+- Yksittäisten toimintojen keskitetty valtuutus jokaiselle S2S-kehykselle. authorizeServer() on olemassa, mutta esimerkiksi introduce-, route- ja sync-toimintojen keskitetty tarkistus oli vielä kesken.
 
-- [ ] Kaksisuuntaisen liikenteen kattava testaus
-- [ ] Yhteyden katkeamisen ja uudelleenyhdistämisen turvallisuustestit
-- [ ] Etäkäyttäjien ja kanavien tilan eheyden testaus
-- [ ] Netsplit-tilanteiden turvallisuustestit
-
-C. Tuotantotason kovennukset
-
-- [ ] TLS-salaus S2S-yhteyksille
-- [ ] Credential management
-- [ ] Vahvat palvelinkohtaiset salaisuudet
-- [ ] Salaisuuksien kierrätys (key rotation)
-- [ ] Replay-hyökkäysten esto
-- [ ] Nonce- ja istuntokohtainen tunnistus
-- [ ] Kaikkien S2S-pakettien alkuperän tarkistus
-- [ ] Pakettien kokorajojen valvonta
-- [ ] Syötteiden kattava validointi
-- [ ] Rate limiting
-- [ ] Yhteysmäärien rajoitukset
-- [ ] Reitityssilmukoiden esto
-- [ ] Duplikaattitapahtumien esto
-- [ ] ID-törmäysten esto
-- [ ] Turvallisuuslokitus ilman salaisuuksien vuotamista
-
-### 13.2. IRC-Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle
+### 12.2. IRC-Client Authentication = miten IRC-käyttäjä tunnistautuu IRC-palvelimelle
 
 **Tarkistettavaa ja toteutettavaa:**
 - [ ] IRC PASS -komennon käsittely, jos palvelimella vaaditaan salasana
@@ -540,7 +569,7 @@ C. Tuotantotason kovennukset
 - [ ] Yhteensopivuus käytettävien IRC-clientien kanssa
 - [ ] Mahdollinen SASL-tuki erillisenä laajennuksena
 
-### 13.3. IRC Operator Authentication (OPIT)= miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi
+### 12.3. IRC Operator Authentication (OPIT)= miten palvelimen ylläpitäjä tunnistautuu IRC-operaattoriksi
 
 **Tarkistettavaa ja toteutettavaa:**
 - [ ] OPER-komennon toteutus
@@ -551,7 +580,7 @@ C. Tuotantotason kovennukset
 - [ ] Operaattorioikeuksien poistaminen
 - [ ] Operaattorin oikeuksien tarkistus komentojen yhteydessä
 
-### 13.4. Authorization & Permission Management = Mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa
+### 12.4. Authorization & Permission Management = Mitä tunnistetut käyttäjät ja palvelimet saavat tehdä IRIS-verkossa
 
 **Tarkistettavaa ja toteutettavaa:**
 - [ ] IRC-käyttäjien oikeuksien tarkistus
@@ -565,7 +594,7 @@ C. Tuotantotason kovennukset
 - [ ] Palvelinten välisten komentojen ja tapahtumien valtuutus
 - [ ] Luvattomien toimintojen hylkääminen
 
-### 13.5. Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen
+### 12.5. Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen
 
 Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suojaaminen.
 
@@ -583,36 +612,3 @@ Connection Security = IRC-clientien ja IRIS-palvelinten välisten yhteyksien suo
 - IRC-käyttäjien ja operaattorien tunnistautuminen voidaan toteuttaa hallitusti.
 - Käyttöoikeudet tarkistetaan sekä paikallisessa IRC-toiminnassa että hajautetussa IRIS-verkossa.
 - Palvelinten ja käyttäjien yhteydet voidaan suojata asianmukaisesti.
-
-
-## 13. IRC Client Compatibility & Polish 🟡
-
-IRC Client Compatibility = IRISin yhteensopivuuden ja käyttökokemuksen varmistaminen tavallisilla IRC-asiakasohjelmilla.
-
-**Toteutettu:**
-- IRC TCP -yhteydet
-- NICK / USER
-- JOIN / PART
-- PRIVMSG / NOTICE
-- Perusnumerics
-- Perustoiminta IRC-clientillä
-
-**Varmistettava:**
-- [ ] Irssi-yhteensopivuus
-- [ ] Muiden yleisten IRC-clientien yhteensopivuus
-- [ ] IRC-komentojen parametrien käsittely
-- [ ] IRC-numerics ja virheilmoitukset
-- [ ] Prefixien ja käyttäjätietojen oikea esittäminen
-- [ ] NAMES / WHO / WHOIS -toiminnallisuus
-- [ ] PING / PONG ja yhteyden ylläpito
-- [ ] Nick- ja käyttäjätilojen päivittyminen
-- [ ] Kanavien ja käyttäjälistojen oikea esittäminen
-- [ ] MODE- ja TOPIC-toiminnallisuus clientissä
-- [ ] Disconnect- ja reconnect-käyttökokemus
-- [ ] Viimeiset käytettävyys- ja virhetilanteet
-
-**Tulos:**
-
-- IRIS toimii yhteensopivasti valituilla IRC-asiakasohjelmilla.
-- Käyttäjä voi liittyä IRIS-verkkoon ilman erillistä IRIS-clientiä.
-- Tavallinen IRC-käyttö toimii johdonmukaisesti yhden ja useamman palvelimen verkossa.
