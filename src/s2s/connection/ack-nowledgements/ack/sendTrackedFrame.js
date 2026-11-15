@@ -2,6 +2,20 @@
 const trackPendingAck =
     require('./trackPendingAck.js');
 
+const FRAME_ACTIONS = {
+    0x10: 'sync', // CLIENT
+    0x17: 'sync', // CHANNEL_STATE
+
+    0x11: 'route', // NICK
+    0x12: 'route', // JOIN
+    0x13: 'route', // PART
+    0x14: 'route', // QUIT
+    0x15: 'route', // MESSAGE
+    0x16: 'route', // NOTICE
+    0x18: 'route', // MODE
+    0x19: 'route'  // TOPIC
+};
+
 const sendTrackedFrame = (
     connection,
     frame,
@@ -16,8 +30,11 @@ const sendTrackedFrame = (
         );
     }
 
-    const id =
-        messageId.toString('hex');
+    if (!Buffer.isBuffer(frame) || frame.length < 2) {
+        return false;
+    }
+
+    const id = messageId.toString('hex');
 
     if (
         !trackPendingAck(
@@ -30,8 +47,13 @@ const sendTrackedFrame = (
     }
 
     try {
-        const sent =
-            connection.sendFrame(frame);
+        const frameType = frame.readUInt8(1);
+        const action = FRAME_ACTIONS[frameType] || null;
+
+        const sent = connection.sendFrame(
+            frame,
+            action
+        );
 
         if (!sent) {
             connection.pendingAcks.delete(id);
@@ -45,6 +67,4 @@ const sendTrackedFrame = (
     }
 };
 
-module.exports = 
-  sendTrackedFrame
-;
+module.exports = sendTrackedFrame;
