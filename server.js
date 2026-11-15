@@ -60,7 +60,7 @@ trustRegistry.addServer({
         sync: true
     }
 });
-
+// LALAALLAA
 const s2sManager = new S2SManager({
     serverId: S2S_SERVER_ID,
     serverName: S2S_SERVER_NAME,
