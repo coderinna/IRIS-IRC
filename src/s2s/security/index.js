@@ -17,7 +17,8 @@ const authenticateServer =
 const authorizeServer =
     require('./authorization/authorize-server');
 
-
+const authorizeOutbound =
+    require('./authorization/authorize-outbound.js');
 const authorizeAction =
     require('./authorization/authorize-action');
 
@@ -38,6 +39,7 @@ module.exports = {
 
     authenticateServer,
     authorizeServer,
+    authorizeOutbound,
 
     authorizeAction,
     validateServerIdentity,

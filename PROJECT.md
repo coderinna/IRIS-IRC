@@ -512,9 +512,9 @@ S2S Authentication = miten IRIS-palvelimet tunnistavat toisensa ennen verkkoon l
 [x] Kahden palvelimen välinen S2S-yhteys
 [x] JOIN-tapahtumien välitys
 [x] IRC-viestien välitys
+[x ] introduce-oikeuden tarkistus kaikissa esittelytoiminnoissa
 
 **Varmistettava:**
-[ ] introduce-oikeuden tarkistus kaikissa esittelytoiminnoissa
 [ ] route-oikeuden tarkistus kaikissa reititystoiminnoissa
 [ ] sync-oikeuden tarkistus kaikissa synkronointitoiminnoissa
 [ ] Oikeuksien poistamisen vaikutus aktiiviseen yhteyteen
@@ -522,7 +522,9 @@ S2S Authentication = miten IRIS-palvelimet tunnistavat toisensa ennen verkkoon l
 [ ] Kaksisuuntaisen liikenteen kattava testaus
 [ ] Yhteyden katkeamisen ja uudelleenyhdistämisen turvallisuus
 [ ] Etäkäyttäjien ja kanavien tilan eheys
-
+Vielä tekemättä
+Kaikki TLS-, credential management-, key rotation-, replay-suojaus-, rate limiting-,
+ pakettien validointi- ja muut tuotantotason kovennukset ovat edelleen avoinna.
 Ei vielä 
 - [ ] TLS-salaus S2S-yhteyksille
 - [ ] Palvelinkohtaiset vahvat tuotantosalaisuudet
