@@ -6,7 +6,7 @@ omalla toteutuksellaan.
 
 IRIS-proto v2 tutkii omaan lähestymistapaan perustuvaa tapaa palauttaa IRC-verkon tila netsplitin jälkeen, IRC:n perinteisen palvelinverkkosynkronoinnin sijaan.
 
-Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erillistä TCP-palvelinta selviytyi kolmesta peräkkäisestä netsplitistä, palautti tapahtumahistoriansa ja **saavutti yhtenevän lopputilan**.
+Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erillistä TCP-palvelinta selviytyi kolmesta peräkkäisestä netsplitistä ja **saavutti yhtenevän lopputilan**.
 
 Tulos on vahvistettavissa projektin dokumentaatiosta, koosdista löytyvistä testeistä ja niiden testien tuloksista. Proto-v2 ja netsplit-kestävyyttä tutkitaan edelleen laajemmalla testauksella. Alustava tulos on hyvä ja osoittaa, että lähestymistavalla on selkeää potentiaalia.
 
