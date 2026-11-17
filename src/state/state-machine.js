@@ -1,7 +1,7 @@
 'use strict';
 
 const { EVENT_TYPES } = require('../events/eventTypes/event-types');
-const validateEvent = require('./helpers/validateEvent.js');
+const validateEvent = require('./operations/validateEvent.js');
 const getOrderedEvents = require('./operations/getOrderedEvents.js');
 
 class StateMachine {
