@@ -1,0 +1,13 @@
+'use strict';
+
+const EVENT_TYPES = Object.freeze({
+    ID_REGISTER: 'ID_REGISTER',
+    ID_AUTH: 'ID_AUTH',
+    NICK_CHANGE: 'NICK_CHANGE',
+    CHANNEL_JOIN: 'CHANNEL_JOIN',
+    CHANNEL_PART: 'CHANNEL_PART',
+    CHANNEL_POWER: 'CHANNEL_POWER',
+    CHANNEL_LOCK: 'CHANNEL_LOCK'
+});
+
+module.exports = EVENT_TYPES;
