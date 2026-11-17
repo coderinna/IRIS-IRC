@@ -10,29 +10,7 @@ const EVENT_TYPES = Object.freeze({
     CHANNEL_LOCK: 'CHANNEL_LOCK'
 });
 
-function validateCausalContext(context, serverId, sequence) {
-    if (
-        !context ||
-        typeof context !== 'object' ||
-        Array.isArray(context)
-    ) {
-        throw new Error('Invalid causal context');
-    }
-
-    for (const [origin, value] of Object.entries(context)) {
-        if (
-            !origin ||
-            !Number.isSafeInteger(value) ||
-            value < 0
-        ) {
-            throw new Error('Invalid causal context entry');
-        }
-
-        if (origin === serverId && value >= sequence) {
-            throw new Error('Invalid own-server causal sequence');
-        }
-    }
-}
+const validateCausalContext = require('./validateCausalContext.js');
 
 function createEvent({
     serverId,
