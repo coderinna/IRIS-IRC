@@ -2,7 +2,8 @@
 'use strict';
 
 const StateMachine = require('../state/state-machine');
-const { createEvent } = require('../events/event-types');
+const updateVector = require('./operations/updateVector.js');
+const createEventOperation = require('./operations/createEvent.js');
 
 class ProtocolNode {
     constructor(serverId, initialEvents = []) {
@@ -15,52 +16,37 @@ this.receivedSequences = new Map();
         this.updateVector(initialEvents);
     }
 
-  updateVector(events) {
-    for (const event of events) {
-        let received = this.receivedSequences.get(event.serverId);
+updateVector(events) {
+    const sequence = { value: this.sequence };
 
-        if (!received) {
-            received = new Set();
-            this.receivedSequences.set(event.serverId, received);
-        }
+    updateVector(
+        events,
+        this.receivedSequences,
+        this.serverId,
+        sequence,
+        this.vector
+    );
 
-        received.add(event.sequence);
-
-        // Keep the local sequence generator above every known local event.
-        if (
-            event.serverId === this.serverId &&
-            event.sequence > this.sequence
-        ) {
-            this.sequence = event.sequence;
-        }
-
-        // Advance only through a contiguous sequence history.
-        let current = this.vector.get(event.serverId) || 0;
-
-        while (received.has(current + 1)) {
-            current++;
-        }
-
-        this.vector.set(event.serverId, current);
-    }
+    this.sequence = sequence.value;
 }
 
-    createEvent(type, actorId, options = {}) {
-        this.sequence++;
+  // Luo uuden tapahtuman ja liittää siihen palvelimen nykyisen tapahtumahistorian.
+createEvent(type, actorId, options = {}) {
+    const sequence = { value: this.sequence };
 
-        const causalContext = Object.fromEntries(this.vector);
+    const event = createEventOperation(
+        type,
+        actorId,
+        options,
+        this.serverId,
+        sequence,
+        this.vector
+    );
 
-        return createEvent({
-            serverId: this.serverId,
-            sequence: this.sequence,
-            type,
-            actorId,
-            targetId: options.targetId ?? null,
-            channel: options.channel ?? null,
-            data: options.data ?? {},
-            causalContext
-        });
-    }
+    this.sequence = sequence.value;
+
+    return event;
+}
 
     receive(event) {
         const accepted = this.machine.add(event);
