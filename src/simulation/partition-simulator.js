@@ -1,7 +1,7 @@
 
 'use strict';
 
-const StateMachine = require('../state/state-machine');
+
 const reconnect = require('./operations/reconnect.js');
 const ProtocolNode = require('./ProtocolNode/ProtocolNode.js');
 const emit = require('./operations/emit.js');
@@ -23,6 +23,13 @@ class PartitionSimulator {
 
         this.connectAll();
     }
+      
+    get connected() {
+        const serverCount = this.nodes.size;
+        const expectedLinks = serverCount * (serverCount - 1) / 2;
+
+        return this.links.size === expectedLinks;
+    }
 
     getNode(serverId) {
         const node = this.nodes.get(serverId);
@@ -32,13 +39,6 @@ class PartitionSimulator {
         }
 
         return node;
-    }
-
-        get connected() {
-        const serverCount = this.nodes.size;
-        const expectedLinks = serverCount * (serverCount - 1) / 2;
-
-        return this.links.size === expectedLinks;
     }
 
     getLinkKey(serverA, serverB) {

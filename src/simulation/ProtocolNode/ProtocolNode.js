@@ -1,7 +1,7 @@
 
 'use strict';
 
-const StateMachine = require('../state/state-machine');
+const StateMachine = require('../../state/state-machine');
 const updateVector = require('./operations/updateVector.js');
 const createEventOperation = require('./operations/createEvent.js');
 
