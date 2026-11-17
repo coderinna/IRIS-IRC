@@ -1,47 +1,17 @@
 'use strict';
 
+const addEvent = require('./components/addEvent.js');
+const getByServer = require('/components/getByServer.js');
+
 class EventLog {
     constructor() {
         this.events = new Map();
         this.sequences = new Map();
     }
 
-    add(event) {
-        if (
-            !event ||
-            typeof event.eventId !== 'string' ||
-            typeof event.serverId !== 'string' ||
-            !event.serverId ||
-            !Number.isSafeInteger(event.sequence) ||
-            event.sequence < 1
-        ) {
-            throw new Error('Invalid protocol event');
-        }
-
-        const existing = this.events.get(event.eventId);
-
-        if (existing) {
-            return false;
-        }
-
-        let serverEvents = this.sequences.get(event.serverId);
-
-        if (!serverEvents) {
-            serverEvents = new Map();
-            this.sequences.set(event.serverId, serverEvents);
-        }
-
-        if (serverEvents.has(event.sequence)) {
-            throw new Error('Sequence conflict');
-        }
-
-        const storedEvent = structuredClone(event);
-
-        this.events.set(event.eventId, storedEvent);
-        serverEvents.set(event.sequence, event.eventId);
-
-        return true;
-    }
+add(event) {
+    return addEvent(event, this.events, this.sequences);
+}
 
     get(eventId) {
         const event = this.events.get(eventId);
@@ -52,17 +22,9 @@ class EventLog {
         return this.events.has(eventId);
     }
 
-    getByServer(serverId) {
-        const serverEvents = this.sequences.get(serverId);
-
-        if (!serverEvents) {
-            return [];
-        }
-
-        return [...serverEvents.entries()]
-            .sort(([a], [b]) => a - b)
-            .map(([, eventId]) => this.get(eventId));
-    }
+getByServer(serverId) {
+    return getByServer(serverId, this.sequences, eventId => this.get(eventId));
+}
 
 
     getByServerSequences(serverId, sequences) {
