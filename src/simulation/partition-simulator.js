@@ -2,8 +2,9 @@
 'use strict';
 
 const StateMachine = require('../state/state-machine');
-
+const reconnect = require('./operations/reconnect.js');
 const ProtocolNode = require('./ProtocolNode/ProtocolNode.js');
+const emit = require('./operations/emit.js');
 
 class PartitionSimulator {
     constructor(initialEvents = [], serverIds = ['A', 'B']) {
@@ -78,48 +79,25 @@ class PartitionSimulator {
         return this.links.has(this.getLinkKey(serverA, serverB));
     }
 
-    emit(serverId, type, actorId, options = {}) {
-        const source = this.getNode(serverId);
-        const event = source.createEvent(type, actorId, options);
+emit(serverId, type, actorId, options = {}) {
+    return emit(
+        serverId,
+        type,
+        actorId,
+        options,
+        this.nodes,
+        id => this.getNode(id),
+        (source, target) => this.isConnected(source, target)
+    );
+}
 
-        source.receive(event);
-
-        for (const [targetId, target] of this.nodes) {
-            if (
-                targetId !== serverId &&
-                this.isConnected(serverId, targetId)
-            ) {
-                target.receive(event);
-            }
-        }
-
-        return event;
-    }
-
-    reconnect() {
-        const allEvents = new Map();
-
-        for (const node of this.nodes.values()) {
-            for (const event of node.getEvents()) {
-                allEvents.set(event.eventId, event);
-            }
-        }
-
-        const events = [...allEvents.values()];
-        const results = {};
-
-        for (const [serverId, node] of this.nodes) {
-            results[serverId] = node.machine.merge(events);
-            node.updateVector(events);
-        }
-
-        this.connectAll();
-
-        return {
-            servers: results,
-            converged: this.hasConverged()
-        };
-    }
+reconnect() {
+    return reconnect(
+        this.nodes,
+        () => this.connectAll(),
+        () => this.hasConverged()
+    );
+}
 
     hasConverged() {
         const snapshots = [...this.nodes.values()]
