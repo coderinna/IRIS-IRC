@@ -65,4 +65,4 @@ createEvent(type, actorId, options = {}) {
 }
 
 
-module.exports = PartitionSimulator;
+module.exports = ProtocolNode ;
