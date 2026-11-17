@@ -1,7 +1,9 @@
 'use strict';
 
-const addEvent = require('./components/addEvent.js');
-const getByServer = require('/components/getByServer.js');
+const addEvent = require('./operations/addEvent.js');
+const getByServer = require('./operations/getByServer.js');
+const getByServerSequences = require('./operations/getByServerSequences.js');
+const getMissingSequences = require('./operations/getMissingSequences.js');
 
 class EventLog {
     constructor() {
@@ -27,49 +29,23 @@ getByServer(serverId) {
 }
 
 
-    getByServerSequences(serverId, sequences) {
-        if (
-            !Array.isArray(sequences) ||
-            sequences.some(sequence =>
-                !Number.isSafeInteger(sequence) || sequence < 1
-            )
-        ) {
-            throw new Error('Invalid sequence list');
-        }
-
-        const serverEvents = this.sequences.get(serverId);
-
-        if (!serverEvents) {
-            return [];
-        }
+getByServerSequences(serverId, sequences) {
+    return getByServerSequences(
+        serverId,
+        sequences,
+        this.sequences,
+        eventId => this.get(eventId)
+    );
+}
 
 
-        return sequences
-            .map(sequence => serverEvents.get(sequence))
-            .filter(Boolean)
-            .map(eventId => this.get(eventId));
-    }
-
-
-    getMissingSequences(serverId, throughSequence) {
-        if (
-            !Number.isSafeInteger(throughSequence) ||
-            throughSequence < 0
-        ) {
-            throw new Error('Invalid sequence range');
-        }
-
-        const serverEvents = this.sequences.get(serverId);
-        const missing = [];
-
-        for (let sequence = 1; sequence <= throughSequence; sequence++) {
-            if (!serverEvents?.has(sequence)) {
-                missing.push(sequence);
-            }
-        }
-
-        return missing;
-    }
+getMissingSequences(serverId, throughSequence) {
+    return getMissingSequences(
+        serverId,
+        throughSequence,
+        this.sequences
+    );
+}
 
     getAll() {
         return [...this.events.values()].map(event =>
