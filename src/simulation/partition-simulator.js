@@ -1,9 +1,9 @@
 
 'use strict';
 
+const ProtocolNode = require('./ProtocolNode/ProtocolNode.js');
 
 const reconnect = require('./operations/reconnect.js');
-const ProtocolNode = require('./ProtocolNode/ProtocolNode.js');
 const emit = require('./operations/emit.js');
 
 class PartitionSimulator {
