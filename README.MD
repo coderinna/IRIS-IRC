@@ -7,8 +7,26 @@ omalla toteutuksellaan.
 IRIS-proto v2 tutkii omaan lähestymistapaan perustuvaa tapaa palauttaa IRC-verkon tila netsplitin jälkeen, IRC:n perinteisen palvelinverkkosynkronoinnin sijaan.
 
 Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erillistä TCP-palvelinta selviytyi kolmesta peräkkäisestä netsplitistä ja **saavutti yhtenevän lopputilan**.
+* tapahtumahistoria
+* kausaalinen järjestys
+* JOIN/PART-konfliktit 
+* kolmen palvelimen netsplit-palautuminen 
+* oikeiden TCP-palvelinprosessien välinen synkronointi.
 
-Tulos on vahvistettavissa projektin dokumentaatiosta, koosdista löytyvistä testeistä ja niiden testien tuloksista. Proto-v2 ja netsplit-kestävyyttä tutkitaan edelleen laajemmalla testauksella. Alustava tulos on hyvä ja osoittaa, että lähestymistavalla on selkeää potentiaalia.
+Tulos on vahvistettavissa projektin dokumentaatiosta, koodista löytyvistä testeistä ja niiden testien tuloksista. Proto-v2 ja netsplit-kestävyyttä tutkitaan edelleen laajemmalla testauksella. Alustava tulos on hyvä ja osoittaa, että lähestymistavalla on selkeää potentiaalia.
+
+Hajautetun IRC-verkon kanavajäsenyyden kausaalinen säilyttäminen ja palauttaminen verkkokatkon jälkeen palvelinkohtaisen tapahtumahistorian avulla.
+
+Osa-alue	Nykyinen tilanne
+Tapahtumien yksilöinti	serverId + sequence
+Tapahtumahistoria	Palvelinkohtainen loki
+Kausaalinen järjestys	causalContext
+Puuttuvien tapahtumien tunnistus	Sekvenssinumeroiden vertailu
+JOIN/PART-konfliktit	Kausaalinen jäsenyyden palautus
+Netsplit-palautuminen	Usean palvelimen synkronointi
+TCP-synkronointi	Kolmen erillisen prosessin testit
+Duplikaattien käsittely	Jo testattu
+Toistuvat netsplitit	Kolme peräkkäistä sykliä testattu
 
 ## Protokolla edellä ratkaisu
 
@@ -114,3 +132,6 @@ Tämä on nyt oikeasti testattu, ei pelkkä simulaatiotulos.
 * Kausaalikonteksti auttaa ymmärtämään tapahtumien välisiä riippuvuuksia.
 * Puuttuvien tapahtumien tunnistus mahdollistaa täsmäkorjauksen.
 * Näiden päälle voidaan rakentaa tilannekuvat ja vanhojen tapahtumien turvallinen siivous.
+
+
+
