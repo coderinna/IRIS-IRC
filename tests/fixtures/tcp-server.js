@@ -8,7 +8,9 @@ const {
     createEvent,
     EVENT_TYPES
 } = require('../../src/events/eventTypes/event-types');
-const createCommandHandler = require('./command-handler.js');
+
+const createCommandHandler = require('./handlers/command-handler.js');
+const createSyncRequestHandler = require('./handlers/handle-sync-request.js');
 
 const serverId = process.argv[2];
 
@@ -177,36 +179,10 @@ function handleSummary(message, socket) {
     }
 }
 
-function handleSyncRequest(message, socket) {
-    if (!Array.isArray(message.requests)) {
-        throw new Error('Invalid SYNC_REQUEST');
-    }
-
-    const events = [];
-
-    for (const request of message.requests) {
-        if (
-            typeof request.serverId !== 'string' ||
-            !Array.isArray(request.sequences)
-        ) {
-            throw new Error('Invalid sync request entry');
-        }
-
-        events.push(
-            ...eventLog.getByServerSequences(
-                request.serverId,
-                request.sequences
-            )
-        );
-    }
-
-    if (events.length > 0) {
-        send(socket, {
-            type: 'SYNC_EVENTS',
-            events
-        });
-    }
-}
+const handleSyncRequest = createSyncRequestHandler({
+    eventLog,
+    send
+});
 
 transport.on('message', (message, socket) => {
     try {
