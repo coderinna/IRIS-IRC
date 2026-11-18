@@ -3,11 +3,11 @@
 const { EVENT_TYPES } = require('../events/eventTypes/event-types');
 const validateEvent = require('./operations/validateEvent.js');
 const getOrderedEvents = require('./operations/getOrderedEvents.js');
-const applyEvent = require('./operations/apply-event');
-const mergeEvents = require('./operations/merge-events');
-const rebuildState = require('./operations/rebuild-state');
-const getSnapshot = require('./operations/get-snapshot');
-const getChannel = require('./operations/get-channel');
+const applyEvent = require('./operations/apply-event.js');
+const mergeEvents = require('./operations/merge-events.js');
+const rebuildState = require('./operations/rebuild-state.js');
+const getSnapshot = require('./operations/get-snapshot.js');
+const getChannel = require('./operations/get-channel.js');
 
 class StateMachine {
     constructor() {
