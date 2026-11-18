@@ -3,6 +3,7 @@
 const { EVENT_TYPES } = require('../events/eventTypes/event-types');
 const validateEvent = require('./operations/validateEvent.js');
 const getOrderedEvents = require('./operations/getOrderedEvents.js');
+const applyEvent = require('./operations/apply-event');
 
 class StateMachine {
     constructor() {
@@ -116,77 +117,13 @@ getOrderedEvents() {
         return this.state.channels.get(channelName);
     }
 
-    applyEvent(event) {
-        switch (event.type) {
-            case EVENT_TYPES.ID_REGISTER: {
-                const account = this.getOrCreateAccount(event.actorId);
-                account.primaryNick = event.data.primaryNick;
-                break;
-            }
-
-            case EVENT_TYPES.ID_AUTH: {
-                this.getOrCreateAccount(event.actorId);
-
-                this.state.sessions.set(
-                    event.data.sessionId,
-                    event.actorId
-                );
-
-                break;
-            }
-
-            case EVENT_TYPES.NICK_CHANGE: {
-                const account = this.getOrCreateAccount(event.actorId);
-                account.primaryNick = event.data.newNick;
-                break;
-            }
-
-            case EVENT_TYPES.CHANNEL_JOIN: {
-                this.getOrCreateChannel(event.channel)
-                    .members.add(event.actorId);
-
-                break;
-            }
-
-            case EVENT_TYPES.CHANNEL_POWER: {
-                this.getOrCreateChannel(event.channel)
-                    .powers.set(event.targetId, event.data.level);
-
-                break;
-            }
-
-            case EVENT_TYPES.CHANNEL_LOCK: {
-                this.getOrCreateChannel(event.channel).lock =
-                    structuredClone(event.data.lock);
-
-                break;
-            }
-
-            case EVENT_TYPES.CHANNEL_PART:
-                /*
-                 * CHANNEL_PART is handled by rebuild(), because PART
-                 * must remove only JOIN events that it causally observed.
-                 */
-                break;
-
-            default:
-                throw new Error(`Unsupported event type: ${event.type}`);
-        }
-    }
+applyEvent(event) {
+    return applyEvent.call(this, event);
+}
 
     rebuild() {
         this.state = this.createEmptyState();
 
-        /*
-         * Each JOIN event creates its own membership tag.
-         *
-         * key:
-         *   channel + actor
-         *
-         * value:
-         *   Set of JOIN event IDs currently representing
-         *   that actor's membership.
-         */
         const membershipTags = new Map();
 
         const getMembershipKey = event =>
