@@ -1,4 +1,6 @@
-# IRIS-proto-v2
+# IRIS-proto-v2  –IRC infrastructure with a custom server-to-server protocol and causal netsplit recovery.
+
+IRC-infrastruktuuri, jossa oma palvelinten välinen protokolla mahdollistaa hajautetun verkon palautumisen verkkokatkoista.
 
 IRIS osoittanut alustavasti toimivan lähestymistavan
 yhden IRC-infrastruktuurin keskeisistä luotettavuusongelmista 
@@ -27,6 +29,8 @@ Netsplit-palautuminen	Usean palvelimen synkronointi
 TCP-synkronointi	Kolmen erillisen prosessin testit
 Duplikaattien käsittely	Jo testattu
 Toistuvat netsplitit	Kolme peräkkäistä sykliä testattu
+
+IRIS pyrkii palauttamaan hajautetun jäsenyystilan säilyttämällä tapahtumien kausaalisen merkityksen myös silloin, kun palvelimet ovat tehneet toisistaan riippumattomia muutoksia verkkopartition aikana.
 
 ## Protokolla edellä ratkaisu
 
