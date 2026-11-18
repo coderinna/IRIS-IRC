@@ -4,6 +4,10 @@ const { EVENT_TYPES } = require('../events/eventTypes/event-types');
 const validateEvent = require('./operations/validateEvent.js');
 const getOrderedEvents = require('./operations/getOrderedEvents.js');
 const applyEvent = require('./operations/apply-event');
+const mergeEvents = require('./operations/merge-events');
+const rebuildState = require('./operations/rebuild-state');
+const getSnapshot = require('./operations/get-snapshot');
+const getChannel = require('./operations/get-channel');
 
 class StateMachine {
     constructor() {
@@ -35,29 +39,9 @@ class StateMachine {
 
         return true;
     }
-
-    merge(events) {
-        if (!Array.isArray(events)) {
-            throw new Error('Events must be an array');
-        }
-
-        for (const event of events) {
-            this.validateEvent(event);
-        }
-
-        let accepted = 0;
-        let duplicates = 0;
-
-        for (const event of events) {
-            if (this.add(event)) {
-                accepted++;
-            } else {
-                duplicates++;
-            }
-        }
-
-        return { accepted, duplicates };
-    }
+merge(events) {
+    return mergeEvents.call(this, events);
+}
 
     compareEvents(a, b) {
         if (a.sequence !== b.sequence) {
@@ -121,68 +105,9 @@ applyEvent(event) {
     return applyEvent.call(this, event);
 }
 
-    rebuild() {
-        this.state = this.createEmptyState();
-
-        const membershipTags = new Map();
-
-        const getMembershipKey = event =>
-            `${event.channel}:${event.actorId}`;
-
-        const syncMembershipState = event => {
-            const key = getMembershipKey(event);
-            const tags = membershipTags.get(key) || new Set();
-            const channel = this.getOrCreateChannel(event.channel);
-
-            if (tags.size > 0) {
-                channel.members.add(event.actorId);
-            } else {
-                channel.members.delete(event.actorId);
-            }
-        };
-
-        for (const event of this.getOrderedEvents()) {
-            if (event.type === EVENT_TYPES.CHANNEL_JOIN) {
-                const key = getMembershipKey(event);
-
-                if (!membershipTags.has(key)) {
-                    membershipTags.set(key, new Set());
-                }
-
-                membershipTags.get(key).add(event.eventId);
-
-                syncMembershipState(event);
-                continue;
-            }
-
-            if (event.type === EVENT_TYPES.CHANNEL_PART) {
-                const key = getMembershipKey(event);
-                const tags = membershipTags.get(key);
-
-                if (!tags) {
-                    continue;
-                }
-
-                /*
-                 * PART removes only JOINs that happened before it.
-                 *
-                 * A concurrent JOIN is deliberately retained.
-                 */
-                for (const joinEventId of [...tags]) {
-                    const joinEvent = this.events.get(joinEventId);
-
-                    if (joinEvent && this.happensBefore(joinEvent, event)) {
-                        tags.delete(joinEventId);
-                    }
-                }
-
-                syncMembershipState(event);
-                continue;
-            }
-
-            this.applyEvent(event);
-        }
-    }
+rebuild() {
+    return rebuildState.call(this);
+}
 
     getAccount(accountId) {
         const account = this.state.accounts.get(accountId);
@@ -193,46 +118,13 @@ applyEvent(event) {
         return this.state.sessions.get(sessionId) || null;
     }
 
-    getChannel(channelName) {
-        const channel = this.state.channels.get(channelName);
+ getChannel(channelName) {
+    return getChannel.call(this, channelName);
+}
 
-        if (!channel) {
-            return null;
-        }
-
-        return {
-            members: [...channel.members].sort(),
-            powers: Object.fromEntries(
-                [...channel.powers.entries()].sort(([a], [b]) =>
-                    a.localeCompare(b)
-                )
-            ),
-            lock: structuredClone(channel.lock)
-        };
-    }
-
-    getSnapshot() {
-        const accounts = {};
-
-        for (const [id, account] of [...this.state.accounts.entries()]
-            .sort(([a], [b]) => a.localeCompare(b))) {
-            accounts[id] = structuredClone(account);
-        }
-
-        const sessions = Object.fromEntries(
-            [...this.state.sessions.entries()].sort(([a], [b]) =>
-                a.localeCompare(b)
-            )
-        );
-
-        const channels = {};
-
-        for (const name of [...this.state.channels.keys()].sort()) {
-            channels[name] = this.getChannel(name);
-        }
-
-        return { accounts, sessions, channels };
-    }
+getSnapshot() {
+    return getSnapshot.call(this);
+}
 
     get size() {
         return this.events.size;
