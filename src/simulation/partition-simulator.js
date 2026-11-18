@@ -7,6 +7,7 @@ const reconnect = require('./operations/reconnect.js');
 const emit = require('./operations/emit.js');
 
 class PartitionSimulator {
+    
     constructor(initialEvents = [], serverIds = ['A', 'B']) {
         if (!Array.isArray(serverIds) || serverIds.length < 2) {
             throw new Error('At least two servers are required');
