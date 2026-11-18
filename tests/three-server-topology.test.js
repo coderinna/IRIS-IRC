@@ -5,7 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const PartitionSimulator = require('../src/simulation/partition-simulator');
-const { EVENT_TYPES } = require('../src/events/event-types');
+const { EVENT_TYPES } = require('../src/events/eventTypes/event-types');
 
 test('three-server topology survives partitions, duplicate delivery and recovery', () => {
     const simulator = new PartitionSimulator([], ['A', 'B', 'C']);

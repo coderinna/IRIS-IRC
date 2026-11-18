@@ -1,6 +1,6 @@
 'use strict';
 
-const { EVENT_TYPES } = require('../../events/event-types');
+const { EVENT_TYPES } = require('../../events/eventTypes/event-types.js');
 
  function validateEvent(event) {
         if (

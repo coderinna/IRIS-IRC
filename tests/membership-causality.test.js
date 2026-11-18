@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const PartitionSimulator = require('../src/simulation/partition-simulator');
-const { EVENT_TYPES } = require('../src/events/event-types');
+const { EVENT_TYPES } = require('../src/events/eventTypes/event-types');
 
 test('concurrent JOIN and PART do not create false causal ordering', () => {
     const sim = new PartitionSimulator();

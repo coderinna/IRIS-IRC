@@ -7,7 +7,7 @@ const StateMachine = require('../src/state/state-machine');
 const {
     createEvent,
     EVENT_TYPES
-} = require('../src/events/event-types');
+} = require('../src/events/eventTypes/event-types');
 
 function event(serverId, sequence, type, actorId, options = {}) {
     return createEvent({

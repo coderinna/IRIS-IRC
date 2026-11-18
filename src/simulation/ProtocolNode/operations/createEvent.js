@@ -1,6 +1,6 @@
 'use strict';
 
-const { createEvent } = require('../../events/event-types');
+const { createEvent } = require('../../../events/eventTypes/event-types');
 
 function createEventOperation(type, actorId, options, serverId, sequence, vector) {
     // Jokainen uusi tapahtuma saa seuraavan järjestysnumeron.

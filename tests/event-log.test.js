@@ -3,11 +3,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const EventLog = require('../src/events/event-log');
+const EventLog = require('../src/events/evetLogs/event-log');
 const {
     createEvent,
     EVENT_TYPES
-} = require('../src/events/event-types');
+} = require('../src/events/eventTypes/event-types');
 
 function makeEvent(serverId = 'A', sequence = 1) {
     return createEvent({

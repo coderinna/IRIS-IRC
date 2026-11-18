@@ -5,7 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const PartitionSimulator = require('../src/simulation/partition-simulator');
-const { EVENT_TYPES } = require('../src/events/event-types');
+const { EVENT_TYPES } = require('../src/events/eventTypes/event-types');
 
 test('protocol v2 recovers three-server netsplit with complete causal histories', () => {
     const simulator = new PartitionSimulator([], ['A', 'B', 'C']);

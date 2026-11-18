@@ -4,10 +4,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const PartitionSimulator = require('../src/simulation/partition-simulator');
-const { EVENT_TYPES } = require('../src/events/event-types');
+const { EVENT_TYPES } = require('../src/events/eventTypes/event-types');
 
 function createInitialState() {
-    const { createEvent } = require('../src/events/event-types');
+    const { createEvent } = require('../src/events/eventTypes/event-types');
 
     return [
         createEvent({

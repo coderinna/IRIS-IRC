@@ -2,12 +2,12 @@
 'use strict';
 
 const TcpTransport = require('../../src/transport/tcp-transport');
-const EventLog = require('../../src/events/event-log');
+const EventLog = require('../../src/events/evetLogs/event-log');
 const StateMachine = require('../../src/state/state-machine');
 const {
     createEvent,
     EVENT_TYPES
-} = require('../../src/events/event-types');
+} = require('../../src/events/eventTypes/event-types');
 
 const serverId = process.argv[2];
 

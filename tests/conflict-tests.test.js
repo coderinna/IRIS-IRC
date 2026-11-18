@@ -8,7 +8,7 @@ const PartitionSimulator = require('../src/simulation/partition-simulator');
 const {
     createEvent,
     EVENT_TYPES
-} = require('../src/events/event-types');
+} = require('../src/events/eventTypes/event-types');
 
 function createInitialState() {
     return [
