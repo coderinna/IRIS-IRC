@@ -19,16 +19,18 @@ Tulos on vahvistettavissa projektin dokumentaatiosta, koodista löytyvistä test
 
 Hajautetun IRC-verkon kanavajäsenyyden kausaalinen säilyttäminen ja palauttaminen verkkokatkon jälkeen palvelinkohtaisen tapahtumahistorian avulla.
 
-Osa-alue	Nykyinen tilanne
-Tapahtumien yksilöinti	serverId + sequence
-Tapahtumahistoria	Palvelinkohtainen loki
-Kausaalinen järjestys	causalContext
-Puuttuvien tapahtumien tunnistus	Sekvenssinumeroiden vertailu
-JOIN/PART-konfliktit	Kausaalinen jäsenyyden palautus
-Netsplit-palautuminen	Usean palvelimen synkronointi
-TCP-synkronointi	Kolmen erillisen prosessin testit
-Duplikaattien käsittely	Jo testattu
-Toistuvat netsplitit	Kolme peräkkäistä sykliä testattu
+
+| Osa-alue | Nykyinen tilanne |
+|---|---|
+| **Tapahtumien yksilöinti** | `serverId + sequence` |
+| **Tapahtumahistoria** | Palvelinkohtainen tapahtumaloki |
+| **Kausaalinen järjestys** | `causalContext` |
+| **Puuttuvien tapahtumien tunnistus** | Sekvenssinumeroiden vertailu |
+| **JOIN/PART-konfliktit** | Kausaalinen jäsenyyden palautus |
+| **Netsplit-palautuminen** | Usean palvelimen synkronointi |
+| **TCP-synkronointi** | Kolmen erillisen prosessin testit |
+| **Duplikaattien käsittely** | Testattu |
+| **Toistuvat netsplitit** | Kolme peräkkäistä sykliä testattu |
 
 IRIS pyrkii palauttamaan hajautetun jäsenyystilan säilyttämällä tapahtumien kausaalisen merkityksen myös silloin, kun palvelimet ovat tehneet toisistaan riippumattomia muutoksia verkkopartition aikana.
 
@@ -136,6 +138,3 @@ Tämä on nyt oikeasti testattu, ei pelkkä simulaatiotulos.
 * Kausaalikonteksti auttaa ymmärtämään tapahtumien välisiä riippuvuuksia.
 * Puuttuvien tapahtumien tunnistus mahdollistaa täsmäkorjauksen.
 * Näiden päälle voidaan rakentaa tilannekuvat ja vanhojen tapahtumien turvallinen siivous.
-
-
-
