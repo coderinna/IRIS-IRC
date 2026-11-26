@@ -1,12 +1,13 @@
 # IRIS-protocol-S2S-v2 
 
-IRC-infrastruktuuri, jossa oma palvelinten välinen protokolla mahdollistaa hajautetun verkon palautumisen verkkokatkoista.
+Tavoitteena oli lähteä rakentamaa IRC-infrastruktuuri, jossa oma palvelinten välinen protokolla mahdollistaa hajautetun verkon palautumisen verkkokatkoista eli netsplitistä.
 
 IRIS on osoittanut alustavasti toimivan lähestymistavan yhteen IRC-infrastruktuurin keskeisistä luotettavuushaasteista: verkkotilan palauttamiseen palvelinten välisen yhteyskatkon jälkeen (netsplit).
 
-IRIS-S2S Protocol v2 tutkii omaan tapahtumapohjaiseen synkronointiin perustuvaa tapaa palauttaa ja yhtenäistää IRC-verkon tila netsplitin jälkeen. Perinteisen palvelinverkkosynkronoinnin sijaan lähestymistavan perustana ovat palvelinkohtaiset tapahtumahistoriat, kausaaliset riippuvuudet ja puuttuvien tapahtumien palauttaminen.
+IRIS-S2S Protocol v2 tutkii omaan tapahtumapohjaiseen synkronointiin perustuvaa tapaa palauttaa ja yhtenäistää IRC-verkon tila netsplitin jälkeen. Perinteisen palvelinverkkosynkronoinnin sijaan lähestymistavan perustana ovat **palvelinkohtaiset tapahtumahistoriat, kausaalinen säilyttäminen ja puuttuvien tapahtumien palauttaminen**.
 
-Tavoite, että IRIS-S2S pystyy palauttamaan hajautetun IRC-verkon yhtenäiseen ja deterministiseen tilaan verkkokatkon eli netsplitin jälkeen.
+Tavoite, että IRIS-S2S pystyy palauttamaan hajautetun 
+**IRC-verkon yhtenäiseen ja deterministiseen tilaan** verkkokatkon jälkeen.
 
 Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erillistä TCP-palvelinta selviytyi kolmesta peräkkäisestä netsplitistä ja **saavutti yhtenevän lopputilan**.
 * tapahtumahistoria
@@ -15,9 +16,8 @@ Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erill
 * kolmen palvelimen netsplit-palautuminen 
 * oikeiden TCP-palvelinprosessien välinen synkronointi.
 
-Tulos on vahvistettavissa projektin dokumentaatiosta, koodista löytyvistä testeistä ja niiden testien tuloksista. Proto-v2 ja netsplit-kestävyyttä tutkitaan edelleen laajemmalla testauksella. Alustava tulos on hyvä ja osoittaa, että lähestymistavalla on selkeää potentiaalia.
+Tulos on vahvistettavissa projektin dokumentaatiosta, koodista löytyvistä testeistä ja niiden testien tuloksista. Proto-v2 ja netsplit-kestävyyttä tutkitaan edelleen laajemmalla testauksella. Alustava tulos on hyvä ja osoittaa, että lähestymistavalla on jonkin asteinen potentiaalia.
 
-Hajautetun IRC-verkon kanavajäsenyyden kausaalinen säilyttäminen ja palauttaminen verkkokatkon jälkeen palvelinkohtaisen tapahtumahistorian avulla.
 
 
 | Osa-alue | Nykyinen tilanne |
@@ -36,28 +36,19 @@ IRIS pyrkii palauttamaan hajautetun jäsenyystilan säilyttämällä tapahtumien
 
 ## Protokolla edellä ratkaisu
 
-Tässä ei enää vain korjata vanhaa IRCd:tä.
-Tässä tutkitaan uudenlaista IRC-verkon toimintamallia.
-
-Yksikään muu IRC daemond ei ratkaise netsplittiä oman S2S-protkolonnan avulla.
-Ollaanko tilanteessa , että voidaa oman binääri protokollan avulla ratkaista tilanne,johon
-vanhemmat C pohjoaiset daemondit eivät pysty oman rakenteensa takia ?
-IRC:n perinteinen palvelinverkko perustuu puumaiseen topologiaan (Spanning Tree)
-ja erillisiin Services palvelimiin NickSerc, Channel Serv. (Anope/Antheme kerros)
-, jossa yksittäisen palvelinyhteyden katkeaminen voi jakaa verkon. 
+Tässä tutkitaan uudenlaista IRC-verkon toimintamallia, jota yksikään valtavirran IRC-daemondi ei näytä lähesty ongelmaa tällä tavalla nykyhetkellä.
 
 IRIS-S2S v2:n tapahtumapohjainen synkronointi lähestyy ongelmaa eri tavalla: sen sijaan, että vain vaihdettaisiin uudelleen palvelinten käyttäjä- ja kanavatietoja, voidaan palauttaa ja yhtenäistää tapahtumahistoriaa.
 
-Alettu miettimään Matrixia . IRIS puhuisi ulospäin IRC:ä niinku on nyt , 
-mutta toimii ulos kuin kevytm, binäärinen Matrix. Halutaan
-IRC nopeus, keveys, client ekosysteemi, mutta päästäisi eroo 1980 luvu
-puumaista verkkoahtiiruin haavoittuvuuksista. 
-Matrixista ei haluta sen raskasta lasketnaaa ja JSONia.
+IRIS:n kehityksessä on alettu tutkia arkkitehtuuria, jossa yhdistyvät IRC:n keveys, nopeus ja laaja asiakasekosysteemi sekä modernin hajautetun viestintäverkon toimintaperiaatteet.
 
-Yksikään valtavirran IRC-daemondi ei lähesty ongelmaa tälllä tavalla.
+Tavoitteena on säilyttää IRC-yhteensopivuus ulospäin, jotta nykyiset IRC-clientit ja niiden ekosysteemi säilyvät käytettävissä. Verkon sisäinen toiminta ei kuitenkaan olisi sidottu perinteiseen IRC-palvelinarkkitehtuuriin tai sen puumaiseen Spanning Tree -topologiaan.
 
+Arkkitehtuurin suunnittelussa haetaan vaikutteita esimerkiksi Matrixin hajautetusta toimintamallista, mutta ilman sen raskasta tapahtumamallia, JSON-pohjaista tiedonsiirtoa ja tarpeettoman suurta laskennallista kuormaa.
 
-## Tutkimus kysymykset
+IRIS ei siis pyri rakentamaan uutta IRC-client-ekosysteemiä eikä kopioimaan Matrixia. Tavoitteena on yhdistää perinteisen IRC:n käytännölliset vahvuudet modernimpaan, omaan binääriseen verkkoarkkitehtuuriin.
+
+## Kysymykset
 
 *  Pystyykö palauttamaan hajautetun IRC-verkon yhtenäiseen ja deterministiseen tilaan verkkokatkon eli netsplitin jälkeen?
 * Voiko netsplitistä tehdä tilanteen, jossa verkko ei koskaan oikeasti menetä yhteistä historiaansa?
