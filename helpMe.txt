@@ -1,0 +1,20 @@
+
+cd ~/GitHub/IRIS-IRC
+
+pkill -9 -u "$USER" -x node  
+
+2. 
+node --env-file=.env.iris-01 server.js
+nodemon --env-file=.env.iris-01 server.js
+1. 
+ node --env-file=.env.iris-02 server.js
+ nodemon --env-file=.env.iris-02 server.js
+3. 
+ node --env-file=.env.iris-03 server.js
+  nodemon --env-file=.env.iris-03 server.js
+
+/CONNECT 127.0.0.1 6667            // iris 1-servu
+/nick ninni
+/CONNECT 127.0.0.1 6668
+/join #test
+/CONNECT 127.0.0.1 6669
