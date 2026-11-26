@@ -19,6 +19,8 @@ Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erill
 Tulos on vahvistettavissa projektin dokumentaatiosta, koodista löytyvistä testeistä ja niiden testien tuloksista. Proto-v2 ja netsplit-kestävyyttä tutkitaan edelleen laajemmalla testauksella. Alustava tulos on hyvä ja osoittaa, että lähestymistavalla on jonkin asteinen potentiaalia.
 
 
+IRIS-S2S v2:n tavoitteena on tutkia, voidaanko tällä lähestymistavalla saavuttaa deterministinen ja yhtenäinen kanavajäsenyys myös toistuvien verkkokatkosten jälkeen.
+
 
 | Osa-alue | Nykyinen tilanne |
 |---|---|
@@ -116,10 +118,4 @@ Tunnetut IRC-daemonit, kuten InspIRCd ja UnrealIRCd, käyttävät omia palvelint
 
 IRIS-S2S v2 tutkii tästä poikkeavaa lähestymistapaa: palvelinten välisen synkronoinnin perustana ei ole ainoastaan nykyisen verkkotilan välittäminen, vaan palvelinkohtaisen tapahtumahistorian säilyttäminen ja yhdistäminen.
 
-Toteutuksen keskeisiä mekanismeja ovat palvelinkohtaiset tapahtumasekvenssit, kausaalikonteksti sekä puuttuvien tapahtumien tunnistaminen ja palauttaminen.
-
 Tarkasteltujen tunnettujen IRC-daemonien julkisesta teknisestä dokumentaatiosta ei löytynyt vastaavaa kokonaisuutta, jossa verkkopartition aikana syntyneitä itsenäisiä muutoksia palautettaisiin palvelinkohtaisten tapahtumahistorioiden ja kausaalisten riippuvuuksien avulla.
-
-IRIS-S2S v2:n tavoitteena on tutkia, voidaanko tällä lähestymistavalla saavuttaa deterministinen ja yhtenäinen kanavajäsenyys myös toistuvien verkkokatkosten jälkeen.
-
-Kolmen erillisen TCP-palvelinprosessin kolme peräkkäistä netsplit-palautumiskierrosta ovat ensimmäinen käytännön demonstraatio tästä lähestymistavasta. Laajempi vertailu muihin toteutuksiin ja kattavampi luotettavuustestaus ovat edelleen tarpeen.
