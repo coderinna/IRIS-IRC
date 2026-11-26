@@ -1,12 +1,12 @@
-# IRIS-proto-v2  –IRC infrastructure with a custom server-to-server protocol and causal netsplit recovery.
+# IRIS-protocol-S2S-v2 
 
 IRC-infrastruktuuri, jossa oma palvelinten välinen protokolla mahdollistaa hajautetun verkon palautumisen verkkokatkoista.
 
-IRIS osoittanut alustavasti toimivan lähestymistavan
-yhden IRC-infrastruktuurin keskeisistä luotettavuusongelmista 
-omalla toteutuksellaan.
+IRIS on osoittanut alustavasti toimivan lähestymistavan yhteen IRC-infrastruktuurin keskeisistä luotettavuushaasteista: verkkotilan palauttamiseen palvelinten välisen yhteyskatkon jälkeen (netsplit).
 
-IRIS-proto v2 tutkii omaan lähestymistapaan perustuvaa tapaa palauttaa IRC-verkon tila netsplitin jälkeen, IRC:n perinteisen palvelinverkkosynkronoinnin sijaan.
+IRIS-S2S Protocol v2 tutkii omaan tapahtumapohjaiseen synkronointiin perustuvaa tapaa palauttaa ja yhtenäistää IRC-verkon tila netsplitin jälkeen. Perinteisen palvelinverkkosynkronoinnin sijaan lähestymistavan perustana ovat palvelinkohtaiset tapahtumahistoriat, kausaaliset riippuvuudet ja puuttuvien tapahtumien palauttaminen.
+
+Tavoite, että IRIS-S2S pystyy palauttamaan hajautetun IRC-verkon yhtenäiseen ja deterministiseen tilaan verkkokatkon eli netsplitin jälkeen.
 
 Tähän mennessä saavutettu: 16.11.2026 kello 01:00 (Suomen aika):  kolme erillistä TCP-palvelinta selviytyi kolmesta peräkkäisestä netsplitistä ja **saavutti yhtenevän lopputilan**.
 * tapahtumahistoria
@@ -55,18 +55,6 @@ puumaista verkkoahtiiruin haavoittuvuuksista.
 Matrixista ei haluta sen raskasta lasketnaaa ja JSONia.
 
 Yksikään valtavirran IRC-daemondi ei lähesty ongelmaa tälllä tavalla.
-
-## Tavoite
-
-* IRIS-S2S pystyy palauttamaan hajautetun IRC-verkon yhtenäiseen ja deterministiseen tilaan verkkokatkon eli netsplitin jälkeen.
-
-### Esimerkki
-- A:ssa käyttäjä liittyy kanavalle.
-- B:ssä käyttäjä poistetaan kanavalta samaan aikaan.
-- B ei ole nähnyt A:n JOIN-tapahtumaa.
-- Palvelimet yhdistyvät uudelleen.
-
-Jos IRIS protokolla vol 2 pystyy säilyttämään molemmat tapahtumat ja ratkaisemaan jäsenyyden oikein, meillä on ensimmäinen askel kohti oikeasti hajautettua kanavatilaa.
 
 
 ## Tutkimus kysymykset
@@ -121,15 +109,7 @@ Jos IRIS protokolla vol 2 pystyy säilyttämään molemmat tapahtumat ja ratkais
 - Kaikki kolme TCP-palvelinta saavuttavat saman lopputilan testatuissa palautumistilanteissa
 - Testit ovat automaattisesti toistettavissa
 
-**Merkintöjen selitys:**
-
-- Valmis &#x20;Testattu ja läpäisty.
-
--Osittain &#x20;Testattu rajatusti tai vain simulaattorissa.
-
--  Avoin &#x20;Ei vielä riittävästi testinäyttöä.
-
-# **Tärkein saavutus:** 15-16.11.2026 välinen yö
+# **Tärkein saavutus:** 15.11.2026 
 
 IRIS protocol-v2:n kolmen erillisen TCP-palvelimen verkko selviytyi kolmesta peräkkäisestä netsplitistä, palautti tapahtumahistoriat ja saavutti yhtenevän lopputilan.
 Tämä on nyt oikeasti testattu, ei pelkkä simulaatiotulos.
@@ -138,3 +118,17 @@ Tämä on nyt oikeasti testattu, ei pelkkä simulaatiotulos.
 * Kausaalikonteksti auttaa ymmärtämään tapahtumien välisiä riippuvuuksia.
 * Puuttuvien tapahtumien tunnistus mahdollistaa täsmäkorjauksen.
 * Näiden päälle voidaan rakentaa tilannekuvat ja vanhojen tapahtumien turvallinen siivous.
+
+# IRIS-S2S v2:n tekninen ero perinteisiin IRC-palvelinprotokolliin
+
+Tunnetut IRC-daemonit, kuten InspIRCd ja UnrealIRCd, käyttävät omia palvelinten välisiä protokolliaan ja tarjoavat mekanismeja palvelinyhteyksien palauttamiseen sekä verkon tilan uudelleensynkronointiin.
+
+IRIS-S2S v2 tutkii tästä poikkeavaa lähestymistapaa: palvelinten välisen synkronoinnin perustana ei ole ainoastaan nykyisen verkkotilan välittäminen, vaan palvelinkohtaisen tapahtumahistorian säilyttäminen ja yhdistäminen.
+
+Toteutuksen keskeisiä mekanismeja ovat palvelinkohtaiset tapahtumasekvenssit, kausaalikonteksti sekä puuttuvien tapahtumien tunnistaminen ja palauttaminen.
+
+Tarkasteltujen tunnettujen IRC-daemonien julkisesta teknisestä dokumentaatiosta ei löytynyt vastaavaa kokonaisuutta, jossa verkkopartition aikana syntyneitä itsenäisiä muutoksia palautettaisiin palvelinkohtaisten tapahtumahistorioiden ja kausaalisten riippuvuuksien avulla.
+
+IRIS-S2S v2:n tavoitteena on tutkia, voidaanko tällä lähestymistavalla saavuttaa deterministinen ja yhtenäinen kanavajäsenyys myös toistuvien verkkokatkosten jälkeen.
+
+Kolmen erillisen TCP-palvelinprosessin kolme peräkkäistä netsplit-palautumiskierrosta ovat ensimmäinen käytännön demonstraatio tästä lähestymistavasta. Laajempi vertailu muihin toteutuksiin ja kattavampi luotettavuustestaus ovat edelleen tarpeen.
