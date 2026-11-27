@@ -14,14 +14,18 @@ IRIS Internet Reley Chat Daemon
 
 ---
 
-## Mikä on IRIS IRC?
+IRIS on alusta asti itse kehitetty Node.js-pohjainen IRC-palvelinohjelmisto, jonka tavoitteena on yhdistää perinteisen IRC:n kevyt ja laajasti tuettu asiakasrajapinta modernimpaan hajautettuun palvelinarkkitehtuuriin.
 
-IRIS on alusta asti itse rakennettu **Node.js-pohjainen IRC-palvelinohjelmisto**,
+IRC-protokolla toimii IRISissä asiakasrajapintana ja yhteensopivuuskerroksena. Sen ansiosta olemassa olevat IRC-asiakasohjelmat, kuten irssi, WeeChat ja HexChat, voivat muodostaa yhteyden IRIS-palvelimeen ilman erillistä IRIS-kohtaista client-ohjelmistoa.
 
-Perinteinen IRC-protokolla toimii IRISissä **yhteensopivuusrajapintana IRC-asiakasohjelmille**,
-jotta IRC-clientit, kuten irssi, WeeChat ja HexChat, voivat muodostaa yhteyden IRIS-palvelimeen ilman erillistä IRIS-clientiä.
+Palvelinten välinen liikenne ei kuitenkaan perustu perinteiseen IRC-palvelinten väliseen protokollaan. IRIS käyttää tähän tarkoitukseen projektia varten suunniteltua omaa IRIS-S2S-protokollaa, joka muodostaa palvelinten välisen hajautetun viestintäkerroksen.
 
-Palvelinten välinen hajautetunverkon liikenne perustuu puolestaan projektia varten suunniteltuun **omaan IRIS-S2S-protokollaan**.
+Tämän rakenteen ansiosta IRIS erottaa toisistaan kaksi eri käyttötarkoitusta:
+
+* IRC toimii ulospäin tuttuna ja kevyenä asiakasrajapintana.
+* IRIS-S2S vastaa palvelinten välisestä hajautetusta tiedonsiirrosta ja verkon toiminnasta.
+
+Näin IRIS voi säilyttää IRC:n pitkään kehittyneen client-ekosysteemin ja keveyden, samalla kun palvelinten välinen verkkokerros voidaan suunnitella IRIS:n omien hajautetun verkon tarpeiden mukaisesti ja voidaan räätälöidä mieleiseksi.
 
 ## Arkkitehtuuri
 
