@@ -34,24 +34,50 @@ Nykyisiä protokollan konsepteja ovat muun muassa:
 
 ## Viestityypit
 
-Viestityypeistä tällä hetkellä (ei ajan tasalla PÄIVITÄ!):
 
-| Type | Code |
-|---|---:|
-| HELLO | `0x01` |
-| AUTH | `0x02` |
+### **Viestityypit**
+
+**Yhteyden muodostaminen ja tunnistautuminen**
+
+| Type   | Code   |
+| ------ | ------ |
+| HELLO  | `0x01` |
+| AUTH   | `0x02` |
 | SERVER | `0x03` |
-| READY | `0x04` |
+| READY  | `0x04` |
+
+**Palvelimen ja käyttäjän hallinta**
+
+| Type   | Code   |
+| ------ | ------ |
 | CLIENT | `0x10` |
-| NICK | `0x11` |
-| JOIN | `0x12` |
-| PART | `0x13` |
-| QUIT | `0x14` |
-| MESSAGE | `0x15` |
-| NOTICE | `0x16` |
-| PING | `0x20` |
-| PONG | `0x21` |
-| ACK | `0x22` |
+| NICK   | `0x11` |
+| QUIT   | `0x12` |
+
+**Kanavatoiminnot**
+
+| Type  | Code   |
+| ----- | ------ |
+| JOIN  | `0x20` |
+| PART  | `0x21` |
+| KICK  | `0x22` |
+| MODE  | `0x23` |
+| TOPIC | `0x24` |
+
+**Viestinvälitys**
+
+| Type    | Code   |
+| ------- | ------ |
+| MESSAGE | `0x30` |
+| NOTICE  | `0x31` |
+
+**Yhteyden ylläpito ja kuittaukset**
+
+| Type | Code   |
+| ---- | ------ |
+| PING | `0x40` |
+| PONG | `0x41` |
+| ACK  | `0x42` |
 
 
 ```text
