@@ -1,10 +1,10 @@
 
 
-# IRIS IRC Protokolla
+# IRIS S2S Protokolla
 
 **iris käyttää tällä hetkellä protocolla v1 versiota, ei projektissa myös olevaa v2 versiota vielä**.
 
-**IRIS-protokolla** on IRIS IRC:tä varten suunniteltu palvelinten välinen protokolla, **ei** IRC-clientin protokolla..
+**IRIS-S2S-protokolla** on IRIS IRC:tä varten suunniteltu palvelinten välinen protokolla, **ei** IRC-clientin protokolla..
 
 Sen tarkoituksena on tarjota selkeä perusta itsenäisten IRIS-palvelinten väliselle kommunikaatiolle 
 ja samalla mahdollistaa protokollan kehittäminen riippumatta perinteisen IRC-client-protokollan rajoituksista.
